@@ -48,10 +48,10 @@ The reference grayscale and color images with 12 bit samples.
 
 ## Lossless Images
 
-`32x32x*n*_grayscale.jpg`
+`32x32xN_grayscale.jpg`
 The reference greyscale image in bit depths from 2-16 bits.
 
-`32x32x8_grayscale_predictor*n*.jpg`
+`32x32x8_grayscale_predictorN.jpg`
 The reference greyscale image using each of the predictor methods.
 
 `32x32x8_restarts.jpg`
