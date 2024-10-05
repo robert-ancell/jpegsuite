@@ -59,3 +59,6 @@ The reference grayscale image sent in four sections with restart markers.
 
 `32x32x8_rgb.jpg`
 The reference color image in RGB format with a single scan per channel.
+
+`32x32x8_dnl.jpg`
+The reference grayscale image with the the height set to zero in the *start of frame* and instead sent in the *define number of lines* after the scan.
