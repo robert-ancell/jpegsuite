@@ -42,5 +42,4 @@ Contains the same images as baseline in both Huffman and Arithmetic encoding, an
 `32x32x12_grayscale.jpg`
 `32x32x12_ycbcr.jpg`
 `32x32x12_ycbcr_interleaved.jpg`
-
 The reference grayscale and color images with 12 bit samples.
