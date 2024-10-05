@@ -34,3 +34,12 @@ The reference grayscale image sent in four sections with restart markers.
 `32x32x8_ycbcr_2x2_1x1_1x1_interleaved.jpg`
 `32x32x8_ycbcr_2x2_2x1_1x2_interleaved.jpg`
 The reference color image with the color channels using different sampling factors.
+
+## Extended Images
+
+Contains the same images as baseline in both Huffman and Arithmetic encoding, and additionally:
+
+`32x32x12_grayscale.jpg`
+`32x32x12_ycbcr.jpg`
+
+The reference grayscale and color images with 12 bit samples.
