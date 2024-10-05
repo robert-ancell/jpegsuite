@@ -43,3 +43,19 @@ Contains the same images as baseline in both Huffman and Arithmetic encoding, an
 `32x32x12_ycbcr.jpg`
 `32x32x12_ycbcr_interleaved.jpg`
 The reference grayscale and color images with 12 bit samples.
+
+## Progressive Images
+
+## Lossless Images
+
+`32x32x*n*_grayscale.jpg`
+The reference greyscale image in bit depths from 2-16 bits.
+
+`32x32x8_grayscale_predictor*n*.jpg`
+The reference greyscale image using each of the predictor methods.
+
+`32x32x8_restarts.jpg`
+The reference grayscale image sent in four sections with restart markers.
+
+`32x32x8_rgb.jpg`
+The reference color image in RGB format with a single scan per channel.
