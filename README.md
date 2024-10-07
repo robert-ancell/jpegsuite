@@ -4,6 +4,8 @@ JPEG is specified in [ISO/IEC 10918](https://www.iso.org/standard/18902.html) wh
 
 The reference JPEG implementation is [libjpeg](https://github.com/thorfdbg/libjpeg).
 
+The JPEG files used in this test suite are licensed under the [CC0 license](https://creativecommons.org/public-domain/cc0/) so they should be suitable for including in your own projects.
+
 ## Baseline DCT Images
 
 These are images that all JPEG decoders should support.
