@@ -4,7 +4,9 @@ JPEG is specified in [ISO/IEC 10918](https://www.iso.org/standard/18902.html) wh
 
 The reference JPEG implementation is [libjpeg](https://github.com/thorfdbg/libjpeg).
 
-## Baseline Images
+## Baseline DCT Images
+
+These are images that all JPEG decoders should support.
 
 `32x32x8_grayscale.jpg`
 The reference grayscale image.
@@ -35,9 +37,9 @@ The reference grayscale image sent in four sections with restart markers.
 `32x32x8_ycbcr_2x2_2x1_1x2_interleaved.jpg`
 The reference color image with the color channels using different sampling factors.
 
-## Extended Images
+## Extended DCT Images
 
-Contains the same images as baseline in both Huffman and Arithmetic encoding, and additionally:
+Contains the same images as baseline DCT in both Huffman and Arithmetic encoding, and additionally:
 
 `32x32x12_grayscale.jpg`
 `32x32x12_ycbcr.jpg`
@@ -48,7 +50,27 @@ The reference grayscale and color images with 12 bit samples.
 `32x32x8_conditioning_kx_6.jpg`
 The reference grayscale image with non-default arithmetic conditioning.
 
-## Progressive Images
+## Progressive DCT Images
+
+Contains the same images as extended DCT in both Huffman and Arithmetic encoding, and additionally:
+
+`32x32x8_grayscale_spectral.jpg`
+The reference grayscale image with DC coefficients sent in one scan, and AC coefficients in another.
+
+`32x32x8_grayscale_spectral_all.jpg`
+The reference grayscale image with a DC coefficient scan followed by 63 scans each containing AC coefficients in the order 1-63.
+
+`32x32x8_grayscale_spectral_all_reverse.jpg`
+The same as the previous image, except the AC coefficients are sent in reverse order (63-1).
+
+`32x32x8_grayscale_successive_dc.jpg`
+The reference grayscale image with the lower 4 bits of each DC coefficient sent in separate scans.
+
+`32x32x8_grayscale_successive_ac.jpg`
+The reference grayscale image with the lower 4 bits of each AC coefficient sent in separate scans.
+
+`32x32x8_grayscale_successive.jpg`
+The reference grayscale image with the lower 4 bits of each DC and AC coefficients sent in separate scans.
 
 ## Lossless Images
 
