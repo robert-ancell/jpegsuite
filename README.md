@@ -44,6 +44,10 @@ Contains the same images as baseline in both Huffman and Arithmetic encoding, an
 `32x32x12_ycbcr_interleaved.jpg`
 The reference grayscale and color images with 12 bit samples.
 
+`32x32x8_conditioning_bounds_4_6.jpg`
+`32x32x8_conditioning_kx_6.jpg`
+The reference grayscale image with non-default arithmetic conditioning.
+
 ## Progressive Images
 
 ## Lossless Images
