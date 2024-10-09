@@ -23,6 +23,9 @@ The reference color image in YCbCr, RGB and CMYK format with a single scan per c
 `32x32x8_cmyk_interleaved.jpg`
 The reference color image as above, but with a single scan interleaving each channel.
 
+`NxMx8_grayscale.jpg`
+Small images of sized 1x1 to 16x16.
+
 `32x32x8_comment.jpg`
 `32x32x8_comments.jpg`
 The reference grayscale image with one and two comments.
