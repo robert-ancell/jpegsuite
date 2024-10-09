@@ -24,7 +24,7 @@ The reference color image in YCbCr, RGB and CMYK format with a single scan per c
 The reference color image as above, but with a single scan interleaving each channel.
 
 `NxMx8_grayscale.jpg`
-Small images of sized 1x1 to 16x16.
+Small images of size 1x1 to 16x16.
 
 `32x32x8_comment.jpg`
 `32x32x8_comments.jpg`
@@ -81,6 +81,9 @@ The reference grayscale image with the lower 4 bits of each DC and AC coefficien
 
 `32x32xN_grayscale.jpg`
 The reference greyscale image in bit depths from 2-16 bits.
+
+`NxMx8_grayscale.jpg`
+Small images of size 1x1 to 16x16.
 
 `32x32x8_grayscale_predictorN.jpg`
 The reference greyscale image using each of the predictor methods.
