@@ -23,6 +23,10 @@ The reference color image in YCbCr, RGB and CMYK format with a single scan per c
 `32x32x8_cmyk_interleaved.jpg`
 The reference color image as above, but with a single scan interleaving each channel.
 
+`32x32x8_grayscale_quantization.jpg`
+`32x32x8_ycbcr_quantization.jpg`
+The reference images quantized using the quantization tables in the JPEG specification.
+
 `NxMx8_grayscale.jpg`
 Small images of size 1x1 to 16x16.
 
