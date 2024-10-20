@@ -30,6 +30,10 @@ The reference images quantized using the quantization tables in the JPEG specifi
 `8x8x8_grayscale_zero_coefficients.jpg`
 An 8x8 gray image encoded using a single data unit with zero coefficients.
 
+`8x8x8_grayscale_black.jpg`
+`8x8x8_grayscale_white.jpg`
+An 8x8 image encoded using a single data unit containing only black or white pixels.
+
 `NxMx8_grayscale.jpg`
 Small images of size 1x1 to 16x16.
 
