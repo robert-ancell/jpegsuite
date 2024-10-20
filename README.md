@@ -27,6 +27,9 @@ The reference color image as above, but with a single scan interleaving each cha
 `32x32x8_ycbcr_quantization.jpg`
 The reference images quantized using the quantization tables in the JPEG specification.
 
+`8x8x8_grayscale_zero_coefficients.jpg`
+An 8x8 gray image encoded using a single data unit with zero coefficients.
+
 `NxMx8_grayscale.jpg`
 Small images of size 1x1 to 16x16.
 
