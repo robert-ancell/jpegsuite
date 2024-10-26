@@ -2,8 +2,11 @@
 
 import math
 import jpeg
+import jpeg_encoder
+import huffman
 from pgm import *
 from quantization_tables import *
+from jpeg_segments import *
 
 
 WIDTH = 32
@@ -160,8 +163,6 @@ def make_dct_sequential(
     if arithmetic:
         assert extended or progressive
 
-    n_components = len(components)
-
     max_h_sampling_factor = 0
     max_v_sampling_factor = 0
     for _, sampling_factor in components:
@@ -169,67 +170,60 @@ def make_dct_sequential(
         max_h_sampling_factor = max(h, max_h_sampling_factor)
         max_v_sampling_factor = max(v, max_v_sampling_factor)
 
-    component_sizes = []
-    scaled_component_samples = []
-    for samples, sampling_factor in components:
-        w = math.ceil(width * sampling_factor[0] / max_h_sampling_factor)
-        h = math.ceil(height * sampling_factor[1] / max_v_sampling_factor)
-        component_sizes.append((w, h))
-        scaled_component_samples.append(
-            scale_samples(
-                width,
-                height,
-                samples,
-                max_h_sampling_factor,
-                sampling_factor[0],
-                max_v_sampling_factor,
-                sampling_factor[1],
-            )
-        )
-
     if color_space is None:
-        assert n_components in (1, 3)
-    elif color_space == jpeg.ADOBE_COLOR_SPACE_RGB_OR_CMYK:
-        assert n_components in (3, 4)
-    elif color_space == jpeg.ADOBE_COLOR_SPACE_Y_CB_CR:
-        assert n_components == 3
-    elif color_space == jpeg.ADOBE_COLOR_SPACE_Y_CB_CR_K:
-        assert n_components == 4
+        assert len(components) in (1, 3)
+    elif color_space == ADOBE_COLOR_SPACE_RGB_OR_CMYK:
+        assert len(components) in (3, 4)
+    elif color_space == ADOBE_COLOR_SPACE_Y_CB_CR:
+        assert len(components) == 3
+    elif color_space == ADOBE_COLOR_SPACE_Y_CB_CR_K:
+        assert len(components) == 4
 
     if (
-        color_space is None and n_components == 3
-    ) or color_space == jpeg.ADOBE_COLOR_SPACE_Y_CB_CR:
+        color_space is None and len(components) == 3
+    ) or color_space == ADOBE_COLOR_SPACE_Y_CB_CR:
         use_chrominance = True
     else:
         use_chrominance = False
 
     quantization_tables = [
-        jpeg.QuantizationTable(destination=0, data=luminance_quantization_table),
+        QuantizationTable(0, luminance_quantization_table),
     ]
     if use_chrominance:
-        quantization_tables.append(
-            jpeg.QuantizationTable(destination=1, data=chrominance_quantization_table)
-        )
+        quantization_tables.append(QuantizationTable(1, chrominance_quantization_table))
     component_quantization_tables = []
-    for i in range(n_components):
+    for i in range(len(components)):
         if i == 0 or not use_chrominance:
             table_index = 0
         else:
             table_index = 1
         component_quantization_tables.append(table_index)
 
-    coefficients = []
-    for i in range(n_components):
+    component_data_units = []
+    for i, (samples, sampling_factor) in enumerate(components):
+        w = math.ceil(width * sampling_factor[0] / max_h_sampling_factor)
+        h = math.ceil(height * sampling_factor[1] / max_v_sampling_factor)
+        scaled_samples = scale_samples(
+            width,
+            height,
+            samples,
+            max_h_sampling_factor,
+            sampling_factor[0],
+            max_v_sampling_factor,
+            sampling_factor[1],
+        )
+
         if i == 0 or not use_chrominance:
             quantization_table = luminance_quantization_table
         else:
             quantization_table = chrominance_quantization_table
-        coefficients.append(
-            jpeg.make_dct_coefficients(
-                component_sizes[i][0],
-                component_sizes[i][1],
+        component_data_units.append(
+            jpeg.make_dct_data_units(
+                w,
+                h,
                 precision,
-                scaled_component_samples[i],
+                scaled_samples,
+                sampling_factor,
                 quantization_table,
             )
         )
@@ -237,33 +231,35 @@ def make_dct_sequential(
     sof_components = []
     for i, (_, sampling_factor) in enumerate(components):
         sof_components.append(
-            jpeg.Component(
-                id=i + 1,
-                sampling_factor=sampling_factor,
-                quantization_table=component_quantization_tables[i],
+            FrameComponent(
+                i + 1,
+                sampling_factor,
+                component_quantization_tables[i],
             )
         )
 
     # Generate scans
     jpeg_scans = []
     scan_components = []
-    for i in range(n_components):
+    for i in range(len(components)):
         if arithmetic or i == 0 or not use_chrominance:
             dc_table_index = 0
             ac_table_index = 0
         else:
             dc_table_index = 1
             ac_table_index = 1
-        scan_components.append(
-            jpeg.ScanComponent(i + 1, dc_table=dc_table_index, ac_table=ac_table_index)
-        )
+        scan_components.append(ScanComponent(i + 1, dc_table_index, ac_table_index))
+    luminance_dc_symbol_frequencies = [0] * 256
+    luminance_ac_symbol_frequencies = [0] * 256
+    chrominance_dc_symbol_frequencies = [0] * 256
+    chrominance_ac_symbol_frequencies = [0] * 256
     for scan_index, (component_indexes, start, end, point_transform) in enumerate(
         scans
     ):
         sos_components = []
         for i in component_indexes:
             sos_components.append(scan_components[i])
-        selection = (start, end)
+        spectral_selection = (start, end)
         successive = False
         previous_point_transform = 0
         for i in range(scan_index):
@@ -274,171 +270,144 @@ def make_dct_sequential(
         if successive:
             if start == 0:
                 assert end == 0
-        sos = jpeg.start_of_scan_dct(
-            components=sos_components,
-            selection=selection,
+        sos = StartOfScan.dct(
+            sos_components,
+            spectral_selection=spectral_selection,
             point_transform=point_transform,
             previous_point_transform=previous_point_transform,
         )
-        if arithmetic:
-            if successive:
-                assert len(component_indexes) == 1
-                if start == 0:
-                    scan_data = jpeg.arithmetic_dct_dc_scan_successive(
-                        coefficients[component_indexes[0]],
-                        point_transform,
-                    )
-                else:
-                    scan_data = jpeg.arithmetic_dct_ac_scan_successive(
-                        coefficients[component_indexes[0]],
-                        selection,
-                        point_transform,
-                    )
+        if successive:
+            scan_data_units = []
+            assert len(component_indexes) == 1
+            if start == 0:
+                scan_data = b""
+                # scan_data = jpeg.arithmetic_dct_dc_scan_successive(
+                #    component_data_units[component_indexes[0]],
+                #    point_transform,
+                # )
             else:
-                arithmetic_components = []
-                for i in component_indexes:
-                    # MCU is 1 in non-interleaved
-                    if len(component_indexes) == 1:
-                        sampling_factor = (1, 1)
-                    else:
-                        _, sampling_factor = components[i]
-                    mcu_coefficients = jpeg.order_mcu_dct_coefficients(
-                        component_sizes[i][0],
-                        component_sizes[i][1],
-                        coefficients[i],
-                        sampling_factor,
-                    )
-                    arithmetic_components.append(
-                        jpeg.ArithmeticDCTComponent(
-                            conditioning_bounds=arithmetic_conditioning_bounds[0],
-                            kx=arithmetic_conditioning_kx[0],
-                            coefficients=mcu_coefficients,
-                            sampling_factor=sampling_factor,
-                        )
-                    )
-                scan_data = jpeg.arithmetic_dct_scan(
-                    components=arithmetic_components,
-                    restart_interval=restart_interval,
-                    selection=selection,
-                    point_transform=point_transform,
-                )
+                scan_data = b""
+                # scan_data = jpeg.arithmetic_dct_ac_scan_successive(
+                #    component_data_units[component_indexes[0]],
+                #    spectral_selection,
+                #    point_transform,
+                # )
         else:
-            huffman_components = []
-            for i in component_indexes:
-                # MCU is 1 in non-interleaved
-                if len(component_indexes) == 1:
-                    sampling_factor = (1, 1)
-                else:
-                    _, sampling_factor = components[i]
-                mcu_coefficients = jpeg.order_mcu_dct_coefficients(
-                    component_sizes[i][0],
-                    component_sizes[i][1],
-                    coefficients[i],
-                    sampling_factor,
-                )
-                huffman_components.append(
-                    jpeg.HuffmanDCTComponent(
-                        dc_table=scan_components[i].dc_table,
-                        ac_table=scan_components[i].ac_table,
-                        coefficients=mcu_coefficients,
-                        sampling_factor=sampling_factor,
-                    )
-                )
-            if successive:
-                assert len(component_indexes) == 1
-                if start == 0:
-                    scan_data = jpeg.huffman_dct_dc_scan_successive_data(
-                        coefficients=coefficients[component_indexes[0]],
-                        point_transform=point_transform,
-                    )
-                else:
-                    scan_data = jpeg.huffman_dct_ac_scan_successive_data(
-                        coefficients=coefficients[component_indexes[0]],
-                        selection=selection,
-                        point_transform=point_transform,
-                    )
+            if len(component_indexes) == 1:
+                scan_data_units = component_data_units[component_indexes[0]]
             else:
-                scan_data = jpeg.huffman_dct_scan_data(
-                    components=huffman_components,
-                    restart_interval=restart_interval,
-                    selection=selection,
-                    point_transform=point_transform,
+                scan_data_units = []
+                next_data_unit = [0] * len(component_indexes)
+                while next_data_unit[0] < len(component_data_units[0]):
+                    for index in component_indexes:
+                        (_, sampling_factor) = components[index]
+                        for _ in range(sampling_factor[0] * sampling_factor[1]):
+                            scan_data_units.append(
+                                component_data_units[index][next_data_unit[index]]
+                            )
+                            next_data_unit[index] += 1
+
+        # Calculate symbol frequencies for Huffman tables.
+        if not arithmetic:
+            for component_index in component_indexes:
+                encoder = jpeg_encoder.HuffmanDCTScanEncoder(
+                    spectral_selection=spectral_selection
                 )
+                for data_unit in component_data_units[component_index]:
+                    encoder.write_data_unit(0, data_unit, 0, 0)
+                if component_index == 0 or not use_chrominance:
+                    for i in range(256):
+                        luminance_dc_symbol_frequencies[
+                            i
+                        ] += encoder.dc_symbol_frequencies[i]
+                        luminance_ac_symbol_frequencies[
+                            i
+                        ] += encoder.ac_symbol_frequencies[i]
+                else:
+                    for i in range(256):
+                        chrominance_dc_symbol_frequencies[
+                            i
+                        ] += encoder.dc_symbol_frequencies[i]
+                        chrominance_ac_symbol_frequencies[
+                            i
+                        ] += encoder.ac_symbol_frequencies[i]
+
+        scan_data = DCTScan(scan_data_units)
         jpeg_scans.append((sos, scan_data))
 
-    # Generate Huffman tables and encode scans.
+    # Generate Huffman tables.
     if not arithmetic:
-        all_huffman_bits = []
-        for _, scan_data in jpeg_scans:
-            all_huffman_bits.extend(scan_data)
+        dc_huffman_table = huffman.make_huffman_table(luminance_dc_symbol_frequencies)
+        ac_huffman_table = huffman.make_huffman_table(luminance_ac_symbol_frequencies)
         huffman_tables = [
-            jpeg.HuffmanTable.dc(
-                0, jpeg.make_dct_huffman_dc_table(all_huffman_bits, 0)
-            ),
-            jpeg.HuffmanTable.ac(
-                0, jpeg.make_dct_huffman_ac_table(all_huffman_bits, 0)
-            ),
+            HuffmanTable.dc(0, dc_huffman_table),
+            HuffmanTable.ac(0, ac_huffman_table),
         ]
         if use_chrominance:
-            huffman_tables.append(
-                jpeg.HuffmanTable.dc(
-                    1, jpeg.make_dct_huffman_dc_table(all_huffman_bits, 1)
-                )
+            dc_huffman_table = huffman.make_huffman_table(
+                chrominance_dc_symbol_frequencies
             )
-            huffman_tables.append(
-                jpeg.HuffmanTable.ac(
-                    1, jpeg.make_dct_huffman_ac_table(all_huffman_bits, 1)
-                )
+            ac_huffman_table = huffman.make_huffman_table(
+                chrominance_ac_symbol_frequencies
             )
-
-        for i, (sos, scan_data) in enumerate(jpeg_scans):
-            jpeg_scans[i] = (
-                sos,
-                jpeg.huffman_dct_scan(huffman_tables, scan_data),
+            huffman_tables.extend(
+                [
+                    HuffmanTable.dc(1, dc_huffman_table),
+                    HuffmanTable.ac(1, ac_huffman_table),
+                ]
             )
 
-    data = jpeg.start_of_image()
+    segments = []
+    segments.append(StartOfImage())
     for comment in comments:
-        data += jpeg.comment(comment)
+        segments.append(Comment(comment))
     if color_space is None:
-        data += jpeg.jfif()
+        segments.append(ApplicationSpecificData.jfif())
     else:
-        data += jpeg.adobe(color_space=color_space)
-    data += jpeg.define_quantization_tables(tables=quantization_tables)
+        segments.append(ApplicationSpecificData.adobe(color_space=color_space))
+    segments.append(DefineQuantizationTables(quantization_tables))
     if use_dnl:
         number_of_lines = 0
     else:
         number_of_lines = height
     if extended:
-        data += jpeg.start_of_frame_extended(
-            width, number_of_lines, precision, sof_components, arithmetic=arithmetic
+        segments.append(
+            StartOfFrame.extended(
+                number_of_lines, width, precision, sof_components, arithmetic=arithmetic
+            )
         )
     elif progressive:
-        data += jpeg.start_of_frame_progressive(
-            width, number_of_lines, precision, sof_components, arithmetic=arithmetic
+        segments.append(
+            StartOfFrame.progressive(
+                number_of_lines, width, precision, sof_components, arithmetic=arithmetic
+            )
         )
     else:
-        data += jpeg.start_of_frame_baseline(width, number_of_lines, sof_components)
+        segments.append(StartOfFrame.baseline(number_of_lines, width, sof_components))
     if arithmetic:
         conditioning = []
         for i, bounds in enumerate(arithmetic_conditioning_bounds):
             if bounds != (0, 1):
-                conditioning.append(jpeg.ArithmeticConditioning.dc(i, bounds))
+                conditioning.append(ArithmeticConditioning.dc(i, bounds))
         for i, kx in enumerate(arithmetic_conditioning_kx):
             if kx != 5:
-                conditioning.append(jpeg.ArithmeticConditioning.ac(i, kx))
+                conditioning.append(ArithmeticConditioning.ac(i, kx))
         if len(conditioning) > 0:
-            data += jpeg.define_arithmetic_conditioning(conditioning)
+            segments.append(DefineArithmeticConditioning(conditioning))
     else:
-        data += jpeg.define_huffman_tables(tables=huffman_tables)
+        segments.append(DefineHuffmanTables(huffman_tables))
     if restart_interval != 0:
-        data += jpeg.define_restart_interval(restart_interval)
+        segments.append(DefineRestartInterval(restart_interval))
     for i, (sos, scan_data) in enumerate(jpeg_scans):
-        data += sos + scan_data
+        segments.append(sos)
+        segments.append(scan_data)
         if i == 0 and use_dnl:
-            data += jpeg.define_number_of_lines(height)
-    data += jpeg.end_of_image()
-    return data
+            segments.append(DefineNumberOfLines(height))
+    segments.append(EndOfImage())
+
+    encoder = jpeg_encoder.Encoder(segments)
+    encoder.encode()
+    return encoder.data
 
 
 def make_lossless(
@@ -803,7 +772,7 @@ for mode, encoding in [
         HEIGHT,
         rgb_components8,
         scans=[([0], 0, 63, 0), ([1], 0, 63, 0), ([2], 0, 63, 0)],
-        color_space=jpeg.ADOBE_COLOR_SPACE_RGB_OR_CMYK,
+        color_space=ADOBE_COLOR_SPACE_RGB_OR_CMYK,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -815,7 +784,7 @@ for mode, encoding in [
         HEIGHT,
         rgb_components8,
         scans=[([0, 1, 2], 0, 63, 0)],
-        color_space=jpeg.ADOBE_COLOR_SPACE_RGB_OR_CMYK,
+        color_space=ADOBE_COLOR_SPACE_RGB_OR_CMYK,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -827,7 +796,7 @@ for mode, encoding in [
         HEIGHT,
         cmyk_components8,
         scans=[([0], 0, 63, 0), ([1], 0, 63, 0), ([2], 0, 63, 0), ([3], 0, 63, 0)],
-        color_space=jpeg.ADOBE_COLOR_SPACE_RGB_OR_CMYK,
+        color_space=ADOBE_COLOR_SPACE_RGB_OR_CMYK,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -839,7 +808,7 @@ for mode, encoding in [
         HEIGHT,
         cmyk_components8,
         scans=[([0, 1, 2, 3], 0, 63, 0)],
-        color_space=jpeg.ADOBE_COLOR_SPACE_RGB_OR_CMYK,
+        color_space=ADOBE_COLOR_SPACE_RGB_OR_CMYK,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,

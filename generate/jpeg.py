@@ -64,51 +64,6 @@ def jfif(
     return marker(MARKER_APP0) + struct.pack(">H", 2 + len(data)) + data
 
 
-def jfxx():
-    # FIXME 0x10 - JPEG thumbnail, 0x11 - 1 byte per pixel (palette), 0x12 - 3 bytes per pixel (RGB)
-    extension_code = 0
-    data = struct.pack(
-        ">4sxB",
-        bytes("JFXX", "utf-8"),
-        extension_code,
-    )
-    return marker(MARKER_APP0) + struct.pack(">H", 2 + len(data)) + data
-
-
-ADOBE_COLOR_SPACE_RGB_OR_CMYK = 0
-ADOBE_COLOR_SPACE_Y_CB_CR = 1
-ADOBE_COLOR_SPACE_Y_CB_CR_K = 2
-
-
-def adobe(version=101, flags0=0, flags1=0, color_space=ADOBE_COLOR_SPACE_Y_CB_CR):
-    data = struct.pack(
-        ">5sHHHB",
-        bytes("Adobe", "utf-8"),
-        version,
-        flags0,
-        flags1,
-        color_space,
-    )
-    return marker(MARKER_APP14) + struct.pack(">H", 2 + len(data)) + data
-
-
-class QuantizationTable:
-    def __init__(self, precision=0, destination=0, data=b"x\00" * 64):
-        assert len(data) == 64
-        self.precision = precision  # FIXME: 0=8bit, 1=16bit
-        self.destination = destination
-        self.data = data
-
-
-def define_quantization_tables(tables=[]):
-    data = b""
-    for table in tables:
-        data += struct.pack("B", table.precision << 4 | table.destination) + bytes(
-            zig_zag(table.data)
-        )
-    return marker(MARKER_DQT) + struct.pack(">H", 2 + len(data)) + data
-
-
 def restart(index):
     assert index >= 0 and index <= 7
     return marker(MARKER_RST0 + index)
@@ -124,13 +79,6 @@ def define_restart_interval(restart_interval):
     assert restart_interval >= 0 and restart_interval <= 65535
     data = struct.pack(">H", restart_interval)
     return marker(MARKER_DRI) + struct.pack(">H", 2 + len(data)) + data
-
-
-def expand_segment(expand_horizontal, expand_vertical):
-    assert expand_horizontal == 0 or expand_horizontal == 1
-    assert expand_vertical == 0 or expand_vertical == 1
-    data = struct.pack("B", expand_horizontal << 4 | expand_vertical)
-    return marker(MARKER_EXP) + struct.pack(">H", 2 + len(data)) + data
 
 
 class Component:
@@ -152,40 +100,6 @@ def start_of_frame(frame_type, precision=8, width=0, height=0, components=[]):
             component.quantization_table,
         )
     return marker(MARKER_SOF0 + frame_type) + struct.pack(">H", 2 + len(data)) + data
-
-
-def start_of_frame_baseline(width, height, components):
-    return start_of_frame(
-        SOF_BASELINE, precision=8, width=width, height=height, components=components
-    )
-
-
-def start_of_frame_extended(width, height, precision, components, arithmetic=False):
-    if arithmetic:
-        frame_type = SOF_EXTENDED_ARITHMETIC
-    else:
-        frame_type = SOF_EXTENDED_HUFFMAN
-    return start_of_frame(
-        frame_type,
-        precision=precision,
-        width=width,
-        height=height,
-        components=components,
-    )
-
-
-def start_of_frame_progressive(width, height, precision, components, arithmetic=False):
-    if arithmetic:
-        frame_type = SOF_PROGRESSIVE_ARITHMETIC
-    else:
-        frame_type = SOF_PROGRESSIVE_HUFFMAN
-    return start_of_frame(
-        frame_type,
-        precision=precision,
-        width=width,
-        height=height,
-        components=components,
-    )
 
 
 def start_of_frame_lossless(width, height, precision, components, arithmetic=False):
@@ -1030,42 +944,31 @@ def quantize(coefficients, quantization_table):
     return quantized_coefficients
 
 
-def make_dct_coefficients(width, height, depth, samples, quantization_table):
+def make_dct_data_units(
+    width, height, depth, samples, sampling_factor, quantization_table
+):
     offset = 1 << (depth - 1)
-    coefficients = []
-    for du_y in range(0, height, 8):
-        for du_x in range(0, width, 8):
-            values = []
-            for y in range(8):
-                for x in range(8):
-                    px = du_x + x
-                    py = du_y + y
-                    if px >= width:
-                        px = width - 1
-                    if py >= height:
-                        py = height - 1
-                    p = samples[py * width + px]
-                    values.append(p - offset)
+    data_units = []
+    for mcu_y in range(0, height, sampling_factor[1] * 8):
+        for mcu_x in range(0, width, sampling_factor[0] * 8):
+            for du_y in range(0, 8 * sampling_factor[1], 8):
+                for du_x in range(0, 8 * sampling_factor[0], 8):
+                    values = []
+                    for y in range(8):
+                        for x in range(8):
+                            px = mcu_x + du_x + x
+                            py = mcu_y + du_y + y
+                            if px >= width:
+                                px = width - 1
+                            if py >= height:
+                                py = height - 1
+                            p = samples[py * width + px]
+                            values.append(p - offset)
 
-            du_coefficients = zig_zag(quantize(dct2d(values), quantization_table))
-            coefficients.extend(du_coefficients)
+                    data_unit = quantize(dct2d(values), quantization_table)
+                    data_units.append(data_unit)
 
-    return coefficients
-
-
-def order_mcu_dct_coefficients(width, height, coefficients, sampling_factor):
-    if sampling_factor == (1, 1):
-        return coefficients
-    mcu_coefficients = []
-    for mcu_y in range(0, height // 8, sampling_factor[1]):
-        for mcu_x in range(0, width // 8, sampling_factor[0]):
-            for du_y in range(0, sampling_factor[1]):
-                for du_x in range(0, sampling_factor[0]):
-                    i = (mcu_y + du_y) * (width // 8) + mcu_x + du_x
-                    offset = i * 64
-                    mcu_coefficients.extend(coefficients[offset : offset + 64])
-    assert len(mcu_coefficients) == len(coefficients)
-    return mcu_coefficients
+    return data_units
 
 
 def make_dct_huffman_dc_table(scan_data, table):
