@@ -1,7 +1,7 @@
 import struct
 
-from dct import *
 from huffman import *
+from jpeg_dct import *
 from jpeg_marker import *
 from jpeg_arithmetic_scan import *
 
@@ -18,50 +18,6 @@ def marker(value):
 
 def start_of_image():
     return marker(MARKER_SOI)
-
-
-class Density:
-    def __init__(self, unit=0, x=0, y=0):
-        self.unit = unit
-        self.x = x
-        self.y = y
-
-    def aspect_ratio(x, y):
-        return Density(0, x, y)
-
-    def dpi(x, y):
-        return Density(1, x, y)
-
-    def dpcm(x, y):
-        return Density(1, x, y)
-
-
-def comment(value):
-    return marker(MARKER_COM) + struct.pack(">H", 2 + len(value)) + value
-
-
-def jfif(
-    version=(1, 2),
-    density=Density.aspect_ratio(1, 1),
-    thumbnail_size=(0, 0),
-    thumbnail_data=b"",
-):
-    assert len(thumbnail_data) == thumbnail_size[0] * thumbnail_size[1]
-    data = (
-        struct.pack(
-            ">4sxBBBHHBB",
-            bytes("JFIF", "utf-8"),
-            version[0],
-            version[1],
-            density.unit,
-            density.x,
-            density.y,
-            thumbnail_size[0],
-            thumbnail_size[1],
-        )
-        + thumbnail_data
-    )
-    return marker(MARKER_APP0) + struct.pack(">H", 2 + len(data)) + data
 
 
 def restart(index):
@@ -944,31 +900,60 @@ def quantize(coefficients, quantization_table):
     return quantized_coefficients
 
 
+def make_dct_data_unit(width, height, depth, samples, du_x, du_y, quantization_table):
+    offset = 1 << (depth - 1)
+    values = []
+    for y in range(8):
+        for x in range(8):
+            px = du_x + x
+            py = du_y + y
+            if px >= width:
+                px = width - 1
+            if py >= height:
+                py = height - 1
+            p = samples[py * width + px]
+            values.append(p - offset)
+
+    return quantize(dct2d(values), quantization_table)
+
+
 def make_dct_data_units(
     width, height, depth, samples, sampling_factor, quantization_table
 ):
-    offset = 1 << (depth - 1)
+    width_in_mcus = math.ceil(width / (sampling_factor[0] * 8))
+    height_in_mcus = math.ceil(height / (sampling_factor[1] * 8))
+    width_in_data_units = width_in_mcus * sampling_factor[0]
+    height_in_data_units = height_in_mcus * sampling_factor[1]
+
     data_units = []
-    for mcu_y in range(0, height, sampling_factor[1] * 8):
-        for mcu_x in range(0, width, sampling_factor[0] * 8):
-            for du_y in range(0, 8 * sampling_factor[1], 8):
-                for du_x in range(0, 8 * sampling_factor[0], 8):
-                    values = []
-                    for y in range(8):
-                        for x in range(8):
-                            px = mcu_x + du_x + x
-                            py = mcu_y + du_y + y
-                            if px >= width:
-                                px = width - 1
-                            if py >= height:
-                                py = height - 1
-                            p = samples[py * width + px]
-                            values.append(p - offset)
+    for du_y in range(height_in_data_units):
+        for du_x in range(width_in_data_units):
+            data_units.append(
+                make_dct_data_unit(
+                    width,
+                    height,
+                    depth,
+                    samples,
+                    du_x * 8,
+                    du_y * 8,
+                    quantization_table,
+                )
+            )
 
-                    data_unit = quantize(dct2d(values), quantization_table)
-                    data_units.append(data_unit)
+    return (width_in_data_units, height_in_data_units, data_units)
 
-    return data_units
+
+# Order data units into MCUs
+def mcu_order_dct_data_units(width, height, data_units, sampling_factor):
+    mcu_data_units = []
+    for mcu_y in range(0, height, sampling_factor[1]):
+        for mcu_x in range(0, width, sampling_factor[0]):
+            for du_y in range(sampling_factor[1]):
+                for du_x in range(sampling_factor[0]):
+                    x = mcu_x + du_x
+                    y = mcu_y + du_y
+                    mcu_data_units.append(data_units[y * width + x])
+    return mcu_data_units
 
 
 def make_dct_huffman_dc_table(scan_data, table):

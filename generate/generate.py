@@ -200,6 +200,7 @@ def make_dct_sequential(
         component_quantization_tables.append(table_index)
 
     component_data_units = []
+    component_mcu_order_data_units = []
     for i, (samples, sampling_factor) in enumerate(components):
         w = math.ceil(width * sampling_factor[0] / max_h_sampling_factor)
         h = math.ceil(height * sampling_factor[1] / max_v_sampling_factor)
@@ -217,7 +218,8 @@ def make_dct_sequential(
             quantization_table = luminance_quantization_table
         else:
             quantization_table = chrominance_quantization_table
-        component_data_units.append(
+
+        (width_in_data_units, height_in_data_units, data_units) = (
             jpeg.make_dct_data_units(
                 w,
                 h,
@@ -225,6 +227,12 @@ def make_dct_sequential(
                 scaled_samples,
                 sampling_factor,
                 quantization_table,
+            )
+        )
+        component_data_units.append(data_units)
+        component_mcu_order_data_units.append(
+            jpeg.mcu_order_dct_data_units(
+                width_in_data_units, height_in_data_units, data_units, sampling_factor
             )
         )
 
@@ -298,12 +306,14 @@ def make_dct_sequential(
             else:
                 scan_data_units = []
                 next_data_unit = [0] * len(component_indexes)
-                while next_data_unit[0] < len(component_data_units[0]):
+                while next_data_unit[0] < len(component_mcu_order_data_units[0]):
                     for index in component_indexes:
                         (_, sampling_factor) = components[index]
                         for _ in range(sampling_factor[0] * sampling_factor[1]):
                             scan_data_units.append(
-                                component_data_units[index][next_data_unit[index]]
+                                component_mcu_order_data_units[index][
+                                    next_data_unit[index]
+                                ]
                             )
                             next_data_unit[index] += 1
 
@@ -313,7 +323,11 @@ def make_dct_sequential(
                 encoder = jpeg_encoder.HuffmanDCTScanEncoder(
                     spectral_selection=spectral_selection
                 )
-                for data_unit in component_data_units[component_index]:
+                if len(component_indexes) == 1:
+                    data_units = component_data_units[component_index]
+                else:
+                    data_units = component_mcu_order_data_units[component_index]
+                for data_unit in data_units:
                     encoder.write_data_unit(0, data_unit, 0, 0)
                 if component_index == 0 or not use_chrominance:
                     for i in range(256):
