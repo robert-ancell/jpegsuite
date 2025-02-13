@@ -102,6 +102,9 @@ The reference greyscale image using each of the predictor methods.
 `32x32x8_restarts.jpg`
 The reference grayscale image sent in four sections with restart markers.
 
+`32x32x8_ycbcr.jpg`
+The reference color image in YCbCr format with a single scan per channel.
+
 `32x32x8_rgb.jpg`
 The reference color image in RGB format with a single scan per channel.
 
