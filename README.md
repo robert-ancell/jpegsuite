@@ -103,10 +103,12 @@ The reference greyscale image using each of the predictor methods.
 The reference grayscale image sent in four sections with restart markers.
 
 `32x32x8_ycbcr.jpg`
-The reference color image in YCbCr format with a single scan per channel.
-
 `32x32x8_rgb.jpg`
-The reference color image in RGB format with a single scan per channel.
+The reference color image in YCbCr and RGB format with a single scan per channel.
+
+`32x32x8_ycbcr_interleaved.jpg`
+`32x32x8_rgb_interleaved.jpg`
+The reference color image as above, but with a single scan interleaving each channel.
 
 `32x32x8_dnl.jpg`
 The reference grayscale image with the the height set to zero in the *start of frame* and instead sent in the *define number of lines* after the scan.
