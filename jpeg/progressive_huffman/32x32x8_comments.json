@@ -7,11 +7,11 @@
     },
     {
       "type": "COM",
-      "data": "b'Hello'"
+      "data": "Hello"
     },
     {
       "type": "COM",
-      "data": "b'World'"
+      "data": "World"
     },
     {
       "type": "DQT",

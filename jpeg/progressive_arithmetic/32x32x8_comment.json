@@ -7,7 +7,7 @@
     },
     {
       "type": "COM",
-      "data": "b'Hello World'"
+      "data": "Hello World"
     },
     {
       "type": "DQT",
