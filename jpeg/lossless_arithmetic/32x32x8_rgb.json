@@ -6,7 +6,24 @@
       "type": "SOI"
     },
     {
-      "type": "SOF",
+      "type": "APP14",
+      "data": [
+        65,
+        100,
+        111,
+        98,
+        101,
+        0,
+        101,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "SOF11",
       "precision": 8,
       "number_of_lines": 32,
       "samples_per_line": 32,
@@ -56,6 +73,9 @@
       ]
     },
     {
+      "type": "Lossless"
+    },
+    {
       "type": "SOS",
       "components": [
         {
@@ -74,6 +94,9 @@
       ]
     },
     {
+      "type": "Lossless"
+    },
+    {
       "type": "SOS",
       "components": [
         {
@@ -90,6 +113,9 @@
         0,
         0
       ]
+    },
+    {
+      "type": "Lossless"
     },
     {
       "type": "EOI"

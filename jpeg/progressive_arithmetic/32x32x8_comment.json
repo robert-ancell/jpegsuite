@@ -10,6 +10,25 @@
       "data": "Hello World"
     },
     {
+      "type": "APP0",
+      "data": [
+        74,
+        70,
+        73,
+        70,
+        0,
+        1,
+        2,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
       "type": "DQT",
       "tables": [
         {
@@ -101,7 +120,7 @@
       ]
     },
     {
-      "type": "SOF",
+      "type": "SOF10",
       "precision": 8,
       "number_of_lines": 32,
       "samples_per_line": 32,
@@ -133,6 +152,9 @@
         0,
         0
       ]
+    },
+    {
+      "type": "DCT"
     },
     {
       "type": "EOI"

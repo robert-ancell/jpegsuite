@@ -6,7 +6,26 @@
       "type": "SOI"
     },
     {
-      "type": "SOF",
+      "type": "APP0",
+      "data": [
+        74,
+        70,
+        73,
+        70,
+        0,
+        1,
+        2,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "SOF3",
       "precision": 8,
       "number_of_lines": 7,
       "samples_per_line": 7,
@@ -47,6 +66,9 @@
         0,
         0
       ]
+    },
+    {
+      "type": "Lossless"
     },
     {
       "type": "EOI"

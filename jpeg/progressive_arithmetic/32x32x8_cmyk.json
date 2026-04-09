@@ -6,6 +6,23 @@
       "type": "SOI"
     },
     {
+      "type": "APP14",
+      "data": [
+        65,
+        100,
+        111,
+        98,
+        101,
+        0,
+        101,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
       "type": "DQT",
       "tables": [
         {
@@ -97,7 +114,7 @@
       ]
     },
     {
-      "type": "SOF",
+      "type": "SOF10",
       "precision": 8,
       "number_of_lines": 32,
       "samples_per_line": 32,
@@ -155,6 +172,9 @@
       ]
     },
     {
+      "type": "DCT"
+    },
+    {
       "type": "SOS",
       "components": [
         {
@@ -171,6 +191,9 @@
         0,
         0
       ]
+    },
+    {
+      "type": "DCT"
     },
     {
       "type": "SOS",
@@ -191,6 +214,9 @@
       ]
     },
     {
+      "type": "DCT"
+    },
+    {
       "type": "SOS",
       "components": [
         {
@@ -207,6 +233,9 @@
         0,
         0
       ]
+    },
+    {
+      "type": "DCT"
     },
     {
       "type": "EOI"
