@@ -167,6 +167,15 @@
       ]
     },
     {
+      "type": "RST0"
+    },
+    {
+      "type": "RST1"
+    },
+    {
+      "type": "RST2"
+    },
+    {
       "type": "EOI"
     }
   ]
