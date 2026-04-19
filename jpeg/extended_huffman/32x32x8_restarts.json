@@ -167,13 +167,25 @@
       ]
     },
     {
+      "type": "DCT"
+    },
+    {
       "type": "RST0"
+    },
+    {
+      "type": "DCT"
     },
     {
       "type": "RST1"
     },
     {
+      "type": "DCT"
+    },
+    {
       "type": "RST2"
+    },
+    {
+      "type": "DCT"
     },
     {
       "type": "EOI"

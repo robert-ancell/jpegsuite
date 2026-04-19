@@ -163,6 +163,9 @@
       ]
     },
     {
+      "type": "DCT"
+    },
+    {
       "type": "SOS",
       "components": [
         {
@@ -179,6 +182,9 @@
         0,
         0
       ]
+    },
+    {
+      "type": "DCT"
     },
     {
       "type": "EOI"

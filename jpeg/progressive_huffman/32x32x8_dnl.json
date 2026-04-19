@@ -163,6 +163,9 @@
       ]
     },
     {
+      "type": "DCT"
+    },
+    {
       "type": "DNL",
       "number_of_lines": 32
     },
