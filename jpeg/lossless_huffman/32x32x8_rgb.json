@@ -7,20 +7,11 @@
     },
     {
       "type": "APP14",
-      "data": [
-        65,
-        100,
-        111,
-        98,
-        101,
-        0,
-        101,
-        0,
-        0,
-        0,
-        0,
-        0
-      ]
+      "format": "Adobe",
+      "version": 101,
+      "flags0": 0,
+      "flags1": 0,
+      "color-space": "RGB or CMYK"
     },
     {
       "type": "SOF3",
