@@ -136,19 +136,27 @@
       "tables": [
         {
           "class": "dc",
-          "destination": 0
+          "destination": 0,
+          "lower": 4,
+          "upper": 6
         },
         {
           "class": "dc",
-          "destination": 1
+          "destination": 1,
+          "lower": 4,
+          "upper": 6
         },
         {
           "class": "dc",
-          "destination": 2
+          "destination": 2,
+          "lower": 4,
+          "upper": 6
         },
         {
           "class": "dc",
-          "destination": 3
+          "destination": 3,
+          "lower": 4,
+          "upper": 6
         }
       ]
     },

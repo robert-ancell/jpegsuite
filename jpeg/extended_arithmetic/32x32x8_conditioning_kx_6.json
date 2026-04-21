@@ -136,19 +136,23 @@
       "tables": [
         {
           "class": "ac",
-          "destination": 0
+          "destination": 0,
+          "kx": 6
         },
         {
           "class": "ac",
-          "destination": 1
+          "destination": 1,
+          "kx": 6
         },
         {
           "class": "ac",
-          "destination": 2
+          "destination": 2,
+          "kx": 6
         },
         {
           "class": "ac",
-          "destination": 3
+          "destination": 3,
+          "kx": 6
         }
       ]
     },
