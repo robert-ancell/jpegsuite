@@ -4,7 +4,6 @@ import json
 import math
 
 import jpeg
-import jpeg_encoder
 from pgm import *
 
 # FIXME: lossless restarts
