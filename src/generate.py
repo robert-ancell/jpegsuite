@@ -844,9 +844,9 @@ def generate_dct(
         arithmetic_conditioning_kx=arithmetic_conditioning_kx,
     )
     segments = jpeg.huffman_optimize.optimize(segments)
-    data = b""
+    writer = jpeg.BufferedWriter()
     for segment in segments:
-        data += segment.encode()
+        segment.encode(writer)
     basename = "../jpeg/%s/%dx%dx%d_%s" % (
         section,
         width,
@@ -854,7 +854,7 @@ def generate_dct(
         precision,
         description,
     )
-    open(basename + ".jpg", "wb").write(data)
+    open(basename + ".jpg", "wb").write(writer.data)
     j = {"width": width, "height": height, "segments": segments_to_json(segments)}
     open(basename + ".json", "w").write(json.dumps(j, indent=2))
 
@@ -886,9 +886,9 @@ def generate_lossless(
         arithmetic=arithmetic,
     )
     segments = jpeg.huffman_optimize.optimize(segments)
-    data = b""
+    writer = jpeg.BufferedWriter()
     for segment in segments:
-        data += segment.encode()
+        segment.encode(writer)
     basename = "../jpeg/%s/%dx%dx%d_%s" % (
         section,
         width,
@@ -896,7 +896,7 @@ def generate_lossless(
         precision,
         description,
     )
-    open(basename + ".jpg", "wb").write(data)
+    open(basename + ".jpg", "wb").write(writer.data)
     j = {"width": width, "height": height, "segments": segments_to_json(segments)}
     open(basename + ".json", "w").write(json.dumps(j, indent=2))
 
