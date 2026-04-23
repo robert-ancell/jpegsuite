@@ -3,10 +3,9 @@
 import json
 import math
 
-from pgm import *
-
 import jpeg
 import jpeg_encoder
+from pgm import *
 
 # FIXME: lossless restarts
 
@@ -844,7 +843,7 @@ def generate_dct(
         arithmetic_conditioning_bounds=arithmetic_conditioning_bounds,
         arithmetic_conditioning_kx=arithmetic_conditioning_kx,
     )
-    segments = jpeg_encoder.optimize_huffman(segments)
+    segments = jpeg.huffman_optimize.optimize(segments)
     data = b""
     for segment in segments:
         data += segment.encode()
@@ -886,7 +885,7 @@ def generate_lossless(
         predictor=predictor,
         arithmetic=arithmetic,
     )
-    segments = jpeg_encoder.optimize_huffman(segments)
+    segments = jpeg.huffman_optimize.optimize(segments)
     data = b""
     for segment in segments:
         data += segment.encode()
