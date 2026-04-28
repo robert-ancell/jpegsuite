@@ -740,7 +740,7 @@ def make_lossless(
     if restart_interval != 0:
         segments.append(jpeg.DefineRestartInterval(restart_interval))
     all_scan_components = []
-    for i, _ in enumerate(component_samples):
+    for i, samples in enumerate(component_samples):
         if arithmetic:
             table = 0
         else:
@@ -771,33 +771,31 @@ def make_lossless(
         else:
             segment_length = restart_interval
         for offset in range(0, n_samples, segment_length):
-            samples = []
+            # Lossless encode segments
+            component_data_units = []
+            for c in component_indexes:
+                component_data_units.append(
+                    jpeg.lossless.encode(
+                        width,
+                        component_samples[c][offset : offset + segment_length],
+                        precision=precision,
+                        predictor=predictor,
+                    )
+                )
+            # Interleave
+            data_units = []
             for i in range(segment_length):
-                for c in component_indexes:
-                    samples.append(component_samples[c][offset + i])
+                for c in range(len(component_indexes)):
+                    data_units.append(component_data_units[c][i])
             if offset != 0:
                 index = (offset // segment_length) - 1
                 segments.append(jpeg.Restart(index % 8))
             if arithmetic:
                 segments.append(
-                    jpeg.ArithmeticLosslessScan(
-                        width,
-                        samples,
-                        scan_components,
-                        precision=precision,
-                        predictor=predictor,
-                    )
+                    jpeg.ArithmeticLosslessScan(width, data_units, scan_components)
                 )
             else:
-                segments.append(
-                    jpeg.HuffmanLosslessScan(
-                        width,
-                        samples,
-                        scan_components,
-                        precision=precision,
-                        predictor=predictor,
-                    )
-                )
+                segments.append(jpeg.HuffmanLosslessScan(data_units, scan_components))
             if offset == 0 and scan_index == 0 and use_dnl:
                 segments.append(jpeg.DefineNumberOfLines(height))
     segments.append(jpeg.EndOfImage())
