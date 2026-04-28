@@ -843,7 +843,7 @@ def generate_dct(
     segments = jpeg.huffman_optimize.optimize(segments)
     writer = jpeg.BufferedWriter()
     for segment in segments:
-        segment.encode(writer)
+        segment.write(writer)
     basename = "../jpeg/%s/%dx%dx%d_%s" % (
         section,
         width,
@@ -885,7 +885,7 @@ def generate_lossless(
     segments = jpeg.huffman_optimize.optimize(segments)
     writer = jpeg.BufferedWriter()
     for segment in segments:
-        segment.encode(writer)
+        segment.write(writer)
     basename = "../jpeg/%s/%dx%dx%d_%s" % (
         section,
         width,
