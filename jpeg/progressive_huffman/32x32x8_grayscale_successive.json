@@ -248,6 +248,9 @@
       ]
     },
     {
+      "type": "DCTSuccessive"
+    },
+    {
       "type": "SOS",
       "components": [
         {
@@ -264,6 +267,9 @@
         3,
         2
       ]
+    },
+    {
+      "type": "DCTSuccessive"
     },
     {
       "type": "SOS",
@@ -284,6 +290,9 @@
       ]
     },
     {
+      "type": "DCTSuccessive"
+    },
+    {
       "type": "SOS",
       "components": [
         {
@@ -300,6 +309,9 @@
         1,
         0
       ]
+    },
+    {
+      "type": "DCTSuccessive"
     },
     {
       "type": "SOS",
@@ -341,6 +353,9 @@
       ]
     },
     {
+      "type": "DCTSuccessive"
+    },
+    {
       "type": "SOS",
       "components": [
         {
@@ -357,6 +372,9 @@
         3,
         2
       ]
+    },
+    {
+      "type": "DCTSuccessive"
     },
     {
       "type": "SOS",
@@ -377,6 +395,9 @@
       ]
     },
     {
+      "type": "DCTSuccessive"
+    },
+    {
       "type": "SOS",
       "components": [
         {
@@ -393,6 +414,9 @@
         1,
         0
       ]
+    },
+    {
+      "type": "DCTSuccessive"
     },
     {
       "type": "EOI"
