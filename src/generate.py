@@ -6,8 +6,6 @@ import math
 import jpeg
 from pgm import *
 
-# FIXME: lossless restarts
-
 WIDTH = 32
 HEIGHT = 32
 
