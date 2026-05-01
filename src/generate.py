@@ -270,7 +270,7 @@ def segments_to_json(segments):
                 {
                     "type": "SOS",
                     "components": components,
-                    "spectral_selection": [segment.ss, segment.se],
+                    "spectral_selection": segment.spectral_selection,
                     "approximation": [segment.ah, segment.al],
                 }
             )
