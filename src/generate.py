@@ -19,7 +19,7 @@ def rgb_to_ycbcr(r, g, b, precision):
 
 
 def rgb_to_cmyk(r, g, b, precision):
-    max_value = 1 << (precision - 1)
+    max_value = 1 << precision
     rf = r / max_value
     gf = g / max_value
     bf = b / max_value
