@@ -282,11 +282,11 @@ def segments_to_json(segments):
             segment, jpeg.ArithmeticLosslessScan
         ):
             s.append({"type": "Lossless"})
-        elif isinstance(segment, jpeg.HuffmanDCTDCSuccessiveScan) or isinstance(
-            segment,
-            jpeg.HuffmanDCTACSuccessiveScan
+        elif (
+            isinstance(segment, jpeg.HuffmanDCTDCSuccessiveScan)
+            or isinstance(segment, jpeg.HuffmanDCTACSuccessiveScan)
             or isinstance(segment, jpeg.ArithmeticDCTDCSuccessiveScan)
-            or isinstance(segment, jpeg.ArithmeticDCTACSuccessiveScan),
+            or isinstance(segment, jpeg.ArithmeticDCTACSuccessiveScan)
         ):
             s.append({"type": "DCTSuccessive"})
         elif isinstance(segment, jpeg.Restart):
