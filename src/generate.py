@@ -135,7 +135,7 @@ def scale_samples(width, height, samples, h_max, h, v_max, v):
     out_samples = []
     for y in range(0, height, v_max // v):
         for x in range(0, width, h_max // h):
-            out_samples.append(samples[y * height + x])
+            out_samples.append(samples[y * width + x])
     return out_samples
 
 
