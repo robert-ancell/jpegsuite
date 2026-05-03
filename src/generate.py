@@ -146,48 +146,51 @@ def segments_to_json(segments):
             s.append({"type": "SOI"})
         elif isinstance(segment, jpeg.ApplicationSpecificData):
             value = {"type": "APP%d" % segment.n}
-            if segment.is_jfif():
-                (version, density, thumbnail_size, thumbnail_data) = segment.get_jfif()
+            if isinstance(segment, jpeg.JFIFData):
                 value.update(
                     {
                         "format": "JFIF",
-                        "version": "%d.%d" % (version[0], version[1]),
+                        "version": "%d.%d" % (segment.version[0], segment.version[1]),
                     }
                 )
-                if density.unit == 0:
-                    value["aspect-ratio"] = "%dx%d" % (density.x, density.y)
-                elif density.unit == 1:
-                    value["dpi"] = "%dx%d" % (density.x, density.y)
-                elif density.unit == 2:
-                    value["dpcm"] = "%dx%d" % (density.x, density.y)
+                if segment.density.unit == jpeg.DensityUnit.ASPECT_RATIO:
+                    value["aspect-ratio"] = "%dx%d" % (
+                        segment.density.x,
+                        segment.density.y,
+                    )
+                elif segment.density.unit == jpeg.DensityUnit.DPI:
+                    value["dpi"] = "%dx%d" % (segment.density.x, segment.density.y)
+                elif segment.density.unit == jpeg.DensityUnit.DPCM:
+                    value["dpcm"] = "%dx%d" % (segment.density.x, segment.density.y)
                 else:
                     value["density"] = {
-                        "unit": density.unit,
-                        "x": density.x,
-                        "y": density.y,
+                        "unit": segment.density.unit,
+                        "x": segment.density.x,
+                        "y": segment.density.y,
                     }
-                if thumbnail_size != (0, 0) or len(thumbnail_data) != 0:
+                if segment.thumbnail_size != (0, 0) or len(segment.thumbnail_data) != 0:
                     value["thumbnail"] = {
-                        "size": thumbnail_size,
-                        "data": list(thumbnail_data),
+                        "size": segment.thumbnail_size,
+                        "data": list(segment.thumbnail_data),
                     }
-            elif segment.is_adobe():
+            elif isinstance(segment, jpeg.AdobeData):
+                value = {"type": "APP%d" % segment.n}
                 value["format"] = "Adobe"
-                (version, flags0, flags1, color_space) = segment.get_adobe()
                 color_space_value = {
                     jpeg.AdobeColorSpace.RGB_OR_CMYK: "RGB or CMYK",
                     jpeg.AdobeColorSpace.Y_CB_CR: "YCbCr",
                     jpeg.AdobeColorSpace.Y_CB_CR_K: "YCbCrK",
-                }.get(color_space, color_space)
+                }.get(segment.color_space, segment.color_space)
                 value.update(
                     {
-                        "version": version,
-                        "flags0": flags0,
-                        "flags1": flags1,
+                        "version": segment.version,
+                        "flags0": segment.flags0,
+                        "flags1": segment.flags1,
                         "color-space": color_space_value,
                     }
                 )
-            else:
+            elif isinstance(segment, jpeg.UnknownApplicationSpecificData):
+                value = {"type": "APP%d" % segment.n}
                 value["data"] = list(segment.data)
             s.append(value)
         elif isinstance(segment, jpeg.Comment):
@@ -629,9 +632,9 @@ def make_dct_sequential(
     for comment in comments:
         segments.append(jpeg.Comment(comment))
     if color_space is None:
-        segments.append(jpeg.ApplicationSpecificData.jfif())
+        segments.append(jpeg.JFIFData())
     else:
-        segments.append(jpeg.ApplicationSpecificData.adobe(color_space=color_space))
+        segments.append(jpeg.AdobeData(color_space=color_space))
     segments.append(jpeg.DefineQuantizationTables(quantization_tables))
     if use_dnl:
         number_of_lines = 0
@@ -710,9 +713,9 @@ def make_lossless(
     conditioning_bounds = (0, 1)
     segments = [jpeg.StartOfImage()]
     if color_space is None:
-        segments.append(jpeg.ApplicationSpecificData.jfif())
+        segments.append(jpeg.JFIFData())
     else:
-        segments.append(jpeg.ApplicationSpecificData.adobe(color_space=color_space))
+        segments.append(jpeg.AdobeData(color_space=color_space))
     if use_dnl:
         number_of_lines = 0
     else:
