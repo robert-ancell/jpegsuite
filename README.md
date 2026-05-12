@@ -112,3 +112,8 @@ The reference color image as above, but with a single scan interleaving each cha
 
 `32x32x8_dnl.jpg`
 The reference grayscale image with the the height set to zero in the *start of frame* and instead sent in the *define number of lines* after the scan.
+
+## JPEG-LS Images
+
+`32x32xN_grayscale.jpg`
+The reference greyscale image in bit depths from 2-16 bits.
