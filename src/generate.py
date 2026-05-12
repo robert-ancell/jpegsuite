@@ -285,6 +285,8 @@ def segments_to_json(segments):
             segment, jpeg.ArithmeticLosslessScan
         ):
             s.append({"type": "Lossless"})
+        elif isinstance(segment, jpeg.LSScan):
+            s.append({"type": "LS"})
         elif (
             isinstance(segment, jpeg.HuffmanDCTDCSuccessiveScan)
             or isinstance(segment, jpeg.HuffmanDCTACSuccessiveScan)
@@ -813,6 +815,66 @@ def make_lossless(
     return segments
 
 
+def make_ls(
+    width,
+    height,
+    component_samples,
+    scans=[],
+    precision=8,
+    use_dnl=False,
+    color_space=None,
+    restart_interval=0,
+):
+    segments = [jpeg.StartOfImage()]
+    if color_space is None:
+        segments.append(jpeg.JFIFData())
+    else:
+        segments.append(jpeg.AdobeData(color_space=color_space))
+    if use_dnl:
+        number_of_lines = 0
+    else:
+        number_of_lines = height
+    sof_components = []
+    for i in range(len(component_samples)):
+        sof_components.append(jpeg.FrameComponent.lossless(i + 1))
+    segments.append(
+        jpeg.StartOfFrame.ls(
+            number_of_lines, width, sof_components, precision=precision
+        )
+    )
+    if restart_interval != 0:
+        segments.append(jpeg.DefineRestartInterval(restart_interval))
+    all_scan_components = []
+    for i, samples in enumerate(component_samples):
+        all_scan_components.append(jpeg.ScanComponent.ls(i + 1))
+    for scan_index, component_indexes in enumerate(scans):
+        sos_components = []
+        scan_components = []
+        for c in component_indexes:
+            sos_components.append(all_scan_components[c])
+            scan_components.append(jpeg.LSScanComponent())
+        segments.append(jpeg.StartOfScan.ls(components=sos_components))
+        n_samples = width * height
+        if restart_interval == 0:
+            segment_length = n_samples
+        else:
+            segment_length = restart_interval
+        for offset in range(0, n_samples, segment_length):
+            # Interleave
+            samples = []
+            for i in range(segment_length):
+                for c in component_indexes:
+                    samples.append(component_samples[c][offset + i])
+            if offset != 0:
+                index = (offset // segment_length) - 1
+                segments.append(jpeg.Restart(index % 8))
+            segments.append(jpeg.LSScan(width, samples, scan_components))
+            if offset == 0 and scan_index == 0 and use_dnl:
+                segments.append(jpeg.DefineNumberOfLines(height))
+    segments.append(jpeg.EndOfImage())
+    return segments
+
+
 def generate_dct(
     section,
     description,
@@ -894,6 +956,43 @@ def generate_lossless(
         arithmetic=arithmetic,
     )
     segments = jpeg.huffman_optimize.optimize(segments)
+    writer = jpeg.BufferedWriter()
+    for segment in segments:
+        segment.write(writer)
+    basename = "../jpeg/%s/%dx%dx%d_%s" % (
+        section,
+        width,
+        height,
+        precision,
+        description,
+    )
+    open(basename + ".jpg", "wb").write(writer.data)
+    j = {"width": width, "height": height, "segments": segments_to_json(segments)}
+    open(basename + ".json", "w").write(json.dumps(j, indent=2))
+
+
+def generate_ls(
+    section,
+    description,
+    width,
+    height,
+    component_samples,
+    scans=[],
+    use_dnl=False,
+    color_space=None,
+    precision=8,
+    restart_interval=0,
+):
+    segments = make_ls(
+        width,
+        height,
+        component_samples,
+        scans=scans,
+        use_dnl=use_dnl,
+        color_space=color_space,
+        precision=precision,
+        restart_interval=restart_interval,
+    )
     writer = jpeg.BufferedWriter()
     for segment in segments:
         segment.write(writer)
@@ -1465,6 +1564,16 @@ for encoding in ["huffman", "arithmetic"]:
         predictor=1,
         arithmetic=arithmetic,
     )
+
+generate_ls(
+    "ls",
+    "grayscale",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=[[0]],
+    precision=8,
+)
 
 # 3 channel, red, green, blue, white, mixed color
 # version 1.1
