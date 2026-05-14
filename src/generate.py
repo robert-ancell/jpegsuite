@@ -48,6 +48,21 @@ def make_grayscale(precision):
     return samples
 
 
+def make_solid(width, height, value):
+    return [value] * width * height
+
+
+def make_check(width, height, white):
+    samples = []
+    for y in range(width):
+        for x in range(height):
+            if (x + y) % 2 == 0:
+                samples.append(0)
+            else:
+                samples.append(white)
+    return samples
+
+
 grayscale_samples8 = make_grayscale(8)
 grayscale_samples12 = make_grayscale(12)
 grayscale_components8 = [(grayscale_samples8, (1, 1))]
@@ -1163,7 +1178,7 @@ for mode, encoding in [
         "grayscale_black",
         8,
         8,
-        [([0] * 64, (1, 1))],
+        [(make_solid(8, 8, 0), (1, 1))],
         scans=[([0], 0, 63, 0)],
         extended=extended,
         progressive=progressive,
@@ -1174,7 +1189,29 @@ for mode, encoding in [
         "grayscale_white",
         8,
         8,
-        [([255] * 64, (1, 1))],
+        [(make_solid(8, 8, 255), (1, 1))],
+        scans=[([0], 0, 63, 0)],
+        extended=extended,
+        progressive=progressive,
+        arithmetic=arithmetic,
+    )
+    generate_dct(
+        section,
+        "grayscale_gray",
+        8,
+        8,
+        [(make_solid(8, 8, 127), (1, 1))],
+        scans=[([0], 0, 63, 0)],
+        extended=extended,
+        progressive=progressive,
+        arithmetic=arithmetic,
+    )
+    generate_dct(
+        section,
+        "grayscale_check",
+        8,
+        8,
+        [(make_check(8, 8, 255), (1, 1))],
         scans=[([0], 0, 63, 0)],
         extended=extended,
         progressive=progressive,
@@ -1352,6 +1389,54 @@ for mode, encoding in [
             HEIGHT,
             ycbcr_components12,
             scans=[([0, 1, 2], 0, 63, 0)],
+            precision=12,
+            extended=extended,
+            progressive=progressive,
+            arithmetic=arithmetic,
+        )
+        generate_dct(
+            section,
+            "grayscale_black",
+            8,
+            8,
+            [(make_solid(8, 8, 0), (1, 1))],
+            scans=[([0], 0, 63, 0)],
+            precision=12,
+            extended=extended,
+            progressive=progressive,
+            arithmetic=arithmetic,
+        )
+        generate_dct(
+            section,
+            "grayscale_white",
+            8,
+            8,
+            [(make_solid(8, 8, 4095), (1, 1))],
+            scans=[([0], 0, 63, 0)],
+            precision=12,
+            extended=extended,
+            progressive=progressive,
+            arithmetic=arithmetic,
+        )
+        generate_dct(
+            section,
+            "grayscale_gray",
+            8,
+            8,
+            [(make_solid(8, 8, 2047), (1, 1))],
+            scans=[([0], 0, 63, 0)],
+            precision=12,
+            extended=extended,
+            progressive=progressive,
+            arithmetic=arithmetic,
+        )
+        generate_dct(
+            section,
+            "grayscale_check",
+            8,
+            8,
+            [(make_check(8, 8, 4095), (1, 1))],
+            scans=[([0], 0, 63, 0)],
             precision=12,
             extended=extended,
             progressive=progressive,
