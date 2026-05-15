@@ -227,14 +227,14 @@
           "class": "dc",
           "destination": 0,
           "symbols": [
-            [
-              9
-            ],
             [],
             [
-              1,
-              7,
+              0,
+              9,
               10
+            ],
+            [
+              7
             ],
             [],
             [],
@@ -375,6 +375,69 @@
           "component_id": 1,
           "dc_table": 0,
           "ac_table": 0
+        }
+      ],
+      "spectral_selection": [
+        0,
+        0
+      ],
+      "approximation": [
+        0,
+        0
+      ]
+    },
+    {
+      "type": "DCT"
+    },
+    {
+      "type": "SOS",
+      "components": [
+        {
+          "component_id": 2,
+          "dc_table": 1,
+          "ac_table": 1
+        }
+      ],
+      "spectral_selection": [
+        0,
+        0
+      ],
+      "approximation": [
+        0,
+        0
+      ]
+    },
+    {
+      "type": "DCT"
+    },
+    {
+      "type": "SOS",
+      "components": [
+        {
+          "component_id": 3,
+          "dc_table": 1,
+          "ac_table": 1
+        }
+      ],
+      "spectral_selection": [
+        0,
+        0
+      ],
+      "approximation": [
+        0,
+        0
+      ]
+    },
+    {
+      "type": "DCT"
+    },
+    {
+      "type": "SOS",
+      "components": [
+        {
+          "component_id": 1,
+          "dc_table": 0,
+          "ac_table": 0
         },
         {
           "component_id": 2,
@@ -388,7 +451,7 @@
         }
       ],
       "spectral_selection": [
-        0,
+        1,
         63
       ],
       "approximation": [

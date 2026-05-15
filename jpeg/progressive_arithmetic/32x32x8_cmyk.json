@@ -155,7 +155,7 @@
       ],
       "spectral_selection": [
         0,
-        63
+        0
       ],
       "approximation": [
         0,
@@ -176,7 +176,7 @@
       ],
       "spectral_selection": [
         0,
-        63
+        0
       ],
       "approximation": [
         0,
@@ -197,7 +197,7 @@
       ],
       "spectral_selection": [
         0,
-        63
+        0
       ],
       "approximation": [
         0,
@@ -218,6 +218,90 @@
       ],
       "spectral_selection": [
         0,
+        0
+      ],
+      "approximation": [
+        0,
+        0
+      ]
+    },
+    {
+      "type": "DCT"
+    },
+    {
+      "type": "SOS",
+      "components": [
+        {
+          "component_id": 1,
+          "dc_table": 0,
+          "ac_table": 0
+        }
+      ],
+      "spectral_selection": [
+        1,
+        63
+      ],
+      "approximation": [
+        0,
+        0
+      ]
+    },
+    {
+      "type": "DCT"
+    },
+    {
+      "type": "SOS",
+      "components": [
+        {
+          "component_id": 2,
+          "dc_table": 0,
+          "ac_table": 0
+        }
+      ],
+      "spectral_selection": [
+        1,
+        63
+      ],
+      "approximation": [
+        0,
+        0
+      ]
+    },
+    {
+      "type": "DCT"
+    },
+    {
+      "type": "SOS",
+      "components": [
+        {
+          "component_id": 3,
+          "dc_table": 0,
+          "ac_table": 0
+        }
+      ],
+      "spectral_selection": [
+        1,
+        63
+      ],
+      "approximation": [
+        0,
+        0
+      ]
+    },
+    {
+      "type": "DCT"
+    },
+    {
+      "type": "SOS",
+      "components": [
+        {
+          "component_id": 4,
+          "dc_table": 0,
+          "ac_table": 0
+        }
+      ],
+      "spectral_selection": [
+        1,
         63
       ],
       "approximation": [
