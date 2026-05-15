@@ -72,9 +72,6 @@ The reference grayscale image with non-default arithmetic conditioning.
 
 Contains the same images as extended DCT in both Huffman and Arithmetic encoding, and additionally:
 
-`32x32x8_grayscale_spectral.jpg`
-The reference grayscale image with DC coefficients sent in one scan, and AC coefficients in another.
-
 `32x32x8_grayscale_spectral_all.jpg`
 The reference grayscale image with a DC coefficient scan followed by 63 scans each containing AC coefficients in the order 1-63.
 
