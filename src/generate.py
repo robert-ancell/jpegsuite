@@ -1683,14 +1683,19 @@ for encoding in ["huffman", "arithmetic"]:
         arithmetic=arithmetic,
     )
 
+section = "ls"
+generate_ls(section, "grayscale", WIDTH, HEIGHT, [grayscale_samples8], scans=[[0]])
 generate_ls(
-    "ls",
-    "grayscale",
+    section,
+    "restarts",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
     scans=[[0]],
-    precision=8,
+    restart_interval=32 * 8,
+)
+generate_ls(
+    section, "dnl", WIDTH, HEIGHT, [grayscale_samples8], scans=[[0]], use_dnl=True
 )
 
 # 3 channel, red, green, blue, white, mixed color
