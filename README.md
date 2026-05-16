@@ -116,3 +116,12 @@ The reference grayscale image with the the height set to zero in the *start of f
 
 `32x32xN_grayscale.jpg`
 The reference greyscale image in bit depths from 2-16 bits.
+
+`NxMx8_grayscale.jpg`
+Small images of size 1x1 to 16x16.
+
+`32x32x8_restarts.jpg`
+The reference grayscale image sent in four sections with restart markers.
+
+`32x32x8_dnl.jpg`
+The reference grayscale image with the the height set to zero in the *start of frame* and instead sent in the *define number of lines* after the scan.
