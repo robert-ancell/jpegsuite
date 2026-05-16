@@ -507,37 +507,36 @@ class RegularContext:
     def _get_limit(self, parameters) -> int:
         return parameters.limit - parameters.qbpp - 1
 
-    def _map_error(self, parameters, errval, k):
+    def _get_error_mapping_offset(self, parameters, k):
         if (
             parameters.near == 0
             and k == 0
             and 2 * self.bias <= -self.frequency_of_occurence
         ):
-            if errval >= 0:
-                return 2 * errval + 1
-            else:
-                return -2 * errval - 2
+            return 1
         else:
-            if errval >= 0:
-                return 2 * errval
-            else:
-                return -2 * errval - 1
+            return 0
+
+    def _map_error(self, parameters, errval, k):
+        offset = self._get_error_mapping_offset(parameters, k)
+        if errval < 0:
+            return ((-errval) * 2) - 1 - offset
+        else:
+            return (errval * 2) + offset
 
     def _unmap_error(self, parameters, mapped_errval, k):
-        if (
-            parameters.near == 0
-            and k == 0
-            and 2 * self.bias <= -self.frequency_of_occurence
-        ):
-            if mapped_errval % 2 == 1:
-                return (mapped_errval - 1) // 2
-            else:
-                return -((mapped_errval + 2) // 2)
+        if mapped_errval % 2 == 1:
+            errval = -((mapped_errval + 1) // 2)
         else:
-            if mapped_errval % 2 == 0:
-                return mapped_errval // 2
-            else:
-                return -((mapped_errval + 1) // 2)
+            errval = mapped_errval // 2
+
+        offset = self._get_error_mapping_offset(parameters, k)
+        if offset > 0:
+            return -(errval + 1)
+        elif offset < 0:
+            return -errval
+        else:
+            return errval
 
     def _update_bias(self, parameters, errval):
         self.bias += errval * (2 * parameters.near + 1)
