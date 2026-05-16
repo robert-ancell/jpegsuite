@@ -883,7 +883,8 @@ def make_ls(
             if offset != 0:
                 index = (offset // segment_length) - 1
                 segments.append(jpeg.Restart(index % 8))
-            segments.append(jpeg.LSScan(width, samples, scan_components))
+            maxval = (1 << precision) - 1
+            segments.append(jpeg.LSScan(width, samples, scan_components, maxval=maxval))
             if offset == 0 and scan_index == 0 and use_dnl:
                 segments.append(jpeg.DefineNumberOfLines(height))
     segments.append(jpeg.EndOfImage())
@@ -1685,6 +1686,16 @@ for encoding in ["huffman", "arithmetic"]:
 
 section = "ls"
 generate_ls(section, "grayscale", WIDTH, HEIGHT, [grayscale_samples8], scans=[[0]])
+for precision in range(2, 17):
+    generate_ls(
+        section,
+        "grayscale",
+        WIDTH,
+        HEIGHT,
+        [make_grayscale(precision)],
+        scans=[[0]],
+        precision=precision,
+    )
 for size in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16):
     (width, height, _, samples) = read_pgm("data/%dx%dx8_grayscale.pgm" % (size, size))
     assert width == height == size
