@@ -1685,6 +1685,10 @@ for encoding in ["huffman", "arithmetic"]:
 
 section = "ls"
 generate_ls(section, "grayscale", WIDTH, HEIGHT, [grayscale_samples8], scans=[[0]])
+for size in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16):
+    (width, height, _, samples) = read_pgm("data/%dx%dx8_grayscale.pgm" % (size, size))
+    assert width == height == size
+    generate_ls(section, "grayscale", width, height, [samples], scans=[[0]])
 generate_ls(
     section,
     "restarts",
