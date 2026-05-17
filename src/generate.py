@@ -1775,6 +1775,7 @@ generate_ls(
     t3=21,
     reset=64,
 )
+# FIXME: Non-standard parameters
 
 # 3 channel, red, green, blue, white, mixed color
 # version 1.1
