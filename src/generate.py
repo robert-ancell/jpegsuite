@@ -844,6 +844,12 @@ def make_ls(
     use_dnl=False,
     color_space=None,
     restart_interval=0,
+    maxval=0,
+    t1=0,
+    t2=0,
+    t3=0,
+    reset=0,
+    always_parameters=False,
 ):
     segments = [jpeg.StartOfImage()]
     if color_space is None:
@@ -862,6 +868,10 @@ def make_ls(
             number_of_lines, width, sof_components, precision=precision
         )
     )
+    if maxval != 0 or t1 != 0 or t2 != 0 or t3 != 0 or reset != 0 or always_parameters:
+        segments.append(
+            jpeg.LSPresetParameters(maxval=maxval, t1=t1, t2=t2, t3=t3, reset=reset)
+        )
     if restart_interval != 0:
         segments.append(jpeg.DefineRestartInterval(restart_interval))
     all_scan_components = []
@@ -1003,6 +1013,12 @@ def generate_ls(
     color_space=None,
     precision=8,
     restart_interval=0,
+    maxval=0,
+    t1=0,
+    t2=0,
+    t3=0,
+    reset=0,
+    always_parameters=False,
 ):
     segments = make_ls(
         width,
@@ -1013,6 +1029,12 @@ def generate_ls(
         color_space=color_space,
         precision=precision,
         restart_interval=restart_interval,
+        maxval=maxval,
+        t1=t1,
+        t2=t2,
+        t3=t3,
+        reset=reset,
+        always_parameters=always_parameters,
     )
     writer = jpeg.BufferedWriter()
     for segment in segments:
@@ -1730,6 +1752,28 @@ generate_ls(
 )
 generate_ls(
     section, "dnl", WIDTH, HEIGHT, [grayscale_samples8], scans=[[0]], use_dnl=True
+)
+generate_ls(
+    section,
+    "empty_parameters",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=[[0]],
+    always_parameters=True,
+)
+generate_ls(
+    section,
+    "default_parameters",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=[[0]],
+    maxval=255,
+    t1=3,
+    t2=7,
+    t3=21,
+    reset=64,
 )
 
 # 3 channel, red, green, blue, white, mixed color
