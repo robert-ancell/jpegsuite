@@ -1706,6 +1706,8 @@ for size in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16):
     assert width == height == size
     generate_ls(section, "grayscale", width, height, [samples], scans=[[0]])
 generate_ls(section, "ycbcr", WIDTH, HEIGHT, ycbcr_samples8, scans=[[0], [1], [2]])
+# FIXME: YCbCr line interleaved
+# FIXME: YCbCr sample interleaved
 generate_ls(
     section,
     "rgb",
@@ -1715,6 +1717,8 @@ generate_ls(
     scans=[[0], [1], [2]],
     color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
 )
+# FIXME: RGB line interleaved
+# FIXME: RGB sample interleaved
 generate_ls(
     section,
     "restarts",
