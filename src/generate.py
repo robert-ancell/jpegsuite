@@ -10,12 +10,17 @@ WIDTH = 32
 HEIGHT = 32
 
 
+def clamp(value, min_value, max_value):
+    return max(min(value, max_value), min_value)
+
+
 def rgb_to_ycbcr(r, g, b, precision):
     offset = 1 << (precision - 1)
     y = round(0.299 * r + 0.587 * g + 0.114 * b)
     cb = round(-0.1687 * r - 0.3313 * g + 0.5 * b + offset)
     cr = round(0.5 * r - 0.4187 * g - 0.0813 * b + offset)
-    return (y, cb, cr)
+    max_value = (1 << precision) - 1
+    return (clamp(y, 0, max_value), clamp(cb, 0, max_value), clamp(cr, 0, max_value))
 
 
 def rgb_to_cmyk(r, g, b, precision):
