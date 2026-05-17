@@ -1705,6 +1705,7 @@ for size in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16):
     (width, height, _, samples) = read_pgm("data/%dx%dx8_grayscale.pgm" % (size, size))
     assert width == height == size
     generate_ls(section, "grayscale", width, height, [samples], scans=[[0]])
+generate_ls(section, "ycbcr", WIDTH, HEIGHT, ycbcr_samples8, scans=[[0], [1], [2]])
 generate_ls(
     section,
     "restarts",
