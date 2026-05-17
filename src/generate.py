@@ -1708,6 +1708,15 @@ for size in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16):
 generate_ls(section, "ycbcr", WIDTH, HEIGHT, ycbcr_samples8, scans=[[0], [1], [2]])
 generate_ls(
     section,
+    "rgb",
+    WIDTH,
+    HEIGHT,
+    rgb_samples8,
+    scans=[[0], [1], [2]],
+    color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+)
+generate_ls(
+    section,
     "restarts",
     WIDTH,
     HEIGHT,
