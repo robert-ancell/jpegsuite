@@ -128,3 +128,16 @@ The reference grayscale image sent in four sections with restart markers.
 
 `32x32x8_dnl.jpg`
 The reference grayscale image with the the height set to zero in the *start of frame* and instead sent in the *define number of lines* after the scan.
+
+`32x32x8_empty_parameters.jpg`
+The reference grayscale image with a preset prarameters segment containing default parameter values.
+
+`32x32x8_empty_parameters.jpg`
+The reference grayscale image with a preset prarameters segment containing empty parameters (decoder should use default parameters).
+
+`32x32x8_empty_maxval.jpg`
+`32x32x8_empty_t1.jpg`
+`32x32x8_empty_t2.jpg`
+`32x32x8_empty_t3.jpg`
+`32x32x8_empty_reset.jpg`
+The reference grayscale image with a preset prarameters segment containing default parameter values except for the named parameter which is set to zero. The decoder should use the default value for this parameter.
