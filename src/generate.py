@@ -877,7 +877,7 @@ def make_ls(
         segments.append(jpeg.LSOversizeImageDimensions(width, height))
     if maxval != 0 or t1 != 0 or t2 != 0 or t3 != 0 or reset != 0 or always_parameters:
         segments.append(
-            jpeg.LSPresetParameters(maxval=maxval, t1=t1, t2=t2, t3=t3, reset=reset)
+            jpeg.LSCodingParameters(maxval=maxval, t1=t1, t2=t2, t3=t3, reset=reset)
         )
     if restart_interval != 0:
         segments.append(jpeg.DefineRestartInterval(restart_interval))
