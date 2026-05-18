@@ -1764,6 +1764,66 @@ generate_ls(
 )
 generate_ls(
     section,
+    "empty_maxval",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=[[0]],
+    t1=3,
+    t2=7,
+    t3=21,
+    reset=64,
+)
+generate_ls(
+    section,
+    "empty_t1",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=[[0]],
+    maxval=255,
+    t2=7,
+    t3=21,
+    reset=64,
+)
+generate_ls(
+    section,
+    "empty_t2",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=[[0]],
+    maxval=255,
+    t1=3,
+    t3=21,
+    reset=64,
+)
+generate_ls(
+    section,
+    "empty_t3",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=[[0]],
+    maxval=255,
+    t1=3,
+    t2=7,
+    reset=64,
+)
+generate_ls(
+    section,
+    "empty_reset",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=[[0]],
+    maxval=255,
+    t1=3,
+    t2=7,
+    t3=21,
+)
+generate_ls(
+    section,
     "default_parameters",
     WIDTH,
     HEIGHT,
