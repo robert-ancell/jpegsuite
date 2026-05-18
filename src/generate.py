@@ -1861,3 +1861,5 @@ generate_ls(
 # thumbnail
 # multiple huffman tables
 # arithmetic properties
+# DRI and DNL with 3 and 4 byte sizes
+# Large images (black to compress well)
