@@ -1,0 +1,83 @@
+{
+  "width": 32,
+  "height": 32,
+  "segments": [
+    {
+      "type": "SOI"
+    },
+    {
+      "type": "APP14",
+      "format": "Adobe",
+      "version": 101,
+      "flags0": 0,
+      "flags1": 0,
+      "color-space": "RGB or CMYK"
+    },
+    {
+      "type": "SOF55",
+      "precision": 8,
+      "number_of_lines": 32,
+      "samples_per_line": 32,
+      "components": [
+        {
+          "id": 1,
+          "sampling_factor": [
+            1,
+            1
+          ],
+          "quantization_table": 0
+        },
+        {
+          "id": 2,
+          "sampling_factor": [
+            1,
+            1
+          ],
+          "quantization_table": 0
+        },
+        {
+          "id": 3,
+          "sampling_factor": [
+            1,
+            1
+          ],
+          "quantization_table": 0
+        }
+      ]
+    },
+    {
+      "type": "SOS",
+      "components": [
+        {
+          "component_id": 1,
+          "dc_table": 0,
+          "ac_table": 0
+        },
+        {
+          "component_id": 2,
+          "dc_table": 0,
+          "ac_table": 0
+        },
+        {
+          "component_id": 3,
+          "dc_table": 0,
+          "ac_table": 0
+        }
+      ],
+      "spectral_selection": [
+        0,
+        1
+      ],
+      "approximation": [
+        0,
+        0
+      ]
+    },
+    {
+      "type": "LS"
+    },
+    {
+      "type": "EOI"
+    }
+  ]
+}

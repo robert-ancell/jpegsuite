@@ -884,13 +884,17 @@ def make_ls(
     all_scan_components = []
     for i, samples in enumerate(component_samples):
         all_scan_components.append(jpeg.ScanComponent.ls(i + 1))
-    for scan_index, component_indexes in enumerate(scans):
+    for scan_index, (interleave_mode, component_indexes) in enumerate(scans):
         sos_components = []
         scan_components = []
         for c in component_indexes:
             sos_components.append(all_scan_components[c])
             scan_components.append(jpeg.LSScanComponent())
-        segments.append(jpeg.StartOfScan.ls(components=sos_components))
+        segments.append(
+            jpeg.StartOfScan.ls(
+                components=sos_components, interleave_mode=interleave_mode
+            )
+        )
         n_samples = width * height
         if restart_interval == 0:
             segment_length = n_samples
@@ -906,7 +910,15 @@ def make_ls(
                 index = (offset // segment_length) - 1
                 segments.append(jpeg.Restart(index % 8))
             maxval = (1 << precision) - 1
-            segments.append(jpeg.LSScan(width, samples, scan_components, maxval=maxval))
+            segments.append(
+                jpeg.LSScan(
+                    width,
+                    samples,
+                    scan_components,
+                    interleave_mode=interleave_mode,
+                    maxval=maxval,
+                )
+            )
             if offset == 0 and scan_index == 0 and use_dnl:
                 segments.append(jpeg.DefineNumberOfLines(height))
     segments.append(jpeg.EndOfImage())
@@ -1721,7 +1733,10 @@ for encoding in ["huffman", "arithmetic"]:
     )
 
 section = "ls"
-generate_ls(section, "grayscale", WIDTH, HEIGHT, [grayscale_samples8], scans=[[0]])
+one_channel_scans = [(jpeg.LSInterleaveMode.NONE, [0])]
+generate_ls(
+    section, "grayscale", WIDTH, HEIGHT, [grayscale_samples8], scans=one_channel_scans
+)
 for precision in range(2, 17):
     generate_ls(
         section,
@@ -1729,34 +1744,79 @@ for precision in range(2, 17):
         WIDTH,
         HEIGHT,
         [make_grayscale(precision)],
-        scans=[[0]],
+        scans=one_channel_scans,
         precision=precision,
     )
 for size in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16):
     (width, height, _, samples) = read_pgm("data/%dx%dx8_grayscale.pgm" % (size, size))
     assert width == height == size
-    generate_ls(section, "grayscale", width, height, [samples], scans=[[0]])
-generate_ls(section, "ycbcr", WIDTH, HEIGHT, ycbcr_samples8, scans=[[0], [1], [2]])
-# FIXME: YCbCr line interleaved
-# FIXME: YCbCr sample interleaved
+    generate_ls(section, "grayscale", width, height, [samples], scans=one_channel_scans)
+generate_ls(
+    section,
+    "ycbcr",
+    WIDTH,
+    HEIGHT,
+    ycbcr_samples8,
+    scans=[
+        (jpeg.LSInterleaveMode.NONE, [0]),
+        (jpeg.LSInterleaveMode.NONE, [1]),
+        (jpeg.LSInterleaveMode.NONE, [2]),
+    ],
+)
+generate_ls(
+    section,
+    "ycbcr_line_interleaved",
+    WIDTH,
+    HEIGHT,
+    ycbcr_samples8,
+    scans=[(jpeg.LSInterleaveMode.LINE, [0, 1, 2])],
+)
+# generate_ls(
+#    section,
+#    "ycbcr_sample_interleaved",
+#    WIDTH,
+#    HEIGHT,
+#    ycbcr_samples8,
+#    scans=[(jpeg.LSInterleaveMode.SAMPLE, [0, 1, 2])],
+# )
 generate_ls(
     section,
     "rgb",
     WIDTH,
     HEIGHT,
     rgb_samples8,
-    scans=[[0], [1], [2]],
+    scans=[
+        (jpeg.LSInterleaveMode.NONE, [0]),
+        (jpeg.LSInterleaveMode.NONE, [1]),
+        (jpeg.LSInterleaveMode.NONE, [2]),
+    ],
     color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
 )
-# FIXME: RGB line interleaved
-# FIXME: RGB sample interleaved
+generate_ls(
+    section,
+    "rgb_line_interleaved",
+    WIDTH,
+    HEIGHT,
+    rgb_samples8,
+    scans=[(jpeg.LSInterleaveMode.LINE, [0, 1, 2])],
+    color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+)
+# generate_ls(
+#    section,
+#    "rgb_sample_interleaved",
+#    WIDTH,
+#    HEIGHT,
+#    rgb_samples8,
+#    scans=[(jpeg.LSInterleaveMode.SAMPLE, [0, 1, 2])],
+#    color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+# )
 generate_ls(
     section,
     "oversize",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=[[0]],
+    scans=one_channel_scans,
     use_oversize_image_dimensions=True,
 )
 generate_ls(
@@ -1765,11 +1825,17 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=[[0]],
+    scans=one_channel_scans,
     restart_interval=32 * 8,
 )
 generate_ls(
-    section, "dnl", WIDTH, HEIGHT, [grayscale_samples8], scans=[[0]], use_dnl=True
+    section,
+    "dnl",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=one_channel_scans,
+    use_dnl=True,
 )
 generate_ls(
     section,
@@ -1777,7 +1843,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=[[0]],
+    scans=one_channel_scans,
     always_parameters=True,
 )
 generate_ls(
@@ -1786,7 +1852,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=[[0]],
+    scans=one_channel_scans,
     t1=3,
     t2=7,
     t3=21,
@@ -1798,7 +1864,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=[[0]],
+    scans=one_channel_scans,
     maxval=255,
     t2=7,
     t3=21,
@@ -1810,7 +1876,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=[[0]],
+    scans=one_channel_scans,
     maxval=255,
     t1=3,
     t3=21,
@@ -1822,7 +1888,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=[[0]],
+    scans=one_channel_scans,
     maxval=255,
     t1=3,
     t2=7,
@@ -1834,7 +1900,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=[[0]],
+    scans=one_channel_scans,
     maxval=255,
     t1=3,
     t2=7,
@@ -1846,7 +1912,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=[[0]],
+    scans=one_channel_scans,
     maxval=255,
     t1=3,
     t2=7,
