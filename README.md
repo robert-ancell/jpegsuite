@@ -120,6 +120,9 @@ The reference greyscale image in bit depths from 2-16 bits.
 `NxMx8_grayscale.jpg`
 Small images of size 1x1 to 16x16.
 
+`32x32x8_oversize.jpg`
+The reference grayscale image using a JPEG-LS oversize image segment.
+
 `32x32x8_restarts.jpg`
 The reference grayscale image sent in four sections with restart markers.
 

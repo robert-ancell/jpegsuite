@@ -850,24 +850,31 @@ def make_ls(
     t3=0,
     reset=0,
     always_parameters=False,
+    use_oversize_image_dimensions=False,
 ):
     segments = [jpeg.StartOfImage()]
     if color_space is None:
         segments.append(jpeg.JFIFData())
     else:
         segments.append(jpeg.AdobeData(color_space=color_space))
-    if use_dnl:
+    if use_dnl or use_oversize_image_dimensions:
         number_of_lines = 0
     else:
         number_of_lines = height
+    if use_oversize_image_dimensions:
+        samples_per_line = 0
+    else:
+        samples_per_line = width
     sof_components = []
     for i in range(len(component_samples)):
         sof_components.append(jpeg.FrameComponent.lossless(i + 1))
     segments.append(
         jpeg.StartOfFrame.ls(
-            number_of_lines, width, sof_components, precision=precision
+            number_of_lines, samples_per_line, sof_components, precision=precision
         )
     )
+    if use_oversize_image_dimensions:
+        segments.append(jpeg.LSOversizeImageDimensions(width, height))
     if maxval != 0 or t1 != 0 or t2 != 0 or t3 != 0 or reset != 0 or always_parameters:
         segments.append(
             jpeg.LSPresetParameters(maxval=maxval, t1=t1, t2=t2, t3=t3, reset=reset)
@@ -1019,6 +1026,7 @@ def generate_ls(
     t3=0,
     reset=0,
     always_parameters=False,
+    use_oversize_image_dimensions=False,
 ):
     segments = make_ls(
         width,
@@ -1035,6 +1043,7 @@ def generate_ls(
         t3=t3,
         reset=reset,
         always_parameters=always_parameters,
+        use_oversize_image_dimensions=use_oversize_image_dimensions,
     )
     writer = jpeg.BufferedWriter()
     for segment in segments:
@@ -1741,6 +1750,15 @@ generate_ls(
 )
 # FIXME: RGB line interleaved
 # FIXME: RGB sample interleaved
+generate_ls(
+    section,
+    "oversize",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=[[0]],
+    use_oversize_image_dimensions=True,
+)
 generate_ls(
     section,
     "restarts",
