@@ -974,6 +974,22 @@ def make_ls(
     return segments
 
 
+def write_jpeg(segments, section, width, height, precision, description):
+    writer = jpeg.BufferedWriter()
+    for segment in segments:
+        segment.write(writer)
+    basename = "../jpeg/%s/%dx%dx%d_%s" % (
+        section,
+        width,
+        height,
+        precision,
+        description,
+    )
+    open(basename + ".jpg", "wb").write(writer.data)
+    j = {"width": width, "height": height, "segments": segments_to_json(segments)}
+    open(basename + ".json", "w").write(json.dumps(j, indent=2))
+
+
 def generate_dct(
     section,
     description,
@@ -1013,19 +1029,7 @@ def generate_dct(
         arithmetic_conditioning_kx=arithmetic_conditioning_kx,
     )
     segments = jpeg.huffman_optimize.optimize(segments)
-    writer = jpeg.BufferedWriter()
-    for segment in segments:
-        segment.write(writer)
-    basename = "../jpeg/%s/%dx%dx%d_%s" % (
-        section,
-        width,
-        height,
-        precision,
-        description,
-    )
-    open(basename + ".jpg", "wb").write(writer.data)
-    j = {"width": width, "height": height, "segments": segments_to_json(segments)}
-    open(basename + ".json", "w").write(json.dumps(j, indent=2))
+    write_jpeg(segments, section, width, height, precision, description)
 
 
 def generate_lossless(
@@ -1055,19 +1059,7 @@ def generate_lossless(
         arithmetic=arithmetic,
     )
     segments = jpeg.huffman_optimize.optimize(segments)
-    writer = jpeg.BufferedWriter()
-    for segment in segments:
-        segment.write(writer)
-    basename = "../jpeg/%s/%dx%dx%d_%s" % (
-        section,
-        width,
-        height,
-        precision,
-        description,
-    )
-    open(basename + ".jpg", "wb").write(writer.data)
-    j = {"width": width, "height": height, "segments": segments_to_json(segments)}
-    open(basename + ".json", "w").write(json.dumps(j, indent=2))
+    write_jpeg(segments, section, width, height, precision, description)
 
 
 def generate_ls(
@@ -1108,19 +1100,7 @@ def generate_ls(
         use_oversize_image_dimensions=use_oversize_image_dimensions,
         oversize_image_dimensions_number_of_bytes=oversize_image_dimensions_number_of_bytes,
     )
-    writer = jpeg.BufferedWriter()
-    for segment in segments:
-        segment.write(writer)
-    basename = "../jpeg/%s/%dx%dx%d_%s" % (
-        section,
-        width,
-        height,
-        precision,
-        description,
-    )
-    open(basename + ".jpg", "wb").write(writer.data)
-    j = {"width": width, "height": height, "segments": segments_to_json(segments)}
-    open(basename + ".json", "w").write(json.dumps(j, indent=2))
+    write_jpeg(segments, section, width, height, precision, description)
 
 
 for mode, encoding in [
