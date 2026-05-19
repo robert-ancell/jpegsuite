@@ -320,8 +320,37 @@ def segments_to_json(segments):
             s.append({"type": "DNL", "number_of_lines": segment.number_of_lines})
         elif isinstance(segment, jpeg.EndOfImage):
             s.append({"type": "EOI"})
+        elif isinstance(segment, jpeg.LSCodingParameters):
+            s.append(
+                {
+                    "type": "LSE",
+                    "subtype": "Coding parameters",
+                    "maxval": segment.maxval,
+                    "t1": segment.t1,
+                    "t2": segment.t2,
+                    "t3": segment.t3,
+                    "reset": segment.reset,
+                }
+            )
+        elif isinstance(segment, jpeg.LSMappingTable):
+            # FIXME: Contents
+            s.append(
+                {
+                    "type": "LSE",
+                    "subtype": "Mapping table",
+                }
+            )
+        elif isinstance(segment, jpeg.LSOversizeImageDimensions):
+            s.append(
+                {
+                    "type": "LSE",
+                    "subtype": "Oversize image dimensions",
+                    "number-of-lines": segment.number_of_lines,
+                    "samples-per-line": segment.samples_per_line,
+                }
+            )
         else:
-            pass  # s.append({"type": "UNKNOWN"})
+            assert False
     return s
 
 

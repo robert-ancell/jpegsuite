@@ -28,6 +28,15 @@
       ]
     },
     {
+      "type": "LSE",
+      "subtype": "Coding parameters",
+      "maxval": 255,
+      "t1": 0,
+      "t2": 7,
+      "t3": 21,
+      "reset": 64
+    },
+    {
       "type": "SOS",
       "components": [
         {

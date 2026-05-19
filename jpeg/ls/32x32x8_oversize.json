@@ -28,6 +28,12 @@
       ]
     },
     {
+      "type": "LSE",
+      "subtype": "Oversize image dimensions",
+      "number-of-lines": 32,
+      "samples-per-line": 32
+    },
+    {
       "type": "SOS",
       "components": [
         {
