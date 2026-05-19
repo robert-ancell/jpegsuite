@@ -377,7 +377,9 @@ def make_dct_data_units(width, height, depth, samples, quantization_table):
     return data_units
 
 
-def make_dct_sequential(
+def generate_dct(
+    section,
+    description,
     width,
     height,
     components=[],
@@ -744,10 +746,13 @@ def make_dct_sequential(
         if i == 0 and use_dnl:
             segments.append(jpeg.DefineNumberOfLines(height))
     segments.append(jpeg.EndOfImage())
-    return segments
+    segments = jpeg.huffman_optimize.optimize(segments)
+    write_jpeg(segments, section, width, height, precision, description)
 
 
-def make_lossless(
+def generate_lossless(
+    section,
+    description,
     width,
     height,
     component_samples,
@@ -859,10 +864,13 @@ def make_lossless(
             if offset == 0 and scan_index == 0 and use_dnl:
                 segments.append(jpeg.DefineNumberOfLines(height))
     segments.append(jpeg.EndOfImage())
-    return segments
+    segments = jpeg.huffman_optimize.optimize(segments)
+    write_jpeg(segments, section, width, height, precision, description)
 
 
-def make_ls(
+def generate_ls(
+    section,
+    description,
     width,
     height,
     component_samples,
@@ -971,7 +979,7 @@ def make_ls(
                     )
                 )
     segments.append(jpeg.EndOfImage())
-    return segments
+    write_jpeg(segments, section, width, height, precision, description)
 
 
 def write_jpeg(segments, section, width, height, precision, description):
@@ -988,119 +996,6 @@ def write_jpeg(segments, section, width, height, precision, description):
     open(basename + ".jpg", "wb").write(writer.data)
     j = {"width": width, "height": height, "segments": segments_to_json(segments)}
     open(basename + ".json", "w").write(json.dumps(j, indent=2))
-
-
-def generate_dct(
-    section,
-    description,
-    width,
-    height,
-    components,
-    precision=8,
-    luminance_quantization_table=[1] * 64,
-    chrominance_quantization_table=[1] * 64,
-    restart_interval=0,
-    use_dnl=False,
-    color_space=None,
-    scans=[],
-    comments=[],
-    extended=False,
-    progressive=False,
-    arithmetic=False,
-    arithmetic_conditioning_bounds=[(0, 1), (0, 1), (0, 1), (0, 1)],
-    arithmetic_conditioning_kx=[5, 5, 5, 5],
-):
-    segments = make_dct_sequential(
-        width,
-        height,
-        components,
-        precision=precision,
-        luminance_quantization_table=luminance_quantization_table,
-        chrominance_quantization_table=chrominance_quantization_table,
-        restart_interval=restart_interval,
-        use_dnl=use_dnl,
-        color_space=color_space,
-        scans=scans,
-        comments=comments,
-        extended=extended,
-        progressive=progressive,
-        arithmetic=arithmetic,
-        arithmetic_conditioning_bounds=arithmetic_conditioning_bounds,
-        arithmetic_conditioning_kx=arithmetic_conditioning_kx,
-    )
-    segments = jpeg.huffman_optimize.optimize(segments)
-    write_jpeg(segments, section, width, height, precision, description)
-
-
-def generate_lossless(
-    section,
-    description,
-    width,
-    height,
-    component_samples,
-    scans=[],
-    use_dnl=False,
-    color_space=None,
-    precision=8,
-    restart_interval=0,
-    predictor=1,
-    arithmetic=False,
-):
-    segments = make_lossless(
-        width,
-        height,
-        component_samples,
-        scans=scans,
-        use_dnl=use_dnl,
-        color_space=color_space,
-        precision=precision,
-        restart_interval=restart_interval,
-        predictor=predictor,
-        arithmetic=arithmetic,
-    )
-    segments = jpeg.huffman_optimize.optimize(segments)
-    write_jpeg(segments, section, width, height, precision, description)
-
-
-def generate_ls(
-    section,
-    description,
-    width,
-    height,
-    component_samples,
-    scans=[],
-    use_dnl=False,
-    number_of_lines_number_of_bytes=2,
-    color_space=None,
-    precision=8,
-    restart_interval=0,
-    restart_interval_number_of_bytes=2,
-    maxval=0,
-    gradient_thresholds=(0, 0, 0),
-    reset=0,
-    always_parameters=False,
-    use_oversize_image_dimensions=False,
-    oversize_image_dimensions_number_of_bytes=2,
-):
-    segments = make_ls(
-        width,
-        height,
-        component_samples,
-        scans=scans,
-        use_dnl=use_dnl,
-        number_of_lines_number_of_bytes=number_of_lines_number_of_bytes,
-        color_space=color_space,
-        precision=precision,
-        restart_interval=restart_interval,
-        restart_interval_number_of_bytes=restart_interval_number_of_bytes,
-        maxval=maxval,
-        gradient_thresholds=gradient_thresholds,
-        reset=reset,
-        always_parameters=always_parameters,
-        use_oversize_image_dimensions=use_oversize_image_dimensions,
-        oversize_image_dimensions_number_of_bytes=oversize_image_dimensions_number_of_bytes,
-    )
-    write_jpeg(segments, section, width, height, precision, description)
 
 
 for mode, encoding in [
