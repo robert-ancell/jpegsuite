@@ -1771,14 +1771,14 @@ generate_ls(
     ycbcr_samples8,
     scans=[(jpeg.LSInterleaveMode.LINE, [0, 1, 2])],
 )
-# generate_ls(
-#    section,
-#    "ycbcr_sample_interleaved",
-#    WIDTH,
-#    HEIGHT,
-#    ycbcr_samples8,
-#    scans=[(jpeg.LSInterleaveMode.SAMPLE, [0, 1, 2])],
-# )
+generate_ls(
+    section,
+    "ycbcr_sample_interleaved",
+    WIDTH,
+    HEIGHT,
+    ycbcr_samples8,
+    scans=[(jpeg.LSInterleaveMode.SAMPLE, [0, 1, 2])],
+)
 generate_ls(
     section,
     "rgb",
@@ -1801,15 +1801,15 @@ generate_ls(
     scans=[(jpeg.LSInterleaveMode.LINE, [0, 1, 2])],
     color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
 )
-# generate_ls(
-#    section,
-#    "rgb_sample_interleaved",
-#    WIDTH,
-#    HEIGHT,
-#    rgb_samples8,
-#    scans=[(jpeg.LSInterleaveMode.SAMPLE, [0, 1, 2])],
-#    color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
-# )
+generate_ls(
+    section,
+    "rgb_sample_interleaved",
+    WIDTH,
+    HEIGHT,
+    rgb_samples8,
+    scans=[(jpeg.LSInterleaveMode.SAMPLE, [0, 1, 2])],
+    color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+)
 generate_ls(
     section,
     "oversize",

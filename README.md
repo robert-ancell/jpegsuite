@@ -132,7 +132,9 @@ The reference color image in YCbCr and RGB format with a single scan per channel
 
 `32x32x8_ycbcr_line_interleaved.jpg`
 `32x32x8_rgb_line_interleaved.jpg`
-The reference color image as above, but with a single scan interleaving each channel using line interleaving.
+`32x32x8_ycbcr_sample_interleaved.jpg`
+`32x32x8_rgb_sample_interleaved.jpg`
+The reference color image as above, but with a single scan interleaving each channel using line or sample interleaving.
 
 `32x32x8_dnl.jpg`
 The reference grayscale image with the the height set to zero in the *start of frame* and instead sent in the *define number of lines* after the scan.
