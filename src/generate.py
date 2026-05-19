@@ -1919,7 +1919,19 @@ generate_ls(
     t3=21,
     reset=64,
 )
-# FIXME: Non-standard parameters
+generate_ls(
+    section,
+    "non_default_parameters",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=one_channel_scans,
+    maxval=255,
+    t1=4,
+    t2=8,
+    t3=22,
+    reset=63,
+)
 
 # 3 channel, red, green, blue, white, mixed color
 # version 1.1
