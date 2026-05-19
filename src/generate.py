@@ -869,13 +869,16 @@ def make_ls(
     scans=[],
     precision=8,
     use_dnl=False,
+    number_of_lines_number_of_bytes=2,
     color_space=None,
     restart_interval=0,
+    restart_interval_number_of_bytes=2,
     maxval=0,
     gradient_thresholds=(0, 0, 0),
     reset=0,
     always_parameters=False,
     use_oversize_image_dimensions=False,
+    oversize_image_dimensions_number_of_bytes=2,
 ):
     segments = [jpeg.StartOfImage()]
     if color_space is None:
@@ -899,7 +902,13 @@ def make_ls(
         )
     )
     if use_oversize_image_dimensions:
-        segments.append(jpeg.LSOversizeImageDimensions(width, height))
+        segments.append(
+            jpeg.LSOversizeImageDimensions(
+                width,
+                height,
+                number_of_bytes=oversize_image_dimensions_number_of_bytes,
+            )
+        )
     if (
         maxval != 0
         or gradient_thresholds != (0, 0, 0)
@@ -912,7 +921,11 @@ def make_ls(
             )
         )
     if restart_interval != 0:
-        segments.append(jpeg.DefineRestartInterval(restart_interval))
+        segments.append(
+            jpeg.DefineRestartInterval(
+                restart_interval, number_of_bytes=restart_interval_number_of_bytes
+            )
+        )
     all_scan_components = []
     for i, samples in enumerate(component_samples):
         all_scan_components.append(jpeg.ScanComponent.ls(i + 1))
@@ -952,7 +965,11 @@ def make_ls(
                 )
             )
             if offset == 0 and scan_index == 0 and use_dnl:
-                segments.append(jpeg.DefineNumberOfLines(height))
+                segments.append(
+                    jpeg.DefineNumberOfLines(
+                        height, number_of_bytes=number_of_lines_number_of_bytes
+                    )
+                )
     segments.append(jpeg.EndOfImage())
     return segments
 
@@ -1061,14 +1078,17 @@ def generate_ls(
     component_samples,
     scans=[],
     use_dnl=False,
+    number_of_lines_number_of_bytes=2,
     color_space=None,
     precision=8,
     restart_interval=0,
+    restart_interval_number_of_bytes=2,
     maxval=0,
     gradient_thresholds=(0, 0, 0),
     reset=0,
     always_parameters=False,
     use_oversize_image_dimensions=False,
+    oversize_image_dimensions_number_of_bytes=2,
 ):
     segments = make_ls(
         width,
@@ -1076,14 +1096,17 @@ def generate_ls(
         component_samples,
         scans=scans,
         use_dnl=use_dnl,
+        number_of_lines_number_of_bytes=number_of_lines_number_of_bytes,
         color_space=color_space,
         precision=precision,
         restart_interval=restart_interval,
+        restart_interval_number_of_bytes=restart_interval_number_of_bytes,
         maxval=maxval,
         gradient_thresholds=gradient_thresholds,
         reset=reset,
         always_parameters=always_parameters,
         use_oversize_image_dimensions=use_oversize_image_dimensions,
+        oversize_image_dimensions_number_of_bytes=oversize_image_dimensions_number_of_bytes,
     )
     writer = jpeg.BufferedWriter()
     for segment in segments:
@@ -1849,6 +1872,26 @@ generate_ls(
 )
 generate_ls(
     section,
+    "oversize3",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=one_channel_scans,
+    use_oversize_image_dimensions=True,
+    oversize_image_dimensions_number_of_bytes=3,
+)
+generate_ls(
+    section,
+    "oversize4",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=one_channel_scans,
+    use_oversize_image_dimensions=True,
+    oversize_image_dimensions_number_of_bytes=4,
+)
+generate_ls(
+    section,
     "restarts",
     WIDTH,
     HEIGHT,
@@ -1858,12 +1901,52 @@ generate_ls(
 )
 generate_ls(
     section,
+    "restarts3",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=one_channel_scans,
+    restart_interval=32 * 8,
+    restart_interval_number_of_bytes=3,
+)
+generate_ls(
+    section,
+    "restarts4",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=one_channel_scans,
+    restart_interval=32 * 8,
+    restart_interval_number_of_bytes=4,
+)
+generate_ls(
+    section,
     "dnl",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
     scans=one_channel_scans,
     use_dnl=True,
+)
+generate_ls(
+    section,
+    "dnl3",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=one_channel_scans,
+    use_dnl=True,
+    number_of_lines_number_of_bytes=3,
+)
+generate_ls(
+    section,
+    "dnl4",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=one_channel_scans,
+    use_dnl=True,
+    number_of_lines_number_of_bytes=4,
 )
 generate_ls(
     section,
@@ -1957,5 +2040,4 @@ generate_ls(
 # thumbnail
 # multiple huffman tables
 # arithmetic properties
-# DRI and DNL with 3 and 4 byte sizes
 # Large images (black to compress well)
