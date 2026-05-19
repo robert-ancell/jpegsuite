@@ -31,9 +31,11 @@
       "type": "LSE",
       "subtype": "Coding parameters",
       "maxval": 255,
-      "t1": 3,
-      "t2": 0,
-      "t3": 21,
+      "gradient-thresholds": [
+        3,
+        0,
+        21
+      ],
       "reset": 64
     },
     {

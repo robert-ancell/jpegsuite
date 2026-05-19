@@ -326,9 +326,7 @@ def segments_to_json(segments):
                     "type": "LSE",
                     "subtype": "Coding parameters",
                     "maxval": segment.maxval,
-                    "t1": segment.t1,
-                    "t2": segment.t2,
-                    "t3": segment.t3,
+                    "gradient-thresholds": segment.gradient_thresholds,
                     "reset": segment.reset,
                 }
             )
@@ -874,9 +872,7 @@ def make_ls(
     color_space=None,
     restart_interval=0,
     maxval=0,
-    t1=0,
-    t2=0,
-    t3=0,
+    gradient_thresholds=(0, 0, 0),
     reset=0,
     always_parameters=False,
     use_oversize_image_dimensions=False,
@@ -904,9 +900,16 @@ def make_ls(
     )
     if use_oversize_image_dimensions:
         segments.append(jpeg.LSOversizeImageDimensions(width, height))
-    if maxval != 0 or t1 != 0 or t2 != 0 or t3 != 0 or reset != 0 or always_parameters:
+    if (
+        maxval != 0
+        or gradient_thresholds != (0, 0, 0)
+        or reset != 0
+        or always_parameters
+    ):
         segments.append(
-            jpeg.LSCodingParameters(maxval=maxval, t1=t1, t2=t2, t3=t3, reset=reset)
+            jpeg.LSCodingParameters(
+                maxval=maxval, gradient_thresholds=gradient_thresholds, reset=reset
+            )
         )
     if restart_interval != 0:
         segments.append(jpeg.DefineRestartInterval(restart_interval))
@@ -1062,9 +1065,7 @@ def generate_ls(
     precision=8,
     restart_interval=0,
     maxval=0,
-    t1=0,
-    t2=0,
-    t3=0,
+    gradient_thresholds=(0, 0, 0),
     reset=0,
     always_parameters=False,
     use_oversize_image_dimensions=False,
@@ -1079,9 +1080,7 @@ def generate_ls(
         precision=precision,
         restart_interval=restart_interval,
         maxval=maxval,
-        t1=t1,
-        t2=t2,
-        t3=t3,
+        gradient_thresholds=gradient_thresholds,
         reset=reset,
         always_parameters=always_parameters,
         use_oversize_image_dimensions=use_oversize_image_dimensions,
@@ -1882,9 +1881,7 @@ generate_ls(
     HEIGHT,
     [grayscale_samples8],
     scans=one_channel_scans,
-    t1=3,
-    t2=7,
-    t3=21,
+    gradient_thresholds=(3, 7, 21),
     reset=64,
 )
 generate_ls(
@@ -1895,8 +1892,7 @@ generate_ls(
     [grayscale_samples8],
     scans=one_channel_scans,
     maxval=255,
-    t2=7,
-    t3=21,
+    gradient_thresholds=(0, 7, 21),
     reset=64,
 )
 generate_ls(
@@ -1907,8 +1903,7 @@ generate_ls(
     [grayscale_samples8],
     scans=one_channel_scans,
     maxval=255,
-    t1=3,
-    t3=21,
+    gradient_thresholds=(3, 0, 21),
     reset=64,
 )
 generate_ls(
@@ -1919,8 +1914,7 @@ generate_ls(
     [grayscale_samples8],
     scans=one_channel_scans,
     maxval=255,
-    t1=3,
-    t2=7,
+    gradient_thresholds=(3, 7, 0),
     reset=64,
 )
 generate_ls(
@@ -1931,9 +1925,8 @@ generate_ls(
     [grayscale_samples8],
     scans=one_channel_scans,
     maxval=255,
-    t1=3,
-    t2=7,
-    t3=21,
+    gradient_thresholds=(3, 7, 21),
+    reset=0,
 )
 generate_ls(
     section,
@@ -1943,9 +1936,7 @@ generate_ls(
     [grayscale_samples8],
     scans=one_channel_scans,
     maxval=255,
-    t1=3,
-    t2=7,
-    t3=21,
+    gradient_thresholds=(3, 7, 21),
     reset=64,
 )
 generate_ls(
@@ -1956,9 +1947,7 @@ generate_ls(
     [grayscale_samples8],
     scans=one_channel_scans,
     maxval=255,
-    t1=4,
-    t2=8,
-    t3=22,
+    gradient_thresholds=(4, 8, 22),
     reset=63,
 )
 
