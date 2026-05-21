@@ -10,11 +10,11 @@ WIDTH = 32
 HEIGHT = 32
 
 
-def clamp(value, min_value, max_value):
+def clamp(value: int, min_value: int, max_value: int) -> int:
     return max(min(value, max_value), min_value)
 
 
-def rgb_to_ycbcr(r, g, b, precision):
+def rgb_to_ycbcr(r: int, g: int, b: int, precision: int) -> tuple[int, int, int]:
     offset = 1 << (precision - 1)
     y = round(0.299 * r + 0.587 * g + 0.114 * b)
     cb = round(-0.1687 * r - 0.3313 * g + 0.5 * b + offset)
@@ -23,14 +23,14 @@ def rgb_to_ycbcr(r, g, b, precision):
     return (clamp(y, 0, max_value), clamp(cb, 0, max_value), clamp(cr, 0, max_value))
 
 
-def rgb_to_cmyk(r, g, b, precision):
+def rgb_to_cmyk(r: int, g: int, b: int, precision: int) -> tuple[int, int, int, int]:
     max_value = 1 << precision
     rf = r / max_value
     gf = g / max_value
     bf = b / max_value
     k = 1 - max(rf, gf, bf)
     if k == 1:
-        c, m, y = 0, 0, 0
+        c, m, y = 0.0, 0.0, 0.0
     else:
         c = (1 - rf - k) / (1 - k)
         m = (1 - gf - k) / (1 - k)
@@ -43,7 +43,7 @@ def rgb_to_cmyk(r, g, b, precision):
     )
 
 
-def make_grayscale(precision):
+def make_grayscale(precision: int) -> list[int]:
     width, height, max_value, raw_samples = read_pgm("data/32x32x16_grayscale.pgm")
     assert width == WIDTH
     assert height == HEIGHT
@@ -53,11 +53,11 @@ def make_grayscale(precision):
     return samples
 
 
-def make_solid(width, height, value):
+def make_solid(width: int, height: int, value: int) -> list[int]:
     return [value] * width * height
 
 
-def make_check(width, height, white):
+def make_check(width: int, height: int, white: int) -> list[int]:
     samples = []
     for y in range(width):
         for x in range(height):
@@ -74,18 +74,18 @@ grayscale_components8 = [(grayscale_samples8, (1, 1))]
 grayscale_components12 = [(grayscale_samples12, (1, 1))]
 
 
-def make_rgb(precision):
+def make_rgb(precision: int) -> list[list[int]]:
     width, height, max_value, raw_samples = read_pgm("data/32x32x16_rgb.ppm")
     assert width == WIDTH
     assert height == HEIGHT
     r_samples = []
     g_samples = []
     b_samples = []
-    for r, g, b in raw_samples:
-        r_samples.append(round(r * ((1 << precision) - 1) / max_value))
-        g_samples.append(round(g * ((1 << precision) - 1) / max_value))
-        b_samples.append(round(b * ((1 << precision) - 1) / max_value))
-    return (r_samples, g_samples, b_samples)
+    for i in range(0, len(raw_samples), 3):
+        r_samples.append(round(raw_samples[i] * ((1 << precision) - 1) / max_value))
+        g_samples.append(round(raw_samples[i + 1] * ((1 << precision) - 1) / max_value))
+        b_samples.append(round(raw_samples[i + 2] * ((1 << precision) - 1) / max_value))
+    return [r_samples, g_samples, b_samples]
 
 
 rgb_samples8 = make_rgb(8)
@@ -96,7 +96,7 @@ rgb_components8 = [
 ]
 
 
-def make_ycbcr(precision):
+def make_ycbcr(precision: int) -> list[list[int]]:
     r_samples, g_samples, b_samples = make_rgb(precision)
     y_samples = []
     cb_samples = []
@@ -106,7 +106,7 @@ def make_ycbcr(precision):
         y_samples.append(y)
         cb_samples.append(cb)
         cr_samples.append(cr)
-    return (y_samples, cb_samples, cr_samples)
+    return [y_samples, cb_samples, cr_samples]
 
 
 ycbcr_samples8 = make_ycbcr(8)
@@ -123,7 +123,7 @@ ycbcr_components12 = [
 ]
 
 
-def make_cmyk(precision):
+def make_cmyk(precision: int) -> list[list[int]]:
     r_samples, g_samples, b_samples = make_rgb(precision)
     c_samples = []
     m_samples = []
@@ -135,7 +135,7 @@ def make_cmyk(precision):
         m_samples.append(m)
         y_samples.append(y)
         k_samples.append(k)
-    return (c_samples, m_samples, y_samples, k_samples)
+    return [c_samples, m_samples, y_samples, k_samples]
 
 
 cmyk_samples8 = make_cmyk(8)
@@ -147,7 +147,9 @@ cmyk_components8 = [
 ]
 
 
-def scale_samples(width, height, samples, h_max, h, v_max, v):
+def scale_samples(
+    width: int, height: int, samples: list[int], h_max: int, h: int, v_max: int, v: int
+) -> list[int]:
     if h == h_max and v == v_max:
         return samples
     assert h_max % h == 0
@@ -159,13 +161,14 @@ def scale_samples(width, height, samples, h_max, h, v_max, v):
     return out_samples
 
 
-def segments_to_json(segments):
+def segments_to_json(segments: list[jpeg.Segment]) -> list[dict[str, object]]:
     s = []
     for segment in segments:
+        value: dict[str, object] = {}
         if isinstance(segment, jpeg.StartOfImage):
-            s.append({"type": "SOI"})
+            value["type"] = "SOI"
         elif isinstance(segment, jpeg.ApplicationSpecificData):
-            value = {"type": "APP%d" % segment.n}
+            value["type"] = "APP%d" % segment.n
             if isinstance(segment, jpeg.JFIFData):
                 value.update(
                     {
@@ -194,7 +197,6 @@ def segments_to_json(segments):
                         "data": list(segment.thumbnail_data),
                     }
             elif isinstance(segment, jpeg.AdobeData):
-                value = {"type": "APP%d" % segment.n}
                 value["format"] = "Adobe"
                 color_space_value = {
                     jpeg.AdobeColorSpace.RGB_OR_CMYK: "RGB or CMYK",
@@ -210,67 +212,67 @@ def segments_to_json(segments):
                     }
                 )
             elif isinstance(segment, jpeg.UnknownApplicationSpecificData):
-                value = {"type": "APP%d" % segment.n}
                 value["data"] = list(segment.data)
-            s.append(value)
         elif isinstance(segment, jpeg.Comment):
-            s.append({"type": "COM", "data": str(segment.data, "ascii")})
+            value.update({"type": "COM", "data": str(segment.data, "ascii")})
         elif isinstance(segment, jpeg.DefineQuantizationTables):
             tables = []
-            for table in segment.tables:
-                quantization_table = jpeg.dct.unzig_zag(table.values)
+            for quantization_table in segment.tables:
+                quantization_table_values = jpeg.dct.unzig_zag(
+                    quantization_table.values
+                )
                 values = []
                 for y in range(8):
-                    row = []
+                    row: list[int] = []
                     values.append(row)
                     for x in range(8):
-                        row.append(quantization_table[y * 8 + x])
+                        row.append(quantization_table_values[y * 8 + x])
                 tables.append(
                     {
-                        "destination": table.destination,
-                        "precision": table.precision,
+                        "destination": quantization_table.destination,
+                        "precision": quantization_table.precision,
                         "values": values,
                     }
                 )
-            s.append({"type": "DQT", "tables": tables})
+            value.update({"type": "DQT", "tables": tables})
         elif isinstance(segment, jpeg.DefineHuffmanTables):
             tables = []
-            for table in segment.tables:
+            for huffman_table in segment.tables:
                 tables.append(
                     {
-                        "class": {0: "dc", 1: "ac"}[table.table_class],
-                        "destination": table.destination,
-                        "symbols": table.table,
+                        "class": {0: "dc", 1: "ac"}[huffman_table.table_class],
+                        "destination": huffman_table.destination,
+                        "symbols": huffman_table.table,
                     }
                 )
-            s.append({"type": "DHT", "tables": tables})
+            value.update({"type": "DHT", "tables": tables})
         elif isinstance(segment, jpeg.DefineArithmeticConditioning):
             tables = []
-            for table in segment.tables:
-                value = {
-                    "class": {0: "dc", 1: "ac"}[table.table_class],
-                    "destination": table.destination,
+            for arithmetic_table in segment.tables:
+                table_value = {
+                    "class": {0: "dc", 1: "ac"}[arithmetic_table.table_class],
+                    "destination": arithmetic_table.destination,
                 }
-                if table.table_class == 0:
-                    value["lower"] = table.value & 0xF
-                    value["upper"] = table.value >> 4
+                if arithmetic_table.table_class == 0:
+                    table_value["lower"] = arithmetic_table.value & 0xF
+                    table_value["upper"] = arithmetic_table.value >> 4
                 else:
-                    value["kx"] = table.value
-                tables.append(value)
-            s.append({"type": "DAC", "tables": tables})
+                    table_value["kx"] = arithmetic_table.value
+                tables.append(table_value)
+            value.update({"type": "DAC", "tables": tables})
         elif isinstance(segment, jpeg.DefineRestartInterval):
-            s.append({"type": "DRI", "restart_interval": segment.restart_interval})
+            value.update({"type": "DRI", "restart_interval": segment.restart_interval})
         elif isinstance(segment, jpeg.StartOfFrame):
             components = []
-            for component in segment.components:
+            for frame_component in segment.components:
                 components.append(
                     {
-                        "id": component.id,
-                        "sampling_factor": component.sampling_factor,
-                        "quantization_table": component.quantization_table_index,
+                        "id": frame_component.id,
+                        "sampling_factor": frame_component.sampling_factor,
+                        "quantization_table": frame_component.quantization_table_index,
                     }
                 )
-            s.append(
+            value.update(
                 {
                     "type": "SOF%d" % segment.n,
                     "precision": segment.precision,
@@ -281,15 +283,15 @@ def segments_to_json(segments):
             )
         elif isinstance(segment, jpeg.StartOfScan):
             components = []
-            for component in segment.components:
+            for scan_component in segment.components:
                 components.append(
                     {
-                        "component_id": component.component_selector,
-                        "dc_table": component.dc_table,
-                        "ac_table": component.ac_table,
+                        "component_id": scan_component.component_selector,
+                        "dc_table": scan_component.dc_table,
+                        "ac_table": scan_component.ac_table,
                     }
                 )
-            s.append(
+            value.update(
                 {
                     "type": "SOS",
                     "components": components,
@@ -300,28 +302,28 @@ def segments_to_json(segments):
         elif isinstance(segment, jpeg.HuffmanDCTScan) or isinstance(
             segment, jpeg.ArithmeticDCTScan
         ):
-            s.append({"type": "DCT"})
+            value["type"] = "DCT"
         elif isinstance(segment, jpeg.HuffmanLosslessScan) or isinstance(
             segment, jpeg.ArithmeticLosslessScan
         ):
-            s.append({"type": "Lossless"})
+            value["type"] = "Lossless"
         elif isinstance(segment, jpeg.LSScan):
-            s.append({"type": "LS"})
+            value["type"] = "LS"
         elif (
             isinstance(segment, jpeg.HuffmanDCTDCSuccessiveScan)
             or isinstance(segment, jpeg.HuffmanDCTACSuccessiveScan)
             or isinstance(segment, jpeg.ArithmeticDCTDCSuccessiveScan)
             or isinstance(segment, jpeg.ArithmeticDCTACSuccessiveScan)
         ):
-            s.append({"type": "DCTSuccessive"})
+            value["type"] = "DCTSuccessive"
         elif isinstance(segment, jpeg.Restart):
-            s.append({"type": "RST%d" % segment.index})
+            value["type"] = "RST%d" % segment.index
         elif isinstance(segment, jpeg.DefineNumberOfLines):
-            s.append({"type": "DNL", "number_of_lines": segment.number_of_lines})
+            value.update({"type": "DNL", "number_of_lines": segment.number_of_lines})
         elif isinstance(segment, jpeg.EndOfImage):
-            s.append({"type": "EOI"})
+            value["type"] = "EOI"
         elif isinstance(segment, jpeg.LSCodingParameters):
-            s.append(
+            value.update(
                 {
                     "type": "LSE",
                     "subtype": "Coding parameters",
@@ -332,14 +334,14 @@ def segments_to_json(segments):
             )
         elif isinstance(segment, jpeg.LSMappingTable):
             # FIXME: Contents
-            s.append(
+            value.update(
                 {
                     "type": "LSE",
                     "subtype": "Mapping table",
                 }
             )
         elif isinstance(segment, jpeg.LSOversizeImageDimensions):
-            s.append(
+            value.update(
                 {
                     "type": "LSE",
                     "subtype": "Oversize image dimensions",
@@ -349,10 +351,17 @@ def segments_to_json(segments):
             )
         else:
             assert False
+        s.append(value)
     return s
 
 
-def make_dct_data_units(width, height, depth, samples, quantization_table):
+def make_dct_data_units(
+    width: int,
+    height: int,
+    depth: int,
+    samples: list[int],
+    quantization_table: list[int],
+) -> list[list[int]]:
     offset = 1 << (depth - 1)
     data_units = []
     for du_y in range(0, height, 8):
@@ -378,25 +387,30 @@ def make_dct_data_units(width, height, depth, samples, quantization_table):
 
 
 def generate_dct(
-    section,
-    description,
-    width,
-    height,
-    components=[],
-    precision=8,
-    luminance_quantization_table=[1] * 64,
-    chrominance_quantization_table=[1] * 64,
-    use_dnl=False,
-    restart_interval=0,
-    color_space=None,
-    scans=[],
-    comments=[],
-    extended=False,
-    progressive=False,
-    arithmetic=False,
-    arithmetic_conditioning_bounds=[(0, 1), (0, 1), (0, 1), (0, 1)],
-    arithmetic_conditioning_kx=[5, 5, 5, 5],
-):
+    section: str,
+    description: str,
+    width: int,
+    height: int,
+    components: list[tuple[list[int], tuple[int, int]]] = [],
+    precision: int = 8,
+    luminance_quantization_table: list[int] = [1] * 64,
+    chrominance_quantization_table: list[int] = [1] * 64,
+    use_dnl: bool = False,
+    restart_interval: int = 0,
+    color_space: int | None = None,
+    scans: list[tuple[list[int], int, int, int]] = [],
+    comments: list[bytes] = [],
+    extended: bool = False,
+    progressive: bool = False,
+    arithmetic: bool = False,
+    arithmetic_conditioning_bounds: list[tuple[int, int]] = [
+        (0, 1),
+        (0, 1),
+        (0, 1),
+        (0, 1),
+    ],
+    arithmetic_conditioning_kx: list[int] = [5, 5, 5, 5],
+) -> None:
     if arithmetic:
         assert extended or progressive
 
@@ -528,26 +542,26 @@ def generate_dct(
             point_transform=point_transform,
             previous_point_transform=previous_point_transform,
         )
+        scan_data: list[jpeg.Segment] = []
         if arithmetic:
             if successive:
                 assert len(component_indexes) == 1
                 if start == 0:
-                    scan_data = [
+                    scan_data.append(
                         jpeg.ArithmeticDCTDCSuccessiveScan(
                             data_units[component_indexes[0]],
                             point_transform=point_transform,
                         )
-                    ]
+                    )
                 else:
-                    scan_data = [
+                    scan_data.append(
                         jpeg.ArithmeticDCTACSuccessiveScan(
                             data_units[component_indexes[0]],
                             spectral_selection=selection,
                             point_transform=point_transform,
                         )
-                    ]
+                    )
             else:
-                scan_data = []
                 for interval in range(n_intervals):
                     arithmetic_components = []
                     mcu_data_units = []
@@ -585,10 +599,12 @@ def generate_dct(
                     # FIXME: Interleave earlier
                     data_units_ = []
                     while len(mcu_data_units[0]) > 0:
-                        for i, scan_component in enumerate(arithmetic_components):
+                        for i, arithmetic_scan_component in enumerate(
+                            arithmetic_components
+                        ):
                             for _ in range(
-                                scan_component.sampling_factor[0]
-                                * scan_component.sampling_factor[1]
+                                arithmetic_scan_component.sampling_factor[0]
+                                * arithmetic_scan_component.sampling_factor[1]
                             ):
                                 data_units_.append(mcu_data_units[i].pop(0))
                     scan_data.append(
@@ -603,24 +619,23 @@ def generate_dct(
             if successive:
                 assert len(component_indexes) == 1
                 if start == 0:
-                    scan_data = [
+                    scan_data.append(
                         jpeg.HuffmanDCTDCSuccessiveScan(
                             data_units[component_indexes[0]],
                             point_transform=point_transform,
                         )
-                    ]
+                    )
                 else:
                     table = jpeg.huffman.make_huffman_table([1] * 256)
-                    scan_data = [
+                    scan_data.append(
                         jpeg.HuffmanDCTACSuccessiveScan(
                             data_units[component_indexes[0]],
                             table,
                             spectral_selection=selection,
                             point_transform=point_transform,
                         )
-                    ]
+                    )
             else:
-                scan_data = []
                 for interval in range(n_intervals):
                     huffman_components = []
                     mcu_data_units = []
@@ -663,10 +678,10 @@ def generate_dct(
                     # FIXME: Interleave earlier
                     data_units_ = []
                     while len(mcu_data_units[0]) > 0:
-                        for i, scan_component in enumerate(huffman_components):
+                        for i, huffman_scan_component in enumerate(huffman_components):
                             for _ in range(
-                                scan_component.sampling_factor[0]
-                                * scan_component.sampling_factor[1]
+                                huffman_scan_component.sampling_factor[0]
+                                * huffman_scan_component.sampling_factor[1]
                             ):
                                 data_units_.append(mcu_data_units[i].pop(0))
                     scan_data.append(
@@ -679,7 +694,7 @@ def generate_dct(
                     )
         jpeg_scans.append((sos, scan_data))
 
-    segments = [jpeg.StartOfImage()]
+    segments: list[jpeg.Segment] = [jpeg.StartOfImage()]
     for comment in comments:
         segments.append(jpeg.Comment(comment))
     if color_space is None:
@@ -751,21 +766,21 @@ def generate_dct(
 
 
 def generate_lossless(
-    section,
-    description,
-    width,
-    height,
-    component_samples,
-    scans=[],
-    precision=8,
-    use_dnl=False,
-    color_space=None,
-    predictor=1,
-    restart_interval=0,
-    arithmetic=False,
-):
+    section: str,
+    description: str,
+    width: int,
+    height: int,
+    component_samples: list[list[int]],
+    scans: list[list[int]] = [],
+    precision: int = 8,
+    use_dnl: bool = False,
+    color_space: int | None = None,
+    predictor: int = 1,
+    restart_interval: int = 0,
+    arithmetic: bool = False,
+) -> None:
     conditioning_bounds = (0, 1)
-    segments = [jpeg.StartOfImage()]
+    segments: list[jpeg.Segment] = [jpeg.StartOfImage()]
     if color_space is None:
         segments.append(jpeg.JFIFData())
     else:
@@ -786,7 +801,7 @@ def generate_lossless(
             arithmetic=arithmetic,
         )
     )
-    huffman_table = None
+    huffman_table: list[list[int]] = [[] * 255]
     if not arithmetic:
         # Need large table to handle all bit depths
         huffman_table = jpeg.huffman.make_huffman_table([1] * 256)
@@ -810,17 +825,20 @@ def generate_lossless(
         all_scan_components.append(jpeg.ScanComponent.lossless(i + 1, table=table))
     for scan_index, component_indexes in enumerate(scans):
         sos_components = []
-        scan_components = []
+        arithmetic_scan_components = []
+        huffman_scan_components = []
         for c in component_indexes:
             sos_components.append(all_scan_components[c])
             if arithmetic:
-                scan_components.append(
+                arithmetic_scan_components.append(
                     jpeg.ArithmeticLosslessScanComponent(
                         conditioning_bounds=conditioning_bounds
                     )
                 )
             else:
-                scan_components.append(jpeg.HuffmanLosslessScanComponent(huffman_table))
+                huffman_scan_components.append(
+                    jpeg.HuffmanLosslessScanComponent(huffman_table)
+                )
         segments.append(
             jpeg.StartOfScan.lossless(
                 components=sos_components,
@@ -846,7 +864,7 @@ def generate_lossless(
                     jpeg.ArithmeticLosslessScan(
                         width,
                         samples,
-                        scan_components,
+                        arithmetic_scan_components,
                         precision=precision,
                         predictor=predictor,
                     )
@@ -856,7 +874,7 @@ def generate_lossless(
                     jpeg.HuffmanLosslessScan(
                         width,
                         samples,
-                        scan_components,
+                        huffman_scan_components,
                         precision=precision,
                         predictor=predictor,
                     )
@@ -869,26 +887,26 @@ def generate_lossless(
 
 
 def generate_ls(
-    section,
-    description,
-    width,
-    height,
-    component_samples,
-    scans=[],
-    precision=8,
-    use_dnl=False,
-    number_of_lines_number_of_bytes=2,
-    color_space=None,
-    restart_interval=0,
-    restart_interval_number_of_bytes=2,
-    maxval=0,
-    gradient_thresholds=(0, 0, 0),
-    reset=0,
-    always_parameters=False,
-    use_oversize_image_dimensions=False,
-    oversize_image_dimensions_number_of_bytes=2,
-):
-    segments = [jpeg.StartOfImage()]
+    section: str,
+    description: str,
+    width: int,
+    height: int,
+    component_samples: list[list[int]],
+    scans: list[tuple[int, list[int]]] = [],
+    precision: int = 8,
+    use_dnl: bool = False,
+    number_of_lines_number_of_bytes: int = 2,
+    color_space: int | None = None,
+    restart_interval: int = 0,
+    restart_interval_number_of_bytes: int = 2,
+    maxval: int = 0,
+    gradient_thresholds: tuple[int, int, int] = (0, 0, 0),
+    reset: int = 0,
+    always_parameters: bool = False,
+    use_oversize_image_dimensions: bool = False,
+    oversize_image_dimensions_number_of_bytes: int = 2,
+) -> None:
+    segments: list[jpeg.Segment] = [jpeg.StartOfImage()]
     if color_space is None:
         segments.append(jpeg.JFIFData())
     else:
@@ -982,7 +1000,14 @@ def generate_ls(
     write_jpeg(segments, section, width, height, precision, description)
 
 
-def write_jpeg(segments, section, width, height, precision, description):
+def write_jpeg(
+    segments: list[jpeg.Segment],
+    section: str,
+    width: int,
+    height: int,
+    precision: int,
+    description: str,
+) -> None:
     writer = jpeg.BufferedWriter()
     for segment in segments:
         segment.write(writer)
@@ -1013,7 +1038,7 @@ for mode, encoding in [
     else:
         section = "baseline"
     if not progressive:
-        one_channel_scans = [([0], 0, 63, 0)]
+        dct_one_channel_scans = [([0], 0, 63, 0)]
         three_channel_scans = [([0], 0, 63, 0), ([1], 0, 63, 0), ([2], 0, 63, 0)]
         three_channel_interleaved_scans = [([0, 1, 2], 0, 63, 0)]
         four_channel_scans = [
@@ -1024,7 +1049,7 @@ for mode, encoding in [
         ]
         four_channel_interleaved_scans = [([0, 1, 2, 3], 0, 63, 0)]
     else:
-        one_channel_scans = [([0], 0, 0, 0), ([0], 1, 63, 0)]
+        dct_one_channel_scans = [([0], 0, 0, 0), ([0], 1, 63, 0)]
         three_channel_scans = [
             ([0], 0, 0, 0),
             ([1], 0, 0, 0),
@@ -1062,7 +1087,7 @@ for mode, encoding in [
         WIDTH,
         HEIGHT,
         grayscale_components8,
-        scans=one_channel_scans,
+        scans=dct_one_channel_scans,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1076,7 +1101,7 @@ for mode, encoding in [
         luminance_quantization_table=jpeg.dct.zig_zag(
             jpeg.standard_luminance_quantization_table
         ),
-        scans=one_channel_scans,
+        scans=dct_one_channel_scans,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1187,7 +1212,7 @@ for mode, encoding in [
         8,
         8,
         [([128] * 64, (1, 1))],
-        scans=one_channel_scans,
+        scans=dct_one_channel_scans,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1198,7 +1223,7 @@ for mode, encoding in [
         8,
         8,
         [(make_solid(8, 8, 0), (1, 1))],
-        scans=one_channel_scans,
+        scans=dct_one_channel_scans,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1209,7 +1234,7 @@ for mode, encoding in [
         8,
         8,
         [(make_solid(8, 8, 255), (1, 1))],
-        scans=one_channel_scans,
+        scans=dct_one_channel_scans,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1220,7 +1245,7 @@ for mode, encoding in [
         8,
         8,
         [(make_solid(8, 8, 127), (1, 1))],
-        scans=one_channel_scans,
+        scans=dct_one_channel_scans,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1231,7 +1256,7 @@ for mode, encoding in [
         8,
         8,
         [(make_check(8, 8, 255), (1, 1))],
-        scans=one_channel_scans,
+        scans=dct_one_channel_scans,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1247,7 +1272,7 @@ for mode, encoding in [
             width,
             height,
             [(samples, (1, 1))],
-            scans=one_channel_scans,
+            scans=dct_one_channel_scans,
             extended=extended,
             progressive=progressive,
             arithmetic=arithmetic,
@@ -1258,7 +1283,7 @@ for mode, encoding in [
         WIDTH,
         HEIGHT,
         grayscale_components8,
-        scans=one_channel_scans,
+        scans=dct_one_channel_scans,
         comments=[b"Hello World"],
         extended=extended,
         progressive=progressive,
@@ -1270,7 +1295,7 @@ for mode, encoding in [
         WIDTH,
         HEIGHT,
         grayscale_components8,
-        scans=one_channel_scans,
+        scans=dct_one_channel_scans,
         comments=[b"Hello", b"World"],
         extended=extended,
         progressive=progressive,
@@ -1330,7 +1355,7 @@ for mode, encoding in [
         WIDTH,
         HEIGHT,
         grayscale_components8,
-        scans=one_channel_scans,
+        scans=dct_one_channel_scans,
         use_dnl=True,
         extended=extended,
         progressive=progressive,
@@ -1342,7 +1367,7 @@ for mode, encoding in [
         WIDTH,
         HEIGHT,
         grayscale_components8,
-        scans=one_channel_scans,
+        scans=dct_one_channel_scans,
         restart_interval=4,
         extended=extended,
         progressive=progressive,
@@ -1356,7 +1381,7 @@ for mode, encoding in [
             WIDTH,
             HEIGHT,
             grayscale_components8,
-            scans=one_channel_scans,
+            scans=dct_one_channel_scans,
             extended=extended,
             progressive=progressive,
             arithmetic=True,
@@ -1369,7 +1394,7 @@ for mode, encoding in [
             WIDTH,
             HEIGHT,
             grayscale_components8,
-            scans=one_channel_scans,
+            scans=dct_one_channel_scans,
             extended=extended,
             progressive=progressive,
             arithmetic=True,
@@ -1383,7 +1408,7 @@ for mode, encoding in [
             WIDTH,
             HEIGHT,
             grayscale_components12,
-            scans=one_channel_scans,
+            scans=dct_one_channel_scans,
             precision=12,
             extended=extended,
             progressive=progressive,
@@ -1419,7 +1444,7 @@ for mode, encoding in [
             8,
             8,
             [(make_solid(8, 8, 0), (1, 1))],
-            scans=one_channel_scans,
+            scans=dct_one_channel_scans,
             precision=12,
             extended=extended,
             progressive=progressive,
@@ -1431,7 +1456,7 @@ for mode, encoding in [
             8,
             8,
             [(make_solid(8, 8, 4095), (1, 1))],
-            scans=one_channel_scans,
+            scans=dct_one_channel_scans,
             precision=12,
             extended=extended,
             progressive=progressive,
@@ -1443,7 +1468,7 @@ for mode, encoding in [
             8,
             8,
             [(make_solid(8, 8, 2047), (1, 1))],
-            scans=one_channel_scans,
+            scans=dct_one_channel_scans,
             precision=12,
             extended=extended,
             progressive=progressive,
@@ -1455,7 +1480,7 @@ for mode, encoding in [
             8,
             8,
             [(make_check(8, 8, 4095), (1, 1))],
-            scans=one_channel_scans,
+            scans=dct_one_channel_scans,
             precision=12,
             extended=extended,
             progressive=progressive,
@@ -1659,9 +1684,14 @@ for encoding in ["huffman", "arithmetic"]:
     )
 
 section = "ls"
-one_channel_scans = [(jpeg.LSInterleaveMode.NONE, [0])]
+ls_one_channel_scans = [(jpeg.LSInterleaveMode.NONE, [0])]
 generate_ls(
-    section, "grayscale", WIDTH, HEIGHT, [grayscale_samples8], scans=one_channel_scans
+    section,
+    "grayscale",
+    WIDTH,
+    HEIGHT,
+    [grayscale_samples8],
+    scans=ls_one_channel_scans,
 )
 for precision in range(2, 17):
     generate_ls(
@@ -1670,13 +1700,15 @@ for precision in range(2, 17):
         WIDTH,
         HEIGHT,
         [make_grayscale(precision)],
-        scans=one_channel_scans,
+        scans=ls_one_channel_scans,
         precision=precision,
     )
 for size in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16):
     (width, height, _, samples) = read_pgm("data/%dx%dx8_grayscale.pgm" % (size, size))
     assert width == height == size
-    generate_ls(section, "grayscale", width, height, [samples], scans=one_channel_scans)
+    generate_ls(
+        section, "grayscale", width, height, [samples], scans=ls_one_channel_scans
+    )
 generate_ls(
     section,
     "ycbcr",
@@ -1742,7 +1774,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=one_channel_scans,
+    scans=ls_one_channel_scans,
     use_oversize_image_dimensions=True,
 )
 generate_ls(
@@ -1751,7 +1783,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=one_channel_scans,
+    scans=ls_one_channel_scans,
     use_oversize_image_dimensions=True,
     oversize_image_dimensions_number_of_bytes=3,
 )
@@ -1761,7 +1793,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=one_channel_scans,
+    scans=ls_one_channel_scans,
     use_oversize_image_dimensions=True,
     oversize_image_dimensions_number_of_bytes=4,
 )
@@ -1771,7 +1803,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=one_channel_scans,
+    scans=ls_one_channel_scans,
     restart_interval=32 * 8,
 )
 generate_ls(
@@ -1780,7 +1812,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=one_channel_scans,
+    scans=ls_one_channel_scans,
     restart_interval=32 * 8,
     restart_interval_number_of_bytes=3,
 )
@@ -1790,7 +1822,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=one_channel_scans,
+    scans=ls_one_channel_scans,
     restart_interval=32 * 8,
     restart_interval_number_of_bytes=4,
 )
@@ -1800,7 +1832,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=one_channel_scans,
+    scans=ls_one_channel_scans,
     use_dnl=True,
 )
 generate_ls(
@@ -1809,7 +1841,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=one_channel_scans,
+    scans=ls_one_channel_scans,
     use_dnl=True,
     number_of_lines_number_of_bytes=3,
 )
@@ -1819,7 +1851,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=one_channel_scans,
+    scans=ls_one_channel_scans,
     use_dnl=True,
     number_of_lines_number_of_bytes=4,
 )
@@ -1829,7 +1861,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=one_channel_scans,
+    scans=ls_one_channel_scans,
     always_parameters=True,
 )
 generate_ls(
@@ -1838,7 +1870,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=one_channel_scans,
+    scans=ls_one_channel_scans,
     gradient_thresholds=(3, 7, 21),
     reset=64,
 )
@@ -1848,7 +1880,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=one_channel_scans,
+    scans=ls_one_channel_scans,
     maxval=255,
     gradient_thresholds=(0, 7, 21),
     reset=64,
@@ -1859,7 +1891,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=one_channel_scans,
+    scans=ls_one_channel_scans,
     maxval=255,
     gradient_thresholds=(3, 0, 21),
     reset=64,
@@ -1870,7 +1902,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=one_channel_scans,
+    scans=ls_one_channel_scans,
     maxval=255,
     gradient_thresholds=(3, 7, 0),
     reset=64,
@@ -1881,7 +1913,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=one_channel_scans,
+    scans=ls_one_channel_scans,
     maxval=255,
     gradient_thresholds=(3, 7, 21),
     reset=0,
@@ -1892,7 +1924,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=one_channel_scans,
+    scans=ls_one_channel_scans,
     maxval=255,
     gradient_thresholds=(3, 7, 21),
     reset=64,
@@ -1903,7 +1935,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
-    scans=one_channel_scans,
+    scans=ls_one_channel_scans,
     maxval=255,
     gradient_thresholds=(4, 8, 22),
     reset=63,
