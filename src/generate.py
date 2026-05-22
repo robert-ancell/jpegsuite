@@ -892,7 +892,7 @@ def generate_ls(
     width: int,
     height: int,
     component_samples: list[list[int]],
-    scans: list[tuple[int, list[int]]] = [],
+    scans: list[tuple[int, int, list[int]]] = [],
     precision: int = 8,
     use_dnl: bool = False,
     number_of_lines_number_of_bytes: int = 2,
@@ -955,7 +955,9 @@ def generate_ls(
     all_scan_components = []
     for i, samples in enumerate(component_samples):
         all_scan_components.append(jpeg.ScanComponent.ls(i + 1))
-    for scan_index, (interleave_mode, component_indexes) in enumerate(scans):
+    for scan_index, (difference_bound, interleave_mode, component_indexes) in enumerate(
+        scans
+    ):
         sos_components = []
         scan_components = []
         for c in component_indexes:
@@ -963,7 +965,9 @@ def generate_ls(
             scan_components.append(jpeg.LSScanComponent())
         segments.append(
             jpeg.StartOfScan.ls(
-                components=sos_components, interleave_mode=interleave_mode
+                components=sos_components,
+                difference_bound=difference_bound,
+                interleave_mode=interleave_mode,
             )
         )
         n_samples = width * height
@@ -1684,7 +1688,7 @@ for encoding in ["huffman", "arithmetic"]:
     )
 
 section = "ls"
-ls_one_channel_scans = [(jpeg.LSInterleaveMode.NONE, [0])]
+ls_one_channel_scans = [(0, jpeg.LSInterleaveMode.NONE, [0])]
 generate_ls(
     section,
     "grayscale",
@@ -1716,9 +1720,9 @@ generate_ls(
     HEIGHT,
     ycbcr_samples8,
     scans=[
-        (jpeg.LSInterleaveMode.NONE, [0]),
-        (jpeg.LSInterleaveMode.NONE, [1]),
-        (jpeg.LSInterleaveMode.NONE, [2]),
+        (0, jpeg.LSInterleaveMode.NONE, [0]),
+        (0, jpeg.LSInterleaveMode.NONE, [1]),
+        (0, jpeg.LSInterleaveMode.NONE, [2]),
     ],
 )
 generate_ls(
@@ -1727,7 +1731,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     ycbcr_samples8,
-    scans=[(jpeg.LSInterleaveMode.LINE, [0, 1, 2])],
+    scans=[(0, jpeg.LSInterleaveMode.LINE, [0, 1, 2])],
 )
 generate_ls(
     section,
@@ -1735,7 +1739,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     ycbcr_samples8,
-    scans=[(jpeg.LSInterleaveMode.SAMPLE, [0, 1, 2])],
+    scans=[(0, jpeg.LSInterleaveMode.SAMPLE, [0, 1, 2])],
 )
 generate_ls(
     section,
@@ -1744,9 +1748,9 @@ generate_ls(
     HEIGHT,
     rgb_samples8,
     scans=[
-        (jpeg.LSInterleaveMode.NONE, [0]),
-        (jpeg.LSInterleaveMode.NONE, [1]),
-        (jpeg.LSInterleaveMode.NONE, [2]),
+        (0, jpeg.LSInterleaveMode.NONE, [0]),
+        (0, jpeg.LSInterleaveMode.NONE, [1]),
+        (0, jpeg.LSInterleaveMode.NONE, [2]),
     ],
     color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
 )
@@ -1756,7 +1760,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     rgb_samples8,
-    scans=[(jpeg.LSInterleaveMode.LINE, [0, 1, 2])],
+    scans=[(0, jpeg.LSInterleaveMode.LINE, [0, 1, 2])],
     color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
 )
 generate_ls(
@@ -1765,7 +1769,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     rgb_samples8,
-    scans=[(jpeg.LSInterleaveMode.SAMPLE, [0, 1, 2])],
+    scans=[(0, jpeg.LSInterleaveMode.SAMPLE, [0, 1, 2])],
     color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
 )
 generate_ls(
