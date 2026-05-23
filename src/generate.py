@@ -169,21 +169,21 @@ def segments_to_json(segments: list[jpeg.Segment]) -> list[dict[str, object]]:
             value["type"] = "SOI"
         elif isinstance(segment, jpeg.ApplicationSpecificData):
             value["type"] = "APP%d" % segment.n
-            if isinstance(segment, jpeg.JFIFData):
+            if isinstance(segment, jpeg.JfifHeader):
                 value.update(
                     {
                         "format": "JFIF",
                         "version": "%d.%d" % (segment.version[0], segment.version[1]),
                     }
                 )
-                if segment.density.unit == jpeg.DensityUnit.ASPECT_RATIO:
+                if segment.density.unit == jpeg.JfifDensityUnit.ASPECT_RATIO:
                     value["aspect-ratio"] = "%dx%d" % (
                         segment.density.x,
                         segment.density.y,
                     )
-                elif segment.density.unit == jpeg.DensityUnit.DPI:
+                elif segment.density.unit == jpeg.JfifDensityUnit.DPI:
                     value["dpi"] = "%dx%d" % (segment.density.x, segment.density.y)
-                elif segment.density.unit == jpeg.DensityUnit.DPCM:
+                elif segment.density.unit == jpeg.JfifDensityUnit.DPCM:
                     value["dpcm"] = "%dx%d" % (segment.density.x, segment.density.y)
                 else:
                     value["density"] = {
@@ -196,7 +196,7 @@ def segments_to_json(segments: list[jpeg.Segment]) -> list[dict[str, object]]:
                         "size": segment.thumbnail_size,
                         "data": list(segment.thumbnail_data),
                     }
-            elif isinstance(segment, jpeg.AdobeData):
+            elif isinstance(segment, jpeg.AdobeHeader):
                 value["format"] = "Adobe"
                 color_space_value = {
                     jpeg.AdobeColorSpace.RGB_OR_CMYK: "RGB or CMYK",
@@ -698,9 +698,9 @@ def generate_dct(
     for comment in comments:
         segments.append(jpeg.Comment(comment))
     if color_space is None:
-        segments.append(jpeg.JFIFData())
+        segments.append(jpeg.JfifHeader())
     else:
-        segments.append(jpeg.AdobeData(color_space=color_space))
+        segments.append(jpeg.AdobeHeader(color_space=color_space))
     segments.append(jpeg.DefineQuantizationTables(quantization_tables))
     if use_dnl:
         number_of_lines = 0
@@ -761,7 +761,7 @@ def generate_dct(
         if i == 0 and use_dnl:
             segments.append(jpeg.DefineNumberOfLines(height))
     segments.append(jpeg.EndOfImage())
-    segments = jpeg.huffman_optimize.optimize(segments)
+    segments = jpeg.huffman_optimize(segments)
     write_jpeg(segments, section, width, height, precision, description)
 
 
@@ -782,9 +782,9 @@ def generate_lossless(
     conditioning_bounds = (0, 1)
     segments: list[jpeg.Segment] = [jpeg.StartOfImage()]
     if color_space is None:
-        segments.append(jpeg.JFIFData())
+        segments.append(jpeg.JfifHeader())
     else:
-        segments.append(jpeg.AdobeData(color_space=color_space))
+        segments.append(jpeg.AdobeHeader(color_space=color_space))
     if use_dnl:
         number_of_lines = 0
     else:
@@ -882,7 +882,7 @@ def generate_lossless(
             if offset == 0 and scan_index == 0 and use_dnl:
                 segments.append(jpeg.DefineNumberOfLines(height))
     segments.append(jpeg.EndOfImage())
-    segments = jpeg.huffman_optimize.optimize(segments)
+    segments = jpeg.huffman_optimize(segments)
     write_jpeg(segments, section, width, height, precision, description)
 
 
@@ -908,9 +908,9 @@ def generate_ls(
 ) -> None:
     segments: list[jpeg.Segment] = [jpeg.StartOfImage()]
     if color_space is None:
-        segments.append(jpeg.JFIFData())
+        segments.append(jpeg.JfifHeader())
     else:
-        segments.append(jpeg.AdobeData(color_space=color_space))
+        segments.append(jpeg.AdobeHeader(color_space=color_space))
     if use_dnl or use_oversize_image_dimensions:
         number_of_lines = 0
     else:
