@@ -1,0 +1,72 @@
+{
+  "width": 32,
+  "height": 32,
+  "segments": [
+    {
+      "type": "SOI"
+    },
+    {
+      "type": "APP0",
+      "format": "JFIF",
+      "version": "1.2",
+      "aspect-ratio": "1x1"
+    },
+    {
+      "type": "SOF55",
+      "precision": 8,
+      "number_of_lines": 32,
+      "samples_per_line": 32,
+      "components": [
+        {
+          "id": 1,
+          "sampling_factor": [
+            1,
+            1
+          ],
+          "quantization_table": 0
+        }
+      ]
+    },
+    {
+      "type": "LSE",
+      "subtype": "Coding parameters",
+      "maxval": 48,
+      "gradient-thresholds": [
+        0,
+        0,
+        0
+      ],
+      "reset": 0
+    },
+    {
+      "type": "LSE",
+      "subtype": "Mapping table",
+      "weight": 1,
+      "table": "fffdd6ad81511bf2b95e00cb6983bfe0f4fef6b099dda85ac879d8c963f1af4e215fee95d0c6f348dcb88af0f78ca3e182"
+    },
+    {
+      "type": "SOS",
+      "components": [
+        {
+          "component_id": 1,
+          "dc_table": 0,
+          "ac_table": 1
+        }
+      ],
+      "spectral_selection": [
+        0,
+        0
+      ],
+      "approximation": [
+        0,
+        0
+      ]
+    },
+    {
+      "type": "LS"
+    },
+    {
+      "type": "EOI"
+    }
+  ]
+}

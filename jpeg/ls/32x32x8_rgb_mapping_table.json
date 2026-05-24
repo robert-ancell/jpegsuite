@@ -1,0 +1,72 @@
+{
+  "width": 32,
+  "height": 32,
+  "segments": [
+    {
+      "type": "SOI"
+    },
+    {
+      "type": "APP0",
+      "format": "JFIF",
+      "version": "1.2",
+      "aspect-ratio": "1x1"
+    },
+    {
+      "type": "SOF55",
+      "precision": 8,
+      "number_of_lines": 32,
+      "samples_per_line": 32,
+      "components": [
+        {
+          "id": 1,
+          "sampling_factor": [
+            1,
+            1
+          ],
+          "quantization_table": 0
+        }
+      ]
+    },
+    {
+      "type": "LSE",
+      "subtype": "Coding parameters",
+      "maxval": 152,
+      "gradient-thresholds": [
+        0,
+        0,
+        0
+      ],
+      "reset": 0
+    },
+    {
+      "type": "LSE",
+      "subtype": "Mapping table",
+      "weight": 3,
+      "table": "fffffffdfdfdd6d6d6adadad8181815151511b1b00f2f2f2b9b9b95e5e5e000000cbcbcb696969838300bfbf00e0e000f4f400fefe00f6f6f6b0b0b0999900dddd00ffff00a8a8a85a5a00c8c800797900d8d800c9c9ac0000fffff100ff00001b1b1bfdfd002121005f5f00eeee00959500d0d000c6c600f3f300484800dcdc00b8b8008a8a00f0f000f7f7008c8c00a3a300e1e100828200"
+    },
+    {
+      "type": "SOS",
+      "components": [
+        {
+          "component_id": 1,
+          "dc_table": 0,
+          "ac_table": 1
+        }
+      ],
+      "spectral_selection": [
+        0,
+        0
+      ],
+      "approximation": [
+        0,
+        0
+      ]
+    },
+    {
+      "type": "LS"
+    },
+    {
+      "type": "EOI"
+    }
+  ]
+}

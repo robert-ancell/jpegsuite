@@ -68,6 +68,30 @@ def make_check(width: int, height: int, white: int) -> list[int]:
     return samples
 
 
+def make_mapped_samples(samples: list[list[int]]) -> tuple[list[int], bytes]:
+    sample_to_index: dict[bytes, int] = {}
+    index_to_sample: dict[int, bytes] = {}
+    weight = len(samples)
+    for i in range(len(samples[0])):
+        sample = b""
+        for j in range(weight):
+            sample += bytes([samples[j][i]])
+        if sample not in sample_to_index:
+            index = len(sample_to_index)
+            sample_to_index[sample] = index
+            index_to_sample[index] = sample
+    mapping_table = b""
+    for i in range(len(index_to_sample)):
+        mapping_table += index_to_sample[i]
+    mapped_samples = []
+    for i in range(len(samples[0])):
+        sample = b""
+        for j in range(weight):
+            sample += bytes([samples[j][i]])
+        mapped_samples.append(sample_to_index[sample])
+    return mapped_samples, mapping_table
+
+
 grayscale_samples8 = make_grayscale(8)
 grayscale_samples12 = make_grayscale(12)
 grayscale_components8 = [(grayscale_samples8, (1, 1))]
@@ -338,6 +362,8 @@ def segments_to_json(segments: list[jpeg.Segment]) -> list[dict[str, object]]:
                 {
                     "type": "LSE",
                     "subtype": "Mapping table",
+                    "weight": segment.weight,
+                    "table": segment.table.hex(),
                 }
             )
         elif isinstance(segment, jpeg.LSOversizeImageDimensions):
@@ -899,6 +925,7 @@ def generate_ls(
     color_space: int | None = None,
     restart_interval: int = 0,
     restart_interval_number_of_bytes: int = 2,
+    mapping_tables: list[tuple[int, int, bytes]] = [],
     maxval: int = 0,
     gradient_thresholds: tuple[int, int, int] = (0, 0, 0),
     reset: int = 0,
@@ -946,6 +973,9 @@ def generate_ls(
                 maxval=maxval, gradient_thresholds=gradient_thresholds, reset=reset
             )
         )
+    for table_id, weight, table in mapping_tables:
+        # FIXME: Support table continuation
+        segments.append(jpeg.LSMappingTable(table_id, table, weight=weight))
     if restart_interval != 0:
         segments.append(
             jpeg.DefineRestartInterval(
@@ -954,7 +984,13 @@ def generate_ls(
         )
     all_scan_components = []
     for i, samples in enumerate(component_samples):
-        all_scan_components.append(jpeg.ScanComponent.ls(i + 1))
+        if len(mapping_tables) > 0:
+            mapping_table = i + 1
+        else:
+            mapping_table = 0
+        all_scan_components.append(
+            jpeg.ScanComponent.ls(i + 1, mapping_table=mapping_table)
+        )
     for scan_index, (difference_bound, interleave_mode, component_indexes) in enumerate(
         scans
     ):
@@ -984,14 +1020,17 @@ def generate_ls(
             if offset != 0:
                 index = (offset // segment_length) - 1
                 segments.append(jpeg.Restart(index % 8))
-            maxval = (1 << precision) - 1
+            if maxval != 0:
+                scan_maxval = maxval
+            else:
+                scan_maxval = (1 << precision) - 1
             segments.append(
                 jpeg.LSScan(
                     width,
                     samples,
                     scan_components,
                     interleave_mode=interleave_mode,
-                    maxval=maxval,
+                    maxval=scan_maxval,
                 )
             )
             if offset == 0 and scan_index == 0 and use_dnl:
@@ -1713,6 +1752,17 @@ for size in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16):
     generate_ls(
         section, "grayscale", width, height, [samples], scans=ls_one_channel_scans
     )
+grayscale_mapped_samples, mapping_table = make_mapped_samples([grayscale_samples8])
+generate_ls(
+    section,
+    "grayscale_mapping_table",
+    WIDTH,
+    HEIGHT,
+    [grayscale_mapped_samples],
+    mapping_tables=[(1, 1, mapping_table)],
+    maxval=len(mapping_table) - 1,
+    scans=ls_one_channel_scans,
+)
 generate_ls(
     section,
     "ycbcr",
@@ -1753,6 +1803,17 @@ generate_ls(
         (0, jpeg.LSInterleaveMode.NONE, [2]),
     ],
     color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+)
+rgb_mapped_samples, mapping_table = make_mapped_samples(rgb_samples8)
+generate_ls(
+    section,
+    "rgb_mapping_table",
+    WIDTH,
+    HEIGHT,
+    [rgb_mapped_samples],
+    mapping_tables=[(1, 3, mapping_table)],
+    maxval=len(mapping_table) - 1,
+    scans=ls_one_channel_scans,
 )
 generate_ls(
     section,
