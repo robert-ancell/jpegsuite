@@ -44,9 +44,12 @@ def rgb_to_cmyk(r: int, g: int, b: int, precision: int) -> tuple[int, int, int, 
 
 
 def make_grayscale(precision: int) -> list[int]:
-    width, height, max_value, raw_samples = read_pnm("data/32x32x16_grayscale.pgm")
+    width, height, max_value, channels, raw_samples = read_pnm(
+        "data/32x32x16_grayscale.pgm"
+    )
     assert width == WIDTH
     assert height == HEIGHT
+    assert channels == 1
     samples = []
     for s in raw_samples:
         samples.append(round(s * ((1 << precision) - 1) / max_value))
@@ -99,9 +102,10 @@ grayscale_components12 = [(grayscale_samples12, (1, 1))]
 
 
 def make_rgb(precision: int) -> list[list[int]]:
-    width, height, max_value, raw_samples = read_pnm("data/32x32x16_rgb.ppm")
+    width, height, max_value, channels, raw_samples = read_pnm("data/32x32x16_rgb.ppm")
     assert width == WIDTH
     assert height == HEIGHT
+    assert channels == 3
     r_samples = []
     g_samples = []
     b_samples = []
@@ -1305,10 +1309,11 @@ for mode, encoding in [
         arithmetic=arithmetic,
     )
     for size in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16):
-        (width, height, _, samples) = read_pnm(
+        (width, height, _, channels, samples) = read_pnm(
             "data/%dx%dx8_grayscale.pgm" % (size, size)
         )
         assert width == height == size
+        assert channels == 1
         generate_dct(
             section,
             "grayscale",
@@ -1646,10 +1651,11 @@ for encoding in ["huffman", "arithmetic"]:
             arithmetic=arithmetic,
         )
     for size in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16):
-        (width, height, _, samples) = read_pnm(
+        (width, height, _, channels, samples) = read_pnm(
             "data/%dx%dx8_grayscale.pgm" % (size, size)
         )
         assert width == height == size
+        assert channels == 1
         generate_lossless(
             section,
             "grayscale",
@@ -1747,8 +1753,11 @@ for precision in range(2, 17):
         precision=precision,
     )
 for size in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16):
-    (width, height, _, samples) = read_pnm("data/%dx%dx8_grayscale.pgm" % (size, size))
+    (width, height, _, channels, samples) = read_pnm(
+        "data/%dx%dx8_grayscale.pgm" % (size, size)
+    )
     assert width == height == size
+    assert channels == 1
     generate_ls(
         section, "grayscale", width, height, [samples], scans=ls_one_channel_scans
     )
