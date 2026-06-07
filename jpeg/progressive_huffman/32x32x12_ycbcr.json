@@ -390,10 +390,7 @@
         0,
         0
       ],
-      "approximation": [
-        0,
-        0
-      ]
+      "point_transform": 0
     },
     {
       "type": "DCT"
@@ -411,10 +408,7 @@
         0,
         0
       ],
-      "approximation": [
-        0,
-        0
-      ]
+      "point_transform": 0
     },
     {
       "type": "DCT"
@@ -432,10 +426,7 @@
         0,
         0
       ],
-      "approximation": [
-        0,
-        0
-      ]
+      "point_transform": 0
     },
     {
       "type": "DCT"
@@ -453,10 +444,7 @@
         1,
         63
       ],
-      "approximation": [
-        0,
-        0
-      ]
+      "point_transform": 0
     },
     {
       "type": "DCT"
@@ -474,10 +462,7 @@
         1,
         63
       ],
-      "approximation": [
-        0,
-        0
-      ]
+      "point_transform": 0
     },
     {
       "type": "DCT"
@@ -495,10 +480,7 @@
         1,
         63
       ],
-      "approximation": [
-        0,
-        0
-      ]
+      "point_transform": 0
     },
     {
       "type": "DCT"

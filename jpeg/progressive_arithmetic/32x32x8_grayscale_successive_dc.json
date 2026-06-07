@@ -131,10 +131,7 @@
         0,
         0
       ],
-      "approximation": [
-        0,
-        4
-      ]
+      "point_transform": 4
     },
     {
       "type": "DCT"
@@ -152,10 +149,8 @@
         0,
         0
       ],
-      "approximation": [
-        4,
-        3
-      ]
+      "previous_point_transform": 4,
+      "point_transform": 3
     },
     {
       "type": "DCTSuccessive"
@@ -173,10 +168,8 @@
         0,
         0
       ],
-      "approximation": [
-        3,
-        2
-      ]
+      "previous_point_transform": 3,
+      "point_transform": 2
     },
     {
       "type": "DCTSuccessive"
@@ -194,10 +187,8 @@
         0,
         0
       ],
-      "approximation": [
-        2,
-        1
-      ]
+      "previous_point_transform": 2,
+      "point_transform": 1
     },
     {
       "type": "DCTSuccessive"
@@ -215,10 +206,8 @@
         0,
         0
       ],
-      "approximation": [
-        1,
-        0
-      ]
+      "previous_point_transform": 1,
+      "point_transform": 0
     },
     {
       "type": "DCTSuccessive"
@@ -236,10 +225,7 @@
         1,
         63
       ],
-      "approximation": [
-        0,
-        0
-      ]
+      "point_transform": 0
     },
     {
       "type": "DCT"

@@ -171,10 +171,7 @@
         1,
         0
       ],
-      "approximation": [
-        0,
-        0
-      ]
+      "point_transform": 0
     },
     {
       "type": "Lossless"
@@ -192,10 +189,7 @@
         1,
         0
       ],
-      "approximation": [
-        0,
-        0
-      ]
+      "point_transform": 0
     },
     {
       "type": "Lossless"
@@ -213,10 +207,7 @@
         1,
         0
       ],
-      "approximation": [
-        0,
-        0
-      ]
+      "point_transform": 0
     },
     {
       "type": "Lossless"

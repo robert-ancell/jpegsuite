@@ -324,9 +324,11 @@ def segments_to_json(segments: list[jpeg.Segment]) -> list[dict[str, object]]:
                     "type": "SOS",
                     "components": components,
                     "spectral_selection": segment.spectral_selection,
-                    "approximation": [segment.ah, segment.al],
                 }
             )
+            if segment.point_transform & 0xF0 != 0:
+                value["previous_point_transform"] = segment.point_transform >> 4
+            value["point_transform"] = segment.point_transform & 0xF
         elif isinstance(segment, jpeg.HuffmanDCTScan) or isinstance(
             segment, jpeg.ArithmeticDCTScan
         ):
