@@ -1145,9 +1145,7 @@ for mode, encoding in [
         WIDTH,
         HEIGHT,
         grayscale_components8,
-        luminance_quantization_table=jpeg.dct.zig_zag(
-            jpeg.standard_luminance_quantization_table
-        ),
+        luminance_quantization_table=jpeg.standard_luminance_quantization_table,
         scans=dct_one_channel_scans,
         extended=extended,
         progressive=progressive,
@@ -1170,12 +1168,8 @@ for mode, encoding in [
         WIDTH,
         HEIGHT,
         ycbcr_components8,
-        luminance_quantization_table=jpeg.dct.zig_zag(
-            jpeg.standard_luminance_quantization_table
-        ),
-        chrominance_quantization_table=jpeg.dct.zig_zag(
-            jpeg.standard_chrominance_quantization_table
-        ),
+        luminance_quantization_table=jpeg.standard_luminance_quantization_table,
+        chrominance_quantization_table=jpeg.standard_chrominance_quantization_table,
         scans=three_channel_scans,
         extended=extended,
         progressive=progressive,
