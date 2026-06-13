@@ -410,7 +410,7 @@ def make_dct_data_units(
                     p = samples[py * width + px]
                     values.append(p - offset)
 
-            data_unit = jpeg.dct.quantize(jpeg.dct.fdct(values), quantization_table)
+            data_unit = jpeg.dct.fdct(values, quantization_table)
             data_units.append(data_unit)
 
     return data_units
