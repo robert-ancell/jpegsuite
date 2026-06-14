@@ -390,11 +390,10 @@ def segments_to_json(segments: list[jpeg.Segment]) -> list[dict[str, object]]:
 def make_dct_data_units(
     width: int,
     height: int,
-    depth: int,
+    precision: int,
     samples: list[int],
     quantization_table: list[int],
 ) -> list[list[int]]:
-    offset = 1 << (depth - 1)
     data_units = []
     for du_y in range(0, height, 8):
         for du_x in range(0, width, 8):
@@ -408,9 +407,9 @@ def make_dct_data_units(
                     if py >= height:
                         py = height - 1
                     p = samples[py * width + px]
-                    values.append(p - offset)
+                    values.append(p)
 
-            data_unit = jpeg.dct.fdct(values, quantization_table)
+            data_unit = jpeg.dct.fdct(values, precision, quantization_table)
             data_units.append(data_unit)
 
     return data_units
