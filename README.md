@@ -21,7 +21,9 @@ The reference grayscale image.
 The reference color image in YCbCr, RGB and CMYK format with a single scan per channel.
 
 `32x32x8_ycbcr.jpg`
+`32x32x8_crcby.jpg`
 `32x32x8_rgb.jpg`
+`32x32x8_bgr.jpg`
 `32x32x8_cmyk.jpg`
 The reference color image as above, but with a single scan interleaving each channel.
 

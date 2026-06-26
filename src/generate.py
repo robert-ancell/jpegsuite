@@ -1196,6 +1196,17 @@ for mode, encoding in [
         progressive=progressive,
         arithmetic=arithmetic,
     )
+    generate_dct(
+        section,
+        "crcby",
+        WIDTH,
+        HEIGHT,
+        ycbcr_components8,
+        scans=[([2, 1, 0], 0, 63, 0)],
+        extended=extended,
+        progressive=progressive,
+        arithmetic=arithmetic,
+    )
     # FIXME: Greyscale sampling
     generate_dct(
         section,
@@ -1384,6 +1395,18 @@ for mode, encoding in [
         HEIGHT,
         rgb_components8,
         scans=three_channel_interleaved_scans,
+        color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+        extended=extended,
+        progressive=progressive,
+        arithmetic=arithmetic,
+    )
+    generate_dct(
+        section,
+        "bgr",
+        WIDTH,
+        HEIGHT,
+        rgb_components8,
+        scans=[([2, 1, 0], 0, 63, 0)],
         color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
         extended=extended,
         progressive=progressive,
