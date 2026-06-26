@@ -1163,6 +1163,17 @@ for mode, encoding in [
     )
     generate_dct(
         section,
+        "cr_cb_y",
+        WIDTH,
+        HEIGHT,
+        ycbcr_components8,
+        scans=[([2], 0, 63, 0), ([1], 0, 63, 0), ([0], 0, 63, 0)],
+        extended=extended,
+        progressive=progressive,
+        arithmetic=arithmetic,
+    )
+    generate_dct(
+        section,
         "y_cb_cr_quantization",
         WIDTH,
         HEIGHT,
@@ -1349,6 +1360,18 @@ for mode, encoding in [
         HEIGHT,
         rgb_components8,
         scans=three_channel_scans,
+        color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+        extended=extended,
+        progressive=progressive,
+        arithmetic=arithmetic,
+    )
+    generate_dct(
+        section,
+        "b_g_r",
+        WIDTH,
+        HEIGHT,
+        rgb_components8,
+        scans=[([2], 0, 63, 0), ([1], 0, 63, 0), ([0], 0, 63, 0)],
         color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
         extended=extended,
         progressive=progressive,

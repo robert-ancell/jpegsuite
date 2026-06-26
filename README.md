@@ -14,7 +14,9 @@ These are images that all JPEG decoders should support.
 The reference grayscale image.
 
 `32x32x8_y_cb_cr.jpg`
+`32x32x8_cr_cb_y.jpg`
 `32x32x8_r_g_b.jpg`
+`32x32x8_b_g_r.jpg`
 `32x32x8_c_m_y_k.jpg`
 The reference color image in YCbCr, RGB and CMYK format with a single scan per channel.
 
