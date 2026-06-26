@@ -1,0 +1,492 @@
+{
+  "width": 32,
+  "height": 32,
+  "segments": [
+    {
+      "type": "SOI"
+    },
+    {
+      "type": "APP0",
+      "format": "JFIF",
+      "version": "1.2",
+      "aspect-ratio": "1x1"
+    },
+    {
+      "type": "DQT",
+      "tables": [
+        {
+          "destination": 0,
+          "precision": 8,
+          "values": [
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "destination": 1,
+          "precision": 8,
+          "values": [
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "SOF2",
+      "precision": 12,
+      "number_of_lines": 32,
+      "samples_per_line": 32,
+      "components": [
+        {
+          "id": 1,
+          "sampling_factor": [
+            1,
+            1
+          ],
+          "quantization_table": 0
+        },
+        {
+          "id": 2,
+          "sampling_factor": [
+            1,
+            1
+          ],
+          "quantization_table": 1
+        },
+        {
+          "id": 3,
+          "sampling_factor": [
+            1,
+            1
+          ],
+          "quantization_table": 1
+        }
+      ]
+    },
+    {
+      "type": "DHT",
+      "tables": [
+        {
+          "class": "dc",
+          "destination": 0,
+          "symbols": [
+            [],
+            [
+              0,
+              13,
+              14
+            ],
+            [
+              11
+            ],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+          ]
+        },
+        {
+          "class": "ac",
+          "destination": 0,
+          "symbols": [
+            [],
+            [
+              9,
+              10
+            ],
+            [
+              7,
+              8,
+              11
+            ],
+            [
+              12
+            ],
+            [
+              6
+            ],
+            [
+              13
+            ],
+            [
+              5
+            ],
+            [
+              4
+            ],
+            [
+              3
+            ],
+            [],
+            [
+              1,
+              2
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ]
+        },
+        {
+          "class": "dc",
+          "destination": 1,
+          "symbols": [
+            [],
+            [
+              0,
+              13
+            ],
+            [
+              10,
+              11,
+              12
+            ],
+            [],
+            [
+              8,
+              9
+            ],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+          ]
+        },
+        {
+          "class": "ac",
+          "destination": 1,
+          "symbols": [
+            [],
+            [],
+            [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            [
+              3,
+              10,
+              11
+            ],
+            [
+              2
+            ],
+            [
+              12
+            ],
+            [
+              1
+            ],
+            [],
+            [
+              13,
+              21
+            ],
+            [
+              18,
+              19,
+              22
+            ],
+            [
+              20
+            ],
+            [],
+            [],
+            [],
+            [],
+            []
+          ]
+        }
+      ]
+    },
+    {
+      "type": "SOS",
+      "components": [
+        {
+          "component_id": 1,
+          "dc_table": 0,
+          "ac_table": 0
+        }
+      ],
+      "spectral_selection": [
+        0,
+        0
+      ],
+      "point_transform": 0
+    },
+    {
+      "type": "DCT"
+    },
+    {
+      "type": "SOS",
+      "components": [
+        {
+          "component_id": 2,
+          "dc_table": 1,
+          "ac_table": 1
+        }
+      ],
+      "spectral_selection": [
+        0,
+        0
+      ],
+      "point_transform": 0
+    },
+    {
+      "type": "DCT"
+    },
+    {
+      "type": "SOS",
+      "components": [
+        {
+          "component_id": 3,
+          "dc_table": 1,
+          "ac_table": 1
+        }
+      ],
+      "spectral_selection": [
+        0,
+        0
+      ],
+      "point_transform": 0
+    },
+    {
+      "type": "DCT"
+    },
+    {
+      "type": "SOS",
+      "components": [
+        {
+          "component_id": 1,
+          "dc_table": 0,
+          "ac_table": 0
+        }
+      ],
+      "spectral_selection": [
+        1,
+        63
+      ],
+      "point_transform": 0
+    },
+    {
+      "type": "DCT"
+    },
+    {
+      "type": "SOS",
+      "components": [
+        {
+          "component_id": 2,
+          "dc_table": 1,
+          "ac_table": 1
+        }
+      ],
+      "spectral_selection": [
+        1,
+        63
+      ],
+      "point_transform": 0
+    },
+    {
+      "type": "DCT"
+    },
+    {
+      "type": "SOS",
+      "components": [
+        {
+          "component_id": 3,
+          "dc_table": 1,
+          "ac_table": 1
+        }
+      ],
+      "spectral_selection": [
+        1,
+        63
+      ],
+      "point_transform": 0
+    },
+    {
+      "type": "DCT"
+    },
+    {
+      "type": "EOI"
+    }
+  ]
+}

@@ -1152,7 +1152,7 @@ for mode, encoding in [
     )
     generate_dct(
         section,
-        "ycbcr",
+        "y_cb_cr",
         WIDTH,
         HEIGHT,
         ycbcr_components8,
@@ -1163,7 +1163,7 @@ for mode, encoding in [
     )
     generate_dct(
         section,
-        "ycbcr_quantization",
+        "y_cb_cr_quantization",
         WIDTH,
         HEIGHT,
         ycbcr_components8,
@@ -1176,7 +1176,7 @@ for mode, encoding in [
     )
     generate_dct(
         section,
-        "ycbcr_interleaved",
+        "ycbcr",
         WIDTH,
         HEIGHT,
         ycbcr_components8,
@@ -1188,7 +1188,7 @@ for mode, encoding in [
     # FIXME: Greyscale sampling
     generate_dct(
         section,
-        "ycbcr_2x2_1x1_1x1",
+        "y_cb_cr_2x2_1x1_1x1",
         WIDTH,
         HEIGHT,
         [
@@ -1203,7 +1203,7 @@ for mode, encoding in [
     )
     generate_dct(
         section,
-        "ycbcr_2x2_1x1_1x1_interleaved",
+        "ycbcr_2x2_1x1_1x1",
         WIDTH,
         HEIGHT,
         [
@@ -1218,7 +1218,7 @@ for mode, encoding in [
     )
     generate_dct(
         section,
-        "ycbcr_2x2_2x1_1x2",
+        "y_cb_cr_2x2_2x1_1x2",
         WIDTH,
         HEIGHT,
         [
@@ -1233,7 +1233,7 @@ for mode, encoding in [
     )
     generate_dct(
         section,
-        "ycbcr_2x2_2x1_1x2_interleaved",
+        "ycbcr_2x2_2x1_1x2",
         WIDTH,
         HEIGHT,
         [
@@ -1344,7 +1344,7 @@ for mode, encoding in [
     )
     generate_dct(
         section,
-        "rgb",
+        "r_g_b",
         WIDTH,
         HEIGHT,
         rgb_components8,
@@ -1356,7 +1356,7 @@ for mode, encoding in [
     )
     generate_dct(
         section,
-        "rgb_interleaved",
+        "rgb",
         WIDTH,
         HEIGHT,
         rgb_components8,
@@ -1368,7 +1368,7 @@ for mode, encoding in [
     )
     generate_dct(
         section,
-        "cmyk",
+        "c_m_y_k",
         WIDTH,
         HEIGHT,
         cmyk_components8,
@@ -1380,7 +1380,7 @@ for mode, encoding in [
     )
     generate_dct(
         section,
-        "cmyk_interleaved",
+        "cmyk",
         WIDTH,
         HEIGHT,
         cmyk_components8,
@@ -1457,7 +1457,7 @@ for mode, encoding in [
         )
         generate_dct(
             section,
-            "ycbcr",
+            "y_cb_cr",
             WIDTH,
             HEIGHT,
             ycbcr_components12,
@@ -1469,7 +1469,7 @@ for mode, encoding in [
         )
         generate_dct(
             section,
-            "ycbcr_interleaved",
+            "ycbcr",
             WIDTH,
             HEIGHT,
             ycbcr_components12,
@@ -1662,7 +1662,7 @@ for encoding in ["huffman", "arithmetic"]:
         )
     generate_lossless(
         section,
-        "ycbcr",
+        "y_cb_cr",
         WIDTH,
         HEIGHT,
         ycbcr_samples8,
@@ -1672,7 +1672,7 @@ for encoding in ["huffman", "arithmetic"]:
     )
     generate_lossless(
         section,
-        "ycbcr_interleaved",
+        "ycbcr",
         WIDTH,
         HEIGHT,
         ycbcr_samples8,
@@ -1682,7 +1682,7 @@ for encoding in ["huffman", "arithmetic"]:
     )
     generate_lossless(
         section,
-        "rgb",
+        "r_g_b",
         WIDTH,
         HEIGHT,
         rgb_samples8,
@@ -1693,7 +1693,7 @@ for encoding in ["huffman", "arithmetic"]:
     )
     generate_lossless(
         section,
-        "rgb_interleaved",
+        "rgb",
         WIDTH,
         HEIGHT,
         rgb_samples8,
@@ -1767,7 +1767,7 @@ generate_ls(
 )
 generate_ls(
     section,
-    "ycbcr",
+    "y_cb_cr",
     WIDTH,
     HEIGHT,
     ycbcr_samples8,
@@ -1795,7 +1795,7 @@ generate_ls(
 )
 generate_ls(
     section,
-    "rgb",
+    "r_g_b",
     WIDTH,
     HEIGHT,
     rgb_samples8,

@@ -13,18 +13,18 @@ These are images that all JPEG decoders should support.
 `32x32x8_grayscale.jpg`
 The reference grayscale image.
 
+`32x32x8_y_cb_cr.jpg`
+`32x32x8_r_g_b.jpg`
+`32x32x8_c_m_y_k.jpg`
+The reference color image in YCbCr, RGB and CMYK format with a single scan per channel.
+
 `32x32x8_ycbcr.jpg`
 `32x32x8_rgb.jpg`
 `32x32x8_cmyk.jpg`
-The reference color image in YCbCr, RGB and CMYK format with a single scan per channel.
-
-`32x32x8_ycbcr_interleaved.jpg`
-`32x32x8_rgb_interleaved.jpg`
-`32x32x8_cmyk_interleaved.jpg`
 The reference color image as above, but with a single scan interleaving each channel.
 
 `32x32x8_grayscale_quantization.jpg`
-`32x32x8_ycbcr_quantization.jpg`
+`32x32x8_y_cb_cr_quantization.jpg`
 The reference images quantized using the quantization tables in the JPEG specification.
 
 `8x8x8_grayscale_zero_coefficients.jpg`
@@ -49,10 +49,10 @@ The reference grayscale image with the the height set to zero in the *start of f
 `32x32x8_restarts.jpg`
 The reference grayscale image sent in four sections with restart markers.
 
+`32x32x8_y_cb_cr_2x2_1x1_1x1.jpg`
+`32x32x8_y_cb_cr_2x2_2x1_1x2.jpg`
 `32x32x8_ycbcr_2x2_1x1_1x1.jpg`
 `32x32x8_ycbcr_2x2_2x1_1x2.jpg`
-`32x32x8_ycbcr_2x2_1x1_1x1_interleaved.jpg`
-`32x32x8_ycbcr_2x2_2x1_1x2_interleaved.jpg`
 The reference color image with the color channels using different sampling factors.
 
 ## Extended DCT Images
@@ -60,8 +60,8 @@ The reference color image with the color channels using different sampling facto
 Contains the same images as baseline DCT in both Huffman and Arithmetic encoding, and additionally:
 
 `32x32x12_grayscale.jpg`
+`32x32x12_y_cb_cr.jpg`
 `32x32x12_ycbcr.jpg`
-`32x32x12_ycbcr_interleaved.jpg`
 The reference grayscale and color images with 12 bit samples.
 
 `32x32x8_conditioning_bounds_4_6.jpg`
@@ -101,12 +101,12 @@ The reference greyscale image using each of the predictor methods.
 `32x32x8_restarts.jpg`
 The reference grayscale image sent in four sections with restart markers.
 
-`32x32x8_ycbcr.jpg`
-`32x32x8_rgb.jpg`
+`32x32x8_y_cb_cr.jpg`
+`32x32x8_r_g_b.jpg`
 The reference color image in YCbCr and RGB format with a single scan per channel.
 
-`32x32x8_ycbcr_interleaved.jpg`
-`32x32x8_rgb_interleaved.jpg`
+`32x32x8_ycbcr.jpg`
+`32x32x8_rgb.jpg`
 The reference color image as above, but with a single scan interleaving each channel.
 
 `32x32x8_dnl.jpg`
@@ -126,8 +126,8 @@ The reference grayscale image using a JPEG-LS oversize image segment.
 `32x32x8_restarts.jpg`
 The reference grayscale image sent in four sections with restart markers.
 
-`32x32x8_ycbcr.jpg`
-`32x32x8_rgb.jpg`
+`32x32x8_y_cb_cr.jpg`
+`32x32x8_r_g_b.jpg`
 The reference color image in YCbCr and RGB format with a single scan per channel.
 
 `32x32x8_ycbcr_line_interleaved.jpg`
