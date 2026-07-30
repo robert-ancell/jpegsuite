@@ -1471,7 +1471,7 @@ for mode, encoding in [
             extended=extended,
             progressive=progressive,
             arithmetic=True,
-            arithmetic_conditioning_bounds=[(4, 6), (4, 6), (4, 6), (4, 6)],
+            arithmetic_conditioning_bounds=((4, 6), (4, 6), (4, 6), (4, 6)),
         )
 
         generate_dct(
@@ -1484,7 +1484,7 @@ for mode, encoding in [
             extended=extended,
             progressive=progressive,
             arithmetic=True,
-            arithmetic_conditioning_kx=[6, 6, 6, 6],
+            arithmetic_conditioning_kx=(6, 6, 6, 6),
         )
 
     if mode != "baseline":

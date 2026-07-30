@@ -11,11 +11,11 @@ if len(sys.argv) != 3:
     sys.exit(1)
 
 with open(sys.argv[1], "rb") as f:
-    f.read()
+    data = f.read()
 reader = pyjpeg.BufferedReader(data)
 stream = pyjpeg.Stream.read(reader)
 
-data = []
+samples: list[int] = []
 convert_ycbcr = False
 sof = None
 sos = None
@@ -33,7 +33,7 @@ for segment in stream.segments:
             convert_ycbcr = True
     elif isinstance(segment, pyjpeg.StartOfFrame):
         sof = segment
-        data = (
+        samples = (
             [0]
             * segment.samples_per_line
             * segment.number_of_lines
@@ -45,6 +45,7 @@ for segment in stream.segments:
     elif isinstance(segment, pyjpeg.StartOfScan):
         sos = segment
     elif isinstance(segment, (pyjpeg.HuffmanDCTScan, pyjpeg.ArithmeticDCTScan)):
+        assert sof is not None
         # FIXME: Channels, sampling factor
         du_x = 0
         du_y = 0
@@ -63,7 +64,7 @@ for segment in stream.segments:
                 y_max = max(sof.number_of_lines - du_y, 0)
             for y in range(x_max):
                 for x in range(y_max):
-                    data[(du_y + y) * sof.samples_per_line + du_x + x] = samples[
+                    samples[(du_y + y) * sof.samples_per_line + du_x + x] = samples[
                         y * 8 + x
                     ]
 
@@ -76,13 +77,13 @@ for segment in stream.segments:
     ):
         # FIXME: Channels, sampling factor
         for i, sample in enumerate(segment.samples):
-            data[i] = sample
+            samples[i] = sample
 
-
+assert sof is not None
 write_pnm(
     sys.argv[2],
     sof.samples_per_line,
     sof.number_of_lines,
-    data,
+    samples,
     channels=len(sof.components),
 )
