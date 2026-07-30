@@ -2,11 +2,11 @@
 
 import sys
 
-import jpeg
+import pyjpeg
 
 
 def print_data_unit(data_unit: list[int]) -> None:
-    values = jpeg.dct.unzig_zag(data_unit)
+    values = pyjpeg.dct.unzig_zag(data_unit)
 
     cols = []
     for x in range(8):
@@ -34,22 +34,22 @@ if len(sys.argv) != 2:
     sys.exit(1)
 
 data = open(sys.argv[1], "rb").read()
-reader = jpeg.BufferedReader(data)
-stream = jpeg.Stream.read(reader)
+reader = pyjpeg.BufferedReader(data)
+stream = pyjpeg.Stream.read(reader)
 
 is_lossless = False
 is_ls = False
 for segment in stream.segments:
-    if isinstance(segment, jpeg.StartOfImage):
+    if isinstance(segment, pyjpeg.StartOfImage):
         print("SOI Start of Image")
-    elif isinstance(segment, jpeg.JfifHeader):
+    elif isinstance(segment, pyjpeg.JfifHeader):
         print("APP%d JFIF" % segment.n)
         print(" Version: %d.%d" % (segment.version[0], segment.version[1]))
-        if segment.density.unit == jpeg.JfifDensityUnit.ASPECT_RATIO:
+        if segment.density.unit == pyjpeg.JfifDensityUnit.ASPECT_RATIO:
             print(" Aspect Ratio: %dx%d" % (segment.density.x, segment.density.y))
-        elif segment.density.unit == jpeg.JfifDensityUnit.DPI:
+        elif segment.density.unit == pyjpeg.JfifDensityUnit.DPI:
             print(" Density: %dx%ddpi" % (segment.density.x, segment.density.y))
-        elif segment.density.unit == jpeg.JfifDensityUnit.DPCM:
+        elif segment.density.unit == pyjpeg.JfifDensityUnit.DPCM:
             print(" Density: %dx%ddpcm" % (segment.density.x, segment.density.y))
         if len(segment.thumbnail_data) > 0:
             # FIXME: Support RGB thumbnails
@@ -66,20 +66,20 @@ for segment in stream.segments:
                     segment.thumbnail_data[i + 2],
                 )
             print(s)
-    elif isinstance(segment, jpeg.JfifJpegThumbnail):
+    elif isinstance(segment, pyjpeg.JfifJpegThumbnail):
         print("APP%d JPEG Thumbnail" % segment.n)
         print(" Data: %s" % repr(segment.data))
-    elif isinstance(segment, jpeg.JfifPalletizedThumbnail):
+    elif isinstance(segment, pyjpeg.JfifPalletizedThumbnail):
         print("APP%d Palletized Thumbnail" % segment.n)
         print(" Width: %d" % segment.width)
         print(" Height: %d" % segment.height)
         print(" Data: %s" % segment.data)
-    elif isinstance(segment, jpeg.JfifRgbThumbnail):
+    elif isinstance(segment, pyjpeg.JfifRgbThumbnail):
         print("APP%d RGB Thumbnail" % segment.n)
         print(" Width: %d" % segment.width)
         print(" Height: %d" % segment.height)
         print(" Data: %s" % segment.data)
-    elif isinstance(segment, jpeg.SpiffHeader):
+    elif isinstance(segment, pyjpeg.SpiffHeader):
         print("APP%d SPIFF" % segment.n)
         print(" Version: %d.%d" % (segment.version[0], segment.version[1]))
         print(" Profile: %d" % segment.profile)
@@ -92,10 +92,10 @@ for segment in stream.segments:
         print(" Resolution Units: %d" % segment.resolution_units)
         print(" Vertical Resolution: %d" % segment.vertical_resoution)
         print(" Horizontal Resolution: %d" % segment.horizontal_resolution)
-    elif isinstance(segment, jpeg.ExifHeader):
+    elif isinstance(segment, pyjpeg.ExifHeader):
         print("APP%d EXIF" % segment.n)
         print(" Data: %r" % segment.data)
-    elif isinstance(segment, jpeg.AdobeHeader):
+    elif isinstance(segment, pyjpeg.AdobeHeader):
         print("APP%d Adobe" % segment.n)
         print(" Version: %d" % segment.version)
         print(" Flags 0: %04x" % segment.flags0)
@@ -103,27 +103,27 @@ for segment in stream.segments:
         print(
             " Colorspace: %s"
             % {
-                jpeg.AdobeColorSpace.RGB_OR_CMYK: "RGB or CMYK",
-                jpeg.AdobeColorSpace.Y_CB_CR: "YCbCr",
-                jpeg.AdobeColorSpace.Y_CB_CR_K: "YCbCrK",
+                pyjpeg.AdobeColorSpace.RGB_OR_CMYK: "RGB or CMYK",
+                pyjpeg.AdobeColorSpace.Y_CB_CR: "YCbCr",
+                pyjpeg.AdobeColorSpace.Y_CB_CR_K: "YCbCrK",
             }.get(segment.color_space, "%d" % segment.color_space)
         )
-    elif isinstance(segment, jpeg.UnknownApplicationSpecificData):
+    elif isinstance(segment, pyjpeg.UnknownApplicationSpecificData):
         print("APP%d Application Specific Data" % segment.n)
         s = " Data: "
         for d in segment.data:
             s += "%02X" % d
         print(s)
-    elif isinstance(segment, jpeg.Comment):
+    elif isinstance(segment, pyjpeg.Comment):
         print("COM Comment")
         print(" Data: %s" % repr(segment.data))
-    elif isinstance(segment, jpeg.DefineQuantizationTables):
+    elif isinstance(segment, pyjpeg.DefineQuantizationTables):
         print("DQT Define Quantization Tables")
         for quantization_table in segment.tables:
             print(" Table %d:" % quantization_table.destination)
             print("  Precision: %d bits" % quantization_table.precision)
             print_data_unit(quantization_table.values)
-    elif isinstance(segment, jpeg.DefineHuffmanTables):
+    elif isinstance(segment, pyjpeg.DefineHuffmanTables):
         print("DHT Define Huffman Tables")
         for huffman_table in segment.tables:
             print(
@@ -139,7 +139,7 @@ for segment in stream.segments:
                     for symbol in symbols:
                         s += " %02x" % symbol
                     print(s)
-    elif isinstance(segment, jpeg.DefineArithmeticConditioning):
+    elif isinstance(segment, pyjpeg.DefineArithmeticConditioning):
         print("DAC Define Arithmetic Conditioning")
         for conditioning in segment.tables:
             print(
@@ -150,10 +150,10 @@ for segment in stream.segments:
                     repr(conditioning.value),
                 )
             )
-    elif isinstance(segment, jpeg.DefineRestartInterval):
+    elif isinstance(segment, pyjpeg.DefineRestartInterval):
         print("DRI Define Restart Interval")
         print(" Restart interval: %d" % segment.restart_interval)
-    elif isinstance(segment, jpeg.ExpandReferenceComponents):
+    elif isinstance(segment, pyjpeg.ExpandReferenceComponents):
         print("EXP Expand Reference Components")
         print(
             " Expand Horizontal: %s"
@@ -163,7 +163,7 @@ for segment in stream.segments:
             " Expand Vertical: %s"
             % {False: "No", True: "Yes"}[segment.expand_vertical != 0]
         )
-    elif isinstance(segment, jpeg.StartOfFrame):
+    elif isinstance(segment, pyjpeg.StartOfFrame):
         is_lossless = segment.n in (3, 7, 11, 15)
         is_ls = segment.n == 55
         print(
@@ -171,20 +171,20 @@ for segment in stream.segments:
             % (
                 segment.n,
                 {
-                    jpeg.FrameType.BASELINE: "Baseline DCT",
-                    jpeg.FrameType.EXTENDED_HUFFMAN: "Extended sequential DCT, Huffman coding",
-                    jpeg.FrameType.PROGRESSIVE_HUFFMAN: "Progressive DCT, Huffman coding",
-                    jpeg.FrameType.LOSSLESS_HUFFMAN: "Lossless (sequential), Huffman coding",
-                    jpeg.FrameType.DIFFERENTIAL_SEQUENTIAL_HUFFMAN: "Differential sequential DCT, Huffman coding",
-                    jpeg.FrameType.DIFFERENTIAL_PROGRESSIVE_HUFFMAN: "Differential progressive DCT, Huffman coding",
-                    jpeg.FrameType.DIFFERENTIAL_LOSSLESS_HUFFMAN: "Differential lossless (sequential), Huffman coding",
-                    jpeg.FrameType.EXTENDED_ARITHMETIC: "Extended sequential DCT, Arithmetic coding",
-                    jpeg.FrameType.PROGRESSIVE_ARITHMETIC: "Progressive DCT, Arithmetic coding",
-                    jpeg.FrameType.LOSSLESS_ARITHMETIC: "Lossless (sequential), Arithmetic coding",
-                    jpeg.FrameType.DIFFERENTIAL_SEQUENTIAL_ARITHMETIC: "Differential sequential DCT, Arithmetic coding",
-                    jpeg.FrameType.DIFFERENTIAL_PROGRESSIVE_ARITHMETIC: "Differential progressive DCT, Arithmetic coding",
-                    jpeg.FrameType.DIFFERENTIAL_LOSSLESS_ARITHMETIC: "Differential lossless (sequential), Arithmetic coding",
-                    jpeg.FrameType.LS: "JPEG-LS",
+                    pyjpeg.FrameType.BASELINE: "Baseline DCT",
+                    pyjpeg.FrameType.EXTENDED_HUFFMAN: "Extended sequential DCT, Huffman coding",
+                    pyjpeg.FrameType.PROGRESSIVE_HUFFMAN: "Progressive DCT, Huffman coding",
+                    pyjpeg.FrameType.LOSSLESS_HUFFMAN: "Lossless (sequential), Huffman coding",
+                    pyjpeg.FrameType.DIFFERENTIAL_SEQUENTIAL_HUFFMAN: "Differential sequential DCT, Huffman coding",
+                    pyjpeg.FrameType.DIFFERENTIAL_PROGRESSIVE_HUFFMAN: "Differential progressive DCT, Huffman coding",
+                    pyjpeg.FrameType.DIFFERENTIAL_LOSSLESS_HUFFMAN: "Differential lossless (sequential), Huffman coding",
+                    pyjpeg.FrameType.EXTENDED_ARITHMETIC: "Extended sequential DCT, Arithmetic coding",
+                    pyjpeg.FrameType.PROGRESSIVE_ARITHMETIC: "Progressive DCT, Arithmetic coding",
+                    pyjpeg.FrameType.LOSSLESS_ARITHMETIC: "Lossless (sequential), Arithmetic coding",
+                    pyjpeg.FrameType.DIFFERENTIAL_SEQUENTIAL_ARITHMETIC: "Differential sequential DCT, Arithmetic coding",
+                    pyjpeg.FrameType.DIFFERENTIAL_PROGRESSIVE_ARITHMETIC: "Differential progressive DCT, Arithmetic coding",
+                    pyjpeg.FrameType.DIFFERENTIAL_LOSSLESS_ARITHMETIC: "Differential lossless (sequential), Arithmetic coding",
+                    pyjpeg.FrameType.LS: "JPEG-LS",
                 }[segment.n],
             )
         )
@@ -208,7 +208,7 @@ for segment in stream.segments:
                     "  Quantization Table: %d"
                     % frame_component.quantization_table_index
                 )
-    elif isinstance(segment, jpeg.StartOfScan):
+    elif isinstance(segment, pyjpeg.StartOfScan):
         print("SOS Start of Scan")
         for scan_component in segment.components:
             print(" Component:")
@@ -226,9 +226,9 @@ for segment in stream.segments:
             print(
                 " Interleave Mode: %s"
                 % {
-                    jpeg.LSInterleaveMode.NONE: "None",
-                    jpeg.LSInterleaveMode.LINE: "Line",
-                    jpeg.LSInterleaveMode.SAMPLE: "Sample",
+                    pyjpeg.LSInterleaveMode.NONE: "None",
+                    pyjpeg.LSInterleaveMode.LINE: "Line",
+                    pyjpeg.LSInterleaveMode.SAMPLE: "Sample",
                 }.get(
                     segment.spectral_selection[1], "%d" % segment.spectral_selection[1]
                 )
@@ -242,26 +242,26 @@ for segment in stream.segments:
         if (segment.point_transform & 0xF0) != 0:
             print(" Previous Point Transform: %d" % (segment.point_transform >> 4))
         print(" Point Transform: %d" % (segment.point_transform & 0xF))
-    elif isinstance(segment, jpeg.HuffmanDCTScan) or isinstance(
-        segment, jpeg.ArithmeticDCTScan
+    elif isinstance(segment, pyjpeg.HuffmanDCTScan) or isinstance(
+        segment, pyjpeg.ArithmeticDCTScan
     ):
         for data_unit in segment.data_units:
             print_data_unit(data_unit)
     elif (
-        isinstance(segment, jpeg.HuffmanLosslessScan)
-        or isinstance(segment, jpeg.ArithmeticLosslessScan)
-        or isinstance(segment, jpeg.LSScan)
+        isinstance(segment, pyjpeg.HuffmanLosslessScan)
+        or isinstance(segment, pyjpeg.ArithmeticLosslessScan)
+        or isinstance(segment, pyjpeg.LSScan)
     ):
         s = " Samples:"
         for sample in segment.samples:
             s += " %d" % sample
         print(s)
-    elif isinstance(segment, jpeg.Restart):
+    elif isinstance(segment, pyjpeg.Restart):
         print("RST%d Restart" % segment.index)
-    elif isinstance(segment, jpeg.DefineNumberOfLines):
+    elif isinstance(segment, pyjpeg.DefineNumberOfLines):
         print("DNL Define Number of Lines")
         print(" Number of lines: %d" % segment.number_of_lines)
-    elif isinstance(segment, jpeg.LSCodingParameters):
+    elif isinstance(segment, pyjpeg.LSCodingParameters):
         print("LSE Coding Parameters")
         print(" Maximum value: %d" % segment.maxval)
         print(
@@ -273,25 +273,25 @@ for segment in stream.segments:
             )
         )
         print(" Reset: %d" % segment.reset)
-    elif isinstance(segment, jpeg.LSMappingTable):
+    elif isinstance(segment, pyjpeg.LSMappingTable):
         print("LSE Mapping Table")
         print(" Table ID: %d" % segment.table_id)
         print(" Weight: %d" % segment.weight)
         print(" Table Data: %s" % segment.table.hex())
-    elif isinstance(segment, jpeg.LSMappingTableContinuation):
+    elif isinstance(segment, pyjpeg.LSMappingTableContinuation):
         print("LSE Mapping Table Continuation")
         print(" Table ID: %d" % segment.table_id)
         print(" Weight: %d" % segment.weight)
         print(" Table Data: %s" % segment.table.hex())
-    elif isinstance(segment, jpeg.LSOversizeImageDimensions):
+    elif isinstance(segment, pyjpeg.LSOversizeImageDimensions):
         print("LSE Oversize Image Dimensions")
         print(" Number of lines: %d" % segment.number_of_lines)
         print(" Number of samples per line: %d" % segment.samples_per_line)
-    elif isinstance(segment, jpeg.LSUnknownPresetParameters):
+    elif isinstance(segment, pyjpeg.LSUnknownPresetParameters):
         print("LSE Preset Parameters")
         print(" ID: %d" % segment.id)
         print(" Data: %s" % segment.data.hex())
-    elif isinstance(segment, jpeg.EndOfImage):
+    elif isinstance(segment, pyjpeg.EndOfImage):
         print("EOI End of Image")
     else:
         print(segment)

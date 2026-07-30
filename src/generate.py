@@ -3,7 +3,8 @@
 import json
 import math
 
-import jpeg
+import pyjpeg
+
 from pnm import *
 
 WIDTH = 32
@@ -189,29 +190,29 @@ def scale_samples(
     return out_samples
 
 
-def segments_to_json(segments: list[jpeg.Segment]) -> list[dict[str, object]]:
+def segments_to_json(segments: list[pyjpeg.Segment]) -> list[dict[str, object]]:
     s = []
     for segment in segments:
         value: dict[str, object] = {}
-        if isinstance(segment, jpeg.StartOfImage):
+        if isinstance(segment, pyjpeg.StartOfImage):
             value["type"] = "SOI"
-        elif isinstance(segment, jpeg.ApplicationSpecificData):
+        elif isinstance(segment, pyjpeg.ApplicationSpecificData):
             value["type"] = "APP%d" % segment.n
-            if isinstance(segment, jpeg.JfifHeader):
+            if isinstance(segment, pyjpeg.JfifHeader):
                 value.update(
                     {
                         "format": "JFIF",
                         "version": "%d.%d" % (segment.version[0], segment.version[1]),
                     }
                 )
-                if segment.density.unit == jpeg.JfifDensityUnit.ASPECT_RATIO:
+                if segment.density.unit == pyjpeg.JfifDensityUnit.ASPECT_RATIO:
                     value["aspect-ratio"] = "%dx%d" % (
                         segment.density.x,
                         segment.density.y,
                     )
-                elif segment.density.unit == jpeg.JfifDensityUnit.DPI:
+                elif segment.density.unit == pyjpeg.JfifDensityUnit.DPI:
                     value["dpi"] = "%dx%d" % (segment.density.x, segment.density.y)
-                elif segment.density.unit == jpeg.JfifDensityUnit.DPCM:
+                elif segment.density.unit == pyjpeg.JfifDensityUnit.DPCM:
                     value["dpcm"] = "%dx%d" % (segment.density.x, segment.density.y)
                 else:
                     value["density"] = {
@@ -224,12 +225,12 @@ def segments_to_json(segments: list[jpeg.Segment]) -> list[dict[str, object]]:
                         "size": segment.thumbnail_size,
                         "data": list(segment.thumbnail_data),
                     }
-            elif isinstance(segment, jpeg.AdobeHeader):
+            elif isinstance(segment, pyjpeg.AdobeHeader):
                 value["format"] = "Adobe"
                 color_space_value = {
-                    jpeg.AdobeColorSpace.RGB_OR_CMYK: "RGB or CMYK",
-                    jpeg.AdobeColorSpace.Y_CB_CR: "YCbCr",
-                    jpeg.AdobeColorSpace.Y_CB_CR_K: "YCbCrK",
+                    pyjpeg.AdobeColorSpace.RGB_OR_CMYK: "RGB or CMYK",
+                    pyjpeg.AdobeColorSpace.Y_CB_CR: "YCbCr",
+                    pyjpeg.AdobeColorSpace.Y_CB_CR_K: "YCbCrK",
                 }.get(segment.color_space, segment.color_space)
                 value.update(
                     {
@@ -239,14 +240,14 @@ def segments_to_json(segments: list[jpeg.Segment]) -> list[dict[str, object]]:
                         "color-space": color_space_value,
                     }
                 )
-            elif isinstance(segment, jpeg.UnknownApplicationSpecificData):
+            elif isinstance(segment, pyjpeg.UnknownApplicationSpecificData):
                 value["data"] = list(segment.data)
-        elif isinstance(segment, jpeg.Comment):
+        elif isinstance(segment, pyjpeg.Comment):
             value.update({"type": "COM", "data": str(segment.data, "ascii")})
-        elif isinstance(segment, jpeg.DefineQuantizationTables):
+        elif isinstance(segment, pyjpeg.DefineQuantizationTables):
             tables = []
             for quantization_table in segment.tables:
-                quantization_table_values = jpeg.dct.unzig_zag(
+                quantization_table_values = pyjpeg.dct.unzig_zag(
                     quantization_table.values
                 )
                 values = []
@@ -263,7 +264,7 @@ def segments_to_json(segments: list[jpeg.Segment]) -> list[dict[str, object]]:
                     }
                 )
             value.update({"type": "DQT", "tables": tables})
-        elif isinstance(segment, jpeg.DefineHuffmanTables):
+        elif isinstance(segment, pyjpeg.DefineHuffmanTables):
             tables = []
             for huffman_table in segment.tables:
                 tables.append(
@@ -274,7 +275,7 @@ def segments_to_json(segments: list[jpeg.Segment]) -> list[dict[str, object]]:
                     }
                 )
             value.update({"type": "DHT", "tables": tables})
-        elif isinstance(segment, jpeg.DefineArithmeticConditioning):
+        elif isinstance(segment, pyjpeg.DefineArithmeticConditioning):
             tables = []
             for arithmetic_table in segment.tables:
                 table_value = {
@@ -288,9 +289,9 @@ def segments_to_json(segments: list[jpeg.Segment]) -> list[dict[str, object]]:
                     table_value["kx"] = arithmetic_table.value
                 tables.append(table_value)
             value.update({"type": "DAC", "tables": tables})
-        elif isinstance(segment, jpeg.DefineRestartInterval):
+        elif isinstance(segment, pyjpeg.DefineRestartInterval):
             value.update({"type": "DRI", "restart_interval": segment.restart_interval})
-        elif isinstance(segment, jpeg.StartOfFrame):
+        elif isinstance(segment, pyjpeg.StartOfFrame):
             components = []
             for frame_component in segment.components:
                 components.append(
@@ -309,7 +310,7 @@ def segments_to_json(segments: list[jpeg.Segment]) -> list[dict[str, object]]:
                     "components": components,
                 }
             )
-        elif isinstance(segment, jpeg.StartOfScan):
+        elif isinstance(segment, pyjpeg.StartOfScan):
             components = []
             for scan_component in segment.components:
                 components.append(
@@ -329,30 +330,30 @@ def segments_to_json(segments: list[jpeg.Segment]) -> list[dict[str, object]]:
             if segment.point_transform & 0xF0 != 0:
                 value["previous_point_transform"] = segment.point_transform >> 4
             value["point_transform"] = segment.point_transform & 0xF
-        elif isinstance(segment, jpeg.HuffmanDCTScan) or isinstance(
-            segment, jpeg.ArithmeticDCTScan
+        elif isinstance(segment, pyjpeg.HuffmanDCTScan) or isinstance(
+            segment, pyjpeg.ArithmeticDCTScan
         ):
             value["type"] = "DCT"
-        elif isinstance(segment, jpeg.HuffmanLosslessScan) or isinstance(
-            segment, jpeg.ArithmeticLosslessScan
+        elif isinstance(segment, pyjpeg.HuffmanLosslessScan) or isinstance(
+            segment, pyjpeg.ArithmeticLosslessScan
         ):
             value["type"] = "Lossless"
-        elif isinstance(segment, jpeg.LSScan):
+        elif isinstance(segment, pyjpeg.LSScan):
             value["type"] = "LS"
         elif (
-            isinstance(segment, jpeg.HuffmanDCTDCSuccessiveScan)
-            or isinstance(segment, jpeg.HuffmanDCTACSuccessiveScan)
-            or isinstance(segment, jpeg.ArithmeticDCTDCSuccessiveScan)
-            or isinstance(segment, jpeg.ArithmeticDCTACSuccessiveScan)
+            isinstance(segment, pyjpeg.HuffmanDCTDCSuccessiveScan)
+            or isinstance(segment, pyjpeg.HuffmanDCTACSuccessiveScan)
+            or isinstance(segment, pyjpeg.ArithmeticDCTDCSuccessiveScan)
+            or isinstance(segment, pyjpeg.ArithmeticDCTACSuccessiveScan)
         ):
             value["type"] = "DCTSuccessive"
-        elif isinstance(segment, jpeg.Restart):
+        elif isinstance(segment, pyjpeg.Restart):
             value["type"] = "RST%d" % segment.index
-        elif isinstance(segment, jpeg.DefineNumberOfLines):
+        elif isinstance(segment, pyjpeg.DefineNumberOfLines):
             value.update({"type": "DNL", "number_of_lines": segment.number_of_lines})
-        elif isinstance(segment, jpeg.EndOfImage):
+        elif isinstance(segment, pyjpeg.EndOfImage):
             value["type"] = "EOI"
-        elif isinstance(segment, jpeg.LSCodingParameters):
+        elif isinstance(segment, pyjpeg.LSCodingParameters):
             value.update(
                 {
                     "type": "LSE",
@@ -362,7 +363,7 @@ def segments_to_json(segments: list[jpeg.Segment]) -> list[dict[str, object]]:
                     "reset": segment.reset,
                 }
             )
-        elif isinstance(segment, jpeg.LSMappingTable):
+        elif isinstance(segment, pyjpeg.LSMappingTable):
             # FIXME: Contents
             value.update(
                 {
@@ -372,7 +373,7 @@ def segments_to_json(segments: list[jpeg.Segment]) -> list[dict[str, object]]:
                     "table": segment.table.hex(),
                 }
             )
-        elif isinstance(segment, jpeg.LSOversizeImageDimensions):
+        elif isinstance(segment, pyjpeg.LSOversizeImageDimensions):
             value.update(
                 {
                     "type": "LSE",
@@ -409,7 +410,7 @@ def make_dct_data_units(
                     p = samples[py * width + px]
                     values.append(p)
 
-            data_unit = jpeg.dct.fdct(values, precision, quantization_table)
+            data_unit = pyjpeg.dct.fdct(values, precision, quantization_table)
             data_units.append(data_unit)
 
     return data_units
@@ -472,26 +473,26 @@ def generate_dct(
 
     if color_space is None:
         assert n_components in (1, 3)
-    elif color_space == jpeg.AdobeColorSpace.RGB_OR_CMYK:
+    elif color_space == pyjpeg.AdobeColorSpace.RGB_OR_CMYK:
         assert n_components in (3, 4)
-    elif color_space == jpeg.AdobeColorSpace.Y_CB_CR:
+    elif color_space == pyjpeg.AdobeColorSpace.Y_CB_CR:
         assert n_components == 3
-    elif color_space == jpeg.AdobeColorSpace.Y_CB_CR_K:
+    elif color_space == pyjpeg.AdobeColorSpace.Y_CB_CR_K:
         assert n_components == 4
 
     if (
         color_space is None and n_components == 3
-    ) or color_space == jpeg.AdobeColorSpace.Y_CB_CR:
+    ) or color_space == pyjpeg.AdobeColorSpace.Y_CB_CR:
         use_chrominance = True
     else:
         use_chrominance = False
 
     quantization_tables = [
-        jpeg.QuantizationTable(0, luminance_quantization_table),
+        pyjpeg.QuantizationTable(0, luminance_quantization_table),
     ]
     if use_chrominance:
         quantization_tables.append(
-            jpeg.QuantizationTable(1, chrominance_quantization_table)
+            pyjpeg.QuantizationTable(1, chrominance_quantization_table)
         )
     component_quantization_tables = []
     for i in range(n_components):
@@ -520,7 +521,7 @@ def generate_dct(
     sof_components = []
     for i, (_, sampling_factor) in enumerate(components):
         sof_components.append(
-            jpeg.FrameComponent.dct(
+            pyjpeg.FrameComponent.dct(
                 i + 1,
                 sampling_factor=sampling_factor,
                 quantization_table_index=component_quantization_tables[i],
@@ -540,7 +541,7 @@ def generate_dct(
             dc_table_index = 1
             ac_table_index = 1
         scan_components.append(
-            jpeg.ScanComponent.dct(
+            pyjpeg.ScanComponent.dct(
                 i + 1, dc_table=dc_table_index, ac_table=ac_table_index
             )
         )
@@ -565,26 +566,26 @@ def generate_dct(
         if successive:
             if start == 0:
                 assert end == 0
-        sos = jpeg.StartOfScan.dct(
+        sos = pyjpeg.StartOfScan.dct(
             sos_components,
             spectral_selection=selection,
             point_transform=point_transform,
             previous_point_transform=previous_point_transform,
         )
-        scan_data: list[jpeg.Segment] = []
+        scan_data: list[pyjpeg.Segment] = []
         if arithmetic:
             if successive:
                 assert len(component_indexes) == 1
                 if start == 0:
                     scan_data.append(
-                        jpeg.ArithmeticDCTDCSuccessiveScan(
+                        pyjpeg.ArithmeticDCTDCSuccessiveScan(
                             data_units[component_indexes[0]],
                             point_transform=point_transform,
                         )
                     )
                 else:
                     scan_data.append(
-                        jpeg.ArithmeticDCTACSuccessiveScan(
+                        pyjpeg.ArithmeticDCTACSuccessiveScan(
                             data_units[component_indexes[0]],
                             spectral_selection=selection,
                             point_transform=point_transform,
@@ -603,7 +604,7 @@ def generate_dct(
                         interval_length = len(data_units[i]) // n_intervals
                         interval_start = interval * interval_length
                         mcu_data_units.append(
-                            jpeg.dct.order_mcu_dct_data_units(
+                            pyjpeg.dct.order_mcu_dct_data_units(
                                 component_sizes[i][0],
                                 component_sizes[i][1] // n_intervals,
                                 data_units[i][
@@ -613,7 +614,7 @@ def generate_dct(
                             )
                         )
                         arithmetic_components.append(
-                            jpeg.ArithmeticDCTScanComponent(
+                            pyjpeg.ArithmeticDCTScanComponent(
                                 sampling_factor=sampling_factor,
                                 conditioning_bounds=arithmetic_conditioning_bounds[
                                     scan_components[i].dc_table
@@ -624,7 +625,7 @@ def generate_dct(
                             )
                         )
                     if interval != 0:
-                        scan_data.append(jpeg.Restart((interval - 1) % 8))
+                        scan_data.append(pyjpeg.Restart((interval - 1) % 8))
                     # FIXME: Interleave earlier
                     data_units_ = []
                     while len(mcu_data_units[0]) > 0:
@@ -637,7 +638,7 @@ def generate_dct(
                             ):
                                 data_units_.append(mcu_data_units[i].pop(0))
                     scan_data.append(
-                        jpeg.ArithmeticDCTScan(
+                        pyjpeg.ArithmeticDCTScan(
                             data_units_,
                             components=arithmetic_components,
                             spectral_selection=selection,
@@ -649,15 +650,15 @@ def generate_dct(
                 assert len(component_indexes) == 1
                 if start == 0:
                     scan_data.append(
-                        jpeg.HuffmanDCTDCSuccessiveScan(
+                        pyjpeg.HuffmanDCTDCSuccessiveScan(
                             data_units[component_indexes[0]],
                             point_transform=point_transform,
                         )
                     )
                 else:
-                    table = jpeg.huffman.make_huffman_table([1] * 256)
+                    table = pyjpeg.huffman.make_huffman_table([1] * 256)
                     scan_data.append(
-                        jpeg.HuffmanDCTACSuccessiveScan(
+                        pyjpeg.HuffmanDCTACSuccessiveScan(
                             data_units[component_indexes[0]],
                             table,
                             spectral_selection=selection,
@@ -677,7 +678,7 @@ def generate_dct(
                         interval_length = len(data_units[i]) // n_intervals
                         interval_start = interval * interval_length
                         mcu_data_units.append(
-                            jpeg.dct.order_mcu_dct_data_units(
+                            pyjpeg.dct.order_mcu_dct_data_units(
                                 component_sizes[i][0],
                                 component_sizes[i][1] // n_intervals,
                                 data_units[i][
@@ -687,23 +688,23 @@ def generate_dct(
                             )
                         )
                         if precision > 8:
-                            dc_table = jpeg.huffman.make_huffman_table([1] * 256)
-                            ac_table = jpeg.huffman.make_huffman_table([1] * 256)
+                            dc_table = pyjpeg.huffman.make_huffman_table([1] * 256)
+                            ac_table = pyjpeg.huffman.make_huffman_table([1] * 256)
                         elif i == 0 or not use_chrominance:
-                            dc_table = jpeg.standard_luminance_dc_huffman_table
-                            ac_table = jpeg.standard_luminance_ac_huffman_table
+                            dc_table = pyjpeg.standard_luminance_dc_huffman_table
+                            ac_table = pyjpeg.standard_luminance_ac_huffman_table
                         else:
-                            dc_table = jpeg.standard_chrominance_dc_huffman_table
-                            ac_table = jpeg.standard_chrominance_ac_huffman_table
+                            dc_table = pyjpeg.standard_chrominance_dc_huffman_table
+                            ac_table = pyjpeg.standard_chrominance_ac_huffman_table
                         huffman_components.append(
-                            jpeg.HuffmanDCTScanComponent(
+                            pyjpeg.HuffmanDCTScanComponent(
                                 sampling_factor=sampling_factor,
                                 dc_table=dc_table,
                                 ac_table=ac_table,
                             )
                         )
                     if interval != 0:
-                        scan_data.append(jpeg.Restart((interval - 1) % 8))
+                        scan_data.append(pyjpeg.Restart((interval - 1) % 8))
                     # FIXME: Interleave earlier
                     data_units_ = []
                     while len(mcu_data_units[0]) > 0:
@@ -714,7 +715,7 @@ def generate_dct(
                             ):
                                 data_units_.append(mcu_data_units[i].pop(0))
                     scan_data.append(
-                        jpeg.HuffmanDCTScan(
+                        pyjpeg.HuffmanDCTScan(
                             data_units_,
                             components=huffman_components,
                             spectral_selection=selection,
@@ -723,21 +724,21 @@ def generate_dct(
                     )
         jpeg_scans.append((sos, scan_data))
 
-    segments: list[jpeg.Segment] = [jpeg.StartOfImage()]
+    segments: list[pyjpeg.Segment] = [pyjpeg.StartOfImage()]
     for comment in comments:
-        segments.append(jpeg.Comment(comment))
+        segments.append(pyjpeg.Comment(comment))
     if color_space is None:
-        segments.append(jpeg.JfifHeader())
+        segments.append(pyjpeg.JfifHeader())
     else:
-        segments.append(jpeg.AdobeHeader(color_space=color_space))
-    segments.append(jpeg.DefineQuantizationTables(quantization_tables))
+        segments.append(pyjpeg.AdobeHeader(color_space=color_space))
+    segments.append(pyjpeg.DefineQuantizationTables(quantization_tables))
     if use_dnl:
         number_of_lines = 0
     else:
         number_of_lines = height
     if extended:
         segments.append(
-            jpeg.StartOfFrame.extended(
+            pyjpeg.StartOfFrame.extended(
                 number_of_lines,
                 width,
                 sof_components,
@@ -747,7 +748,7 @@ def generate_dct(
         )
     elif progressive:
         segments.append(
-            jpeg.StartOfFrame.progressive(
+            pyjpeg.StartOfFrame.progressive(
                 number_of_lines,
                 width,
                 sof_components,
@@ -757,40 +758,40 @@ def generate_dct(
         )
     else:
         segments.append(
-            jpeg.StartOfFrame.baseline(number_of_lines, width, sof_components)
+            pyjpeg.StartOfFrame.baseline(number_of_lines, width, sof_components)
         )
     if arithmetic:
         conditioning = []
         for i, bounds in enumerate(arithmetic_conditioning_bounds):
             if bounds != (0, 1):
-                conditioning.append(jpeg.ArithmeticConditioning.dc(i, bounds))
+                conditioning.append(pyjpeg.ArithmeticConditioning.dc(i, bounds))
         for i, kx in enumerate(arithmetic_conditioning_kx):
             if kx != 5:
-                conditioning.append(jpeg.ArithmeticConditioning.ac(i, kx))
+                conditioning.append(pyjpeg.ArithmeticConditioning.ac(i, kx))
         if len(conditioning) > 0:
-            segments.append(jpeg.DefineArithmeticConditioning(conditioning))
+            segments.append(pyjpeg.DefineArithmeticConditioning(conditioning))
     else:
         tables = [
-            jpeg.HuffmanTable.dc(0, jpeg.standard_luminance_dc_huffman_table),
-            jpeg.HuffmanTable.ac(0, jpeg.standard_luminance_ac_huffman_table),
+            pyjpeg.HuffmanTable.dc(0, pyjpeg.standard_luminance_dc_huffman_table),
+            pyjpeg.HuffmanTable.ac(0, pyjpeg.standard_luminance_ac_huffman_table),
         ]
         if use_chrominance:
             tables.append(
-                jpeg.HuffmanTable.dc(1, jpeg.standard_chrominance_dc_huffman_table)
+                pyjpeg.HuffmanTable.dc(1, pyjpeg.standard_chrominance_dc_huffman_table)
             )
             tables.append(
-                jpeg.HuffmanTable.ac(1, jpeg.standard_chrominance_ac_huffman_table)
+                pyjpeg.HuffmanTable.ac(1, pyjpeg.standard_chrominance_ac_huffman_table)
             )
-        segments.append(jpeg.DefineHuffmanTables(tables))
+        segments.append(pyjpeg.DefineHuffmanTables(tables))
     if restart_interval != 0:
-        segments.append(jpeg.DefineRestartInterval(restart_interval))
+        segments.append(pyjpeg.DefineRestartInterval(restart_interval))
     for i, (sos, scan_data) in enumerate(jpeg_scans):
         segments.append(sos)
         segments.extend(scan_data)
         if i == 0 and use_dnl:
-            segments.append(jpeg.DefineNumberOfLines(height))
-    segments.append(jpeg.EndOfImage())
-    segments = jpeg.huffman_optimize(segments)
+            segments.append(pyjpeg.DefineNumberOfLines(height))
+    segments.append(pyjpeg.EndOfImage())
+    segments = pyjpeg.huffman_optimize(segments)
     write_jpeg(segments, section, width, height, precision, description)
 
 
@@ -809,20 +810,20 @@ def generate_lossless(
     arithmetic: bool = False,
 ) -> None:
     conditioning_bounds = (0, 1)
-    segments: list[jpeg.Segment] = [jpeg.StartOfImage()]
+    segments: list[pyjpeg.Segment] = [pyjpeg.StartOfImage()]
     if color_space is None:
-        segments.append(jpeg.JfifHeader())
+        segments.append(pyjpeg.JfifHeader())
     else:
-        segments.append(jpeg.AdobeHeader(color_space=color_space))
+        segments.append(pyjpeg.AdobeHeader(color_space=color_space))
     if use_dnl:
         number_of_lines = 0
     else:
         number_of_lines = height
     sof_components = []
     for i in range(len(component_samples)):
-        sof_components.append(jpeg.FrameComponent.lossless(i + 1))
+        sof_components.append(pyjpeg.FrameComponent.lossless(i + 1))
     segments.append(
-        jpeg.StartOfFrame.lossless(
+        pyjpeg.StartOfFrame.lossless(
             number_of_lines,
             width,
             sof_components,
@@ -833,25 +834,25 @@ def generate_lossless(
     huffman_table: list[list[int]] = [[] * 255]
     if not arithmetic:
         # Need large table to handle all bit depths
-        huffman_table = jpeg.huffman.make_huffman_table([1] * 256)
+        huffman_table = pyjpeg.huffman.make_huffman_table([1] * 256)
         tables = []
         for i in range(len(component_samples)):
             tables.append(
-                jpeg.HuffmanTable.dc(
+                pyjpeg.HuffmanTable.dc(
                     i,
                     huffman_table,
                 )
             )
-        segments.append(jpeg.DefineHuffmanTables(tables))
+        segments.append(pyjpeg.DefineHuffmanTables(tables))
     if restart_interval != 0:
-        segments.append(jpeg.DefineRestartInterval(restart_interval))
+        segments.append(pyjpeg.DefineRestartInterval(restart_interval))
     all_scan_components = []
     for i, samples in enumerate(component_samples):
         if arithmetic:
             table = 0
         else:
             table = i
-        all_scan_components.append(jpeg.ScanComponent.lossless(i + 1, table=table))
+        all_scan_components.append(pyjpeg.ScanComponent.lossless(i + 1, table=table))
     for scan_index, component_indexes in enumerate(scans):
         sos_components = []
         arithmetic_scan_components = []
@@ -860,16 +861,16 @@ def generate_lossless(
             sos_components.append(all_scan_components[c])
             if arithmetic:
                 arithmetic_scan_components.append(
-                    jpeg.ArithmeticLosslessScanComponent(
+                    pyjpeg.ArithmeticLosslessScanComponent(
                         conditioning_bounds=conditioning_bounds
                     )
                 )
             else:
                 huffman_scan_components.append(
-                    jpeg.HuffmanLosslessScanComponent(huffman_table)
+                    pyjpeg.HuffmanLosslessScanComponent(huffman_table)
                 )
         segments.append(
-            jpeg.StartOfScan.lossless(
+            pyjpeg.StartOfScan.lossless(
                 components=sos_components,
                 predictor=predictor,
             )
@@ -887,10 +888,10 @@ def generate_lossless(
                     samples.append(component_samples[c][offset + i])
             if offset != 0:
                 index = (offset // segment_length) - 1
-                segments.append(jpeg.Restart(index % 8))
+                segments.append(pyjpeg.Restart(index % 8))
             if arithmetic:
                 segments.append(
-                    jpeg.ArithmeticLosslessScan(
+                    pyjpeg.ArithmeticLosslessScan(
                         width,
                         samples,
                         arithmetic_scan_components,
@@ -900,7 +901,7 @@ def generate_lossless(
                 )
             else:
                 segments.append(
-                    jpeg.HuffmanLosslessScan(
+                    pyjpeg.HuffmanLosslessScan(
                         width,
                         samples,
                         huffman_scan_components,
@@ -909,9 +910,9 @@ def generate_lossless(
                     )
                 )
             if offset == 0 and scan_index == 0 and use_dnl:
-                segments.append(jpeg.DefineNumberOfLines(height))
-    segments.append(jpeg.EndOfImage())
-    segments = jpeg.huffman_optimize(segments)
+                segments.append(pyjpeg.DefineNumberOfLines(height))
+    segments.append(pyjpeg.EndOfImage())
+    segments = pyjpeg.huffman_optimize(segments)
     write_jpeg(segments, section, width, height, precision, description)
 
 
@@ -936,11 +937,11 @@ def generate_ls(
     use_oversize_image_dimensions: bool = False,
     oversize_image_dimensions_number_of_bytes: int = 2,
 ) -> None:
-    segments: list[jpeg.Segment] = [jpeg.StartOfImage()]
+    segments: list[pyjpeg.Segment] = [pyjpeg.StartOfImage()]
     if color_space is None:
-        segments.append(jpeg.JfifHeader())
+        segments.append(pyjpeg.JfifHeader())
     else:
-        segments.append(jpeg.AdobeHeader(color_space=color_space))
+        segments.append(pyjpeg.AdobeHeader(color_space=color_space))
     if use_dnl or use_oversize_image_dimensions:
         number_of_lines = 0
     else:
@@ -951,15 +952,15 @@ def generate_ls(
         samples_per_line = width
     sof_components = []
     for i in range(len(component_samples)):
-        sof_components.append(jpeg.FrameComponent.lossless(i + 1))
+        sof_components.append(pyjpeg.FrameComponent.lossless(i + 1))
     segments.append(
-        jpeg.StartOfFrame.ls(
+        pyjpeg.StartOfFrame.ls(
             number_of_lines, samples_per_line, sof_components, precision=precision
         )
     )
     if use_oversize_image_dimensions:
         segments.append(
-            jpeg.LSOversizeImageDimensions(
+            pyjpeg.LSOversizeImageDimensions(
                 width,
                 height,
                 number_of_bytes=oversize_image_dimensions_number_of_bytes,
@@ -972,16 +973,16 @@ def generate_ls(
         or always_parameters
     ):
         segments.append(
-            jpeg.LSCodingParameters(
+            pyjpeg.LSCodingParameters(
                 maxval=maxval, gradient_thresholds=gradient_thresholds, reset=reset
             )
         )
     for table_id, weight, table in mapping_tables:
         # FIXME: Support table continuation
-        segments.append(jpeg.LSMappingTable(table_id, table, weight=weight))
+        segments.append(pyjpeg.LSMappingTable(table_id, table, weight=weight))
     if restart_interval != 0:
         segments.append(
-            jpeg.DefineRestartInterval(
+            pyjpeg.DefineRestartInterval(
                 restart_interval, number_of_bytes=restart_interval_number_of_bytes
             )
         )
@@ -992,7 +993,7 @@ def generate_ls(
         else:
             mapping_table = 0
         all_scan_components.append(
-            jpeg.ScanComponent.ls(i + 1, mapping_table=mapping_table)
+            pyjpeg.ScanComponent.ls(i + 1, mapping_table=mapping_table)
         )
     for scan_index, (difference_bound, interleave_mode, component_indexes) in enumerate(
         scans
@@ -1001,9 +1002,9 @@ def generate_ls(
         scan_components = []
         for c in component_indexes:
             sos_components.append(all_scan_components[c])
-            scan_components.append(jpeg.LSScanComponent())
+            scan_components.append(pyjpeg.LSScanComponent())
         segments.append(
-            jpeg.StartOfScan.ls(
+            pyjpeg.StartOfScan.ls(
                 components=sos_components,
                 difference_bound=difference_bound,
                 interleave_mode=interleave_mode,
@@ -1022,13 +1023,13 @@ def generate_ls(
                     samples.append(component_samples[c][offset + i])
             if offset != 0:
                 index = (offset // segment_length) - 1
-                segments.append(jpeg.Restart(index % 8))
+                segments.append(pyjpeg.Restart(index % 8))
             if maxval != 0:
                 scan_maxval = maxval
             else:
                 scan_maxval = (1 << precision) - 1
             segments.append(
-                jpeg.LSScan(
+                pyjpeg.LSScan(
                     width,
                     samples,
                     scan_components,
@@ -1038,23 +1039,23 @@ def generate_ls(
             )
             if offset == 0 and scan_index == 0 and use_dnl:
                 segments.append(
-                    jpeg.DefineNumberOfLines(
+                    pyjpeg.DefineNumberOfLines(
                         height, number_of_bytes=number_of_lines_number_of_bytes
                     )
                 )
-    segments.append(jpeg.EndOfImage())
+    segments.append(pyjpeg.EndOfImage())
     write_jpeg(segments, section, width, height, precision, description)
 
 
 def write_jpeg(
-    segments: list[jpeg.Segment],
+    segments: list[pyjpeg.Segment],
     section: str,
     width: int,
     height: int,
     precision: int,
     description: str,
 ) -> None:
-    writer = jpeg.BufferedWriter()
+    writer = pyjpeg.BufferedWriter()
     for segment in segments:
         segment.write(writer)
     basename = "../jpeg/%s/%dx%dx%d_%s" % (
@@ -1144,7 +1145,7 @@ for mode, encoding in [
         WIDTH,
         HEIGHT,
         grayscale_components8,
-        luminance_quantization_table=jpeg.standard_luminance_quantization_table,
+        luminance_quantization_table=pyjpeg.standard_luminance_quantization_table,
         scans=dct_one_channel_scans,
         extended=extended,
         progressive=progressive,
@@ -1178,8 +1179,8 @@ for mode, encoding in [
         WIDTH,
         HEIGHT,
         ycbcr_components8,
-        luminance_quantization_table=jpeg.standard_luminance_quantization_table,
-        chrominance_quantization_table=jpeg.standard_chrominance_quantization_table,
+        luminance_quantization_table=pyjpeg.standard_luminance_quantization_table,
+        chrominance_quantization_table=pyjpeg.standard_chrominance_quantization_table,
         scans=three_channel_scans,
         extended=extended,
         progressive=progressive,
@@ -1371,7 +1372,7 @@ for mode, encoding in [
         HEIGHT,
         rgb_components8,
         scans=three_channel_scans,
-        color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+        color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1383,7 +1384,7 @@ for mode, encoding in [
         HEIGHT,
         rgb_components8,
         scans=[([2], 0, 63, 0), ([1], 0, 63, 0), ([0], 0, 63, 0)],
-        color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+        color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1395,7 +1396,7 @@ for mode, encoding in [
         HEIGHT,
         rgb_components8,
         scans=three_channel_interleaved_scans,
-        color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+        color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1407,7 +1408,7 @@ for mode, encoding in [
         HEIGHT,
         rgb_components8,
         scans=[([2, 1, 0], 0, 63, 0)],
-        color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+        color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1419,7 +1420,7 @@ for mode, encoding in [
         HEIGHT,
         cmyk_components8,
         scans=four_channel_scans,
-        color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+        color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1431,7 +1432,7 @@ for mode, encoding in [
         HEIGHT,
         cmyk_components8,
         scans=four_channel_interleaved_scans,
-        color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+        color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1733,7 +1734,7 @@ for encoding in ["huffman", "arithmetic"]:
         HEIGHT,
         rgb_samples8,
         scans=[[0], [1], [2]],
-        color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+        color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
         predictor=1,
         arithmetic=arithmetic,
     )
@@ -1744,7 +1745,7 @@ for encoding in ["huffman", "arithmetic"]:
         HEIGHT,
         rgb_samples8,
         scans=[[0, 1, 2]],
-        color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+        color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
         predictor=1,
         arithmetic=arithmetic,
     )
@@ -1772,7 +1773,7 @@ for encoding in ["huffman", "arithmetic"]:
     )
 
 section = "ls"
-ls_one_channel_scans = [(0, jpeg.LSInterleaveMode.NONE, [0])]
+ls_one_channel_scans = [(0, pyjpeg.LSInterleaveMode.NONE, [0])]
 generate_ls(
     section,
     "grayscale",
@@ -1818,9 +1819,9 @@ generate_ls(
     HEIGHT,
     ycbcr_samples8,
     scans=[
-        (0, jpeg.LSInterleaveMode.NONE, [0]),
-        (0, jpeg.LSInterleaveMode.NONE, [1]),
-        (0, jpeg.LSInterleaveMode.NONE, [2]),
+        (0, pyjpeg.LSInterleaveMode.NONE, [0]),
+        (0, pyjpeg.LSInterleaveMode.NONE, [1]),
+        (0, pyjpeg.LSInterleaveMode.NONE, [2]),
     ],
 )
 generate_ls(
@@ -1829,7 +1830,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     ycbcr_samples8,
-    scans=[(0, jpeg.LSInterleaveMode.LINE, [0, 1, 2])],
+    scans=[(0, pyjpeg.LSInterleaveMode.LINE, [0, 1, 2])],
 )
 generate_ls(
     section,
@@ -1837,7 +1838,7 @@ generate_ls(
     WIDTH,
     HEIGHT,
     ycbcr_samples8,
-    scans=[(0, jpeg.LSInterleaveMode.SAMPLE, [0, 1, 2])],
+    scans=[(0, pyjpeg.LSInterleaveMode.SAMPLE, [0, 1, 2])],
 )
 generate_ls(
     section,
@@ -1846,11 +1847,11 @@ generate_ls(
     HEIGHT,
     rgb_samples8,
     scans=[
-        (0, jpeg.LSInterleaveMode.NONE, [0]),
-        (0, jpeg.LSInterleaveMode.NONE, [1]),
-        (0, jpeg.LSInterleaveMode.NONE, [2]),
+        (0, pyjpeg.LSInterleaveMode.NONE, [0]),
+        (0, pyjpeg.LSInterleaveMode.NONE, [1]),
+        (0, pyjpeg.LSInterleaveMode.NONE, [2]),
     ],
-    color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+    color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
 )
 rgb_mapped_samples, mapping_table = make_mapped_samples(rgb_samples8)
 generate_ls(
@@ -1869,8 +1870,8 @@ generate_ls(
     WIDTH,
     HEIGHT,
     rgb_samples8,
-    scans=[(0, jpeg.LSInterleaveMode.LINE, [0, 1, 2])],
-    color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+    scans=[(0, pyjpeg.LSInterleaveMode.LINE, [0, 1, 2])],
+    color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
 )
 generate_ls(
     section,
@@ -1878,8 +1879,8 @@ generate_ls(
     WIDTH,
     HEIGHT,
     rgb_samples8,
-    scans=[(0, jpeg.LSInterleaveMode.SAMPLE, [0, 1, 2])],
-    color_space=jpeg.AdobeColorSpace.RGB_OR_CMYK,
+    scans=[(0, pyjpeg.LSInterleaveMode.SAMPLE, [0, 1, 2])],
+    color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
 )
 generate_ls(
     section,
