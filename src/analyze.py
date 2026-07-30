@@ -71,12 +71,12 @@ for segment in stream.segments:
         print(f"APP{segment.n} Palletized Thumbnail")
         print(f" Width: {segment.width}")
         print(f" Height: {segment.height}")
-        print(f" Data: {segment.data}")
+        print(f" Data: {segment.data!r}")
     elif isinstance(segment, pyjpeg.JfifRgbThumbnail):
         print(f"APP{segment.n} RGB Thumbnail")
         print(f" Width: {segment.width}")
         print(f" Height: {segment.height}")
-        print(f" Data: {segment.data}")
+        print(f" Data: {segment.data!r}")
     elif isinstance(segment, pyjpeg.SpiffHeader):
         print(f"APP{segment.n} SPIFF")
         print(f" Version: {segment.version[0]}.{segment.version[1]}")
