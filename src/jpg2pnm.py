@@ -2,16 +2,18 @@
 
 import sys
 
-import jpeg
+import pyjpeg
+
 from pnm import *
 
 if len(sys.argv) != 3:
     print("Usage: jpg2pnm.py <input.jpg> <output.pnm>")
     sys.exit(1)
 
-data = open(sys.argv[1], "rb").read()
-reader = jpeg.BufferedReader(data)
-stream = jpeg.Stream.read(reader)
+with open(sys.argv[1], "rb") as f:
+    f.read()
+reader = pyjpeg.BufferedReader(data)
+stream = pyjpeg.Stream.read(reader)
 
 data = []
 convert_ycbcr = False
@@ -24,12 +26,12 @@ quantization_tables = [
     [1] * 64,
 ]
 for segment in stream.segments:
-    if isinstance(segment, jpeg.JfifHeader):
+    if isinstance(segment, pyjpeg.JfifHeader):
         convert_ycbcr = True
-    elif isinstance(segment, jpeg.AdobeHeader):
-        if segment.color_space == jpeg.AdobeColorSpace.Y_CB_CR:
+    elif isinstance(segment, pyjpeg.AdobeHeader):
+        if segment.color_space == pyjpeg.AdobeColorSpace.Y_CB_CR:
             convert_ycbcr = True
-    elif isinstance(segment, jpeg.StartOfFrame):
+    elif isinstance(segment, pyjpeg.StartOfFrame):
         sof = segment
         data = (
             [0]
@@ -37,20 +39,18 @@ for segment in stream.segments:
             * segment.number_of_lines
             * len(segment.components)
         )
-    elif isinstance(segment, jpeg.DefineQuantizationTables):
+    elif isinstance(segment, pyjpeg.DefineQuantizationTables):
         for table in segment.tables:
             quantization_tables[table.destination] = table.values
-    elif isinstance(segment, jpeg.StartOfScan):
+    elif isinstance(segment, pyjpeg.StartOfScan):
         sos = segment
-    elif isinstance(segment, jpeg.HuffmanDCTScan) or isinstance(
-        segment, jpeg.ArithmeticDCTScan
-    ):
+    elif isinstance(segment, (pyjpeg.HuffmanDCTScan, pyjpeg.ArithmeticDCTScan)):
         # FIXME: Channels, sampling factor
         du_x = 0
         du_y = 0
         component = sof.get_component(sof.components[0].id)
         for i, data_unit in enumerate(segment.data_units):
-            samples = jpeg.idct(
+            samples = pyjpeg.idct(
                 data_unit,
                 quantization_tables[component.quantization_table_index],
                 sof.precision,
@@ -71,8 +71,8 @@ for segment in stream.segments:
             if du_x >= sof.samples_per_line:
                 du_x = 0
                 du_y += 8
-    elif isinstance(segment, jpeg.HuffmanLosslessScan) or isinstance(
-        segment, jpeg.ArithmeticLosslessScan
+    elif isinstance(
+        segment, (pyjpeg.HuffmanLosslessScan, pyjpeg.ArithmeticLosslessScan)
     ):
         # FIXME: Channels, sampling factor
         for i, sample in enumerate(segment.samples):

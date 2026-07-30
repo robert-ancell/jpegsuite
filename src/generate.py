@@ -197,23 +197,20 @@ def segments_to_json(segments: list[pyjpeg.Segment]) -> list[dict[str, object]]:
         if isinstance(segment, pyjpeg.StartOfImage):
             value["type"] = "SOI"
         elif isinstance(segment, pyjpeg.ApplicationSpecificData):
-            value["type"] = "APP%d" % segment.n
+            value["type"] = f"APP{segment.n}"
             if isinstance(segment, pyjpeg.JfifHeader):
                 value.update(
                     {
                         "format": "JFIF",
-                        "version": "%d.%d" % (segment.version[0], segment.version[1]),
+                        "version": f"{segment.version[0]}.{segment.version[1]}",
                     }
                 )
                 if segment.density.unit == pyjpeg.JfifDensityUnit.ASPECT_RATIO:
-                    value["aspect-ratio"] = "%dx%d" % (
-                        segment.density.x,
-                        segment.density.y,
-                    )
+                    value["aspect-ratio"] = f"{segment.density.x}x{segment.density.y}"
                 elif segment.density.unit == pyjpeg.JfifDensityUnit.DPI:
-                    value["dpi"] = "%dx%d" % (segment.density.x, segment.density.y)
+                    value["dpi"] = f"{segment.density.x}x{segment.density.y}"
                 elif segment.density.unit == pyjpeg.JfifDensityUnit.DPCM:
-                    value["dpcm"] = "%dx%d" % (segment.density.x, segment.density.y)
+                    value["dpcm"] = f"{segment.density.x}x{segment.density.y}"
                 else:
                     value["density"] = {
                         "unit": segment.density.unit,
@@ -303,7 +300,7 @@ def segments_to_json(segments: list[pyjpeg.Segment]) -> list[dict[str, object]]:
                 )
             value.update(
                 {
-                    "type": "SOF%d" % segment.n,
+                    "type": f"SOF{segment.n}",
                     "precision": segment.precision,
                     "number_of_lines": segment.number_of_lines,
                     "samples_per_line": segment.samples_per_line,
@@ -330,25 +327,26 @@ def segments_to_json(segments: list[pyjpeg.Segment]) -> list[dict[str, object]]:
             if segment.point_transform & 0xF0 != 0:
                 value["previous_point_transform"] = segment.point_transform >> 4
             value["point_transform"] = segment.point_transform & 0xF
-        elif isinstance(segment, pyjpeg.HuffmanDCTScan) or isinstance(
-            segment, pyjpeg.ArithmeticDCTScan
-        ):
+        elif isinstance(segment, (pyjpeg.HuffmanDCTScan, pyjpeg.ArithmeticDCTScan)):
             value["type"] = "DCT"
-        elif isinstance(segment, pyjpeg.HuffmanLosslessScan) or isinstance(
-            segment, pyjpeg.ArithmeticLosslessScan
+        elif isinstance(
+            segment, (pyjpeg.HuffmanLosslessScan, pyjpeg.ArithmeticLosslessScan)
         ):
             value["type"] = "Lossless"
         elif isinstance(segment, pyjpeg.LSScan):
             value["type"] = "LS"
-        elif (
-            isinstance(segment, pyjpeg.HuffmanDCTDCSuccessiveScan)
-            or isinstance(segment, pyjpeg.HuffmanDCTACSuccessiveScan)
-            or isinstance(segment, pyjpeg.ArithmeticDCTDCSuccessiveScan)
-            or isinstance(segment, pyjpeg.ArithmeticDCTACSuccessiveScan)
+        elif isinstance(
+            segment,
+            (
+                pyjpeg.HuffmanDCTDCSuccessiveScan,
+                pyjpeg.HuffmanDCTACSuccessiveScan,
+                pyjpeg.ArithmeticDCTDCSuccessiveScan,
+                pyjpeg.ArithmeticDCTACSuccessiveScan,
+            ),
         ):
             value["type"] = "DCTSuccessive"
         elif isinstance(segment, pyjpeg.Restart):
-            value["type"] = "RST%d" % segment.index
+            value["type"] = f"RST{segment.index}"
         elif isinstance(segment, pyjpeg.DefineNumberOfLines):
             value.update({"type": "DNL", "number_of_lines": segment.number_of_lines})
         elif isinstance(segment, pyjpeg.EndOfImage):
@@ -421,25 +419,27 @@ def generate_dct(
     description: str,
     width: int,
     height: int,
-    components: list[tuple[list[int], tuple[int, int]]] = [],
+    components: list[tuple[list[int], tuple[int, int]]],
+    scans: list[tuple[list[int], int, int, int]],
     precision: int = 8,
     luminance_quantization_table: list[int] = [1] * 64,
     chrominance_quantization_table: list[int] = [1] * 64,
     use_dnl: bool = False,
     restart_interval: int = 0,
     color_space: int | None = None,
-    scans: list[tuple[list[int], int, int, int]] = [],
-    comments: list[bytes] = [],
+    comments: list[bytes] | None = None,
     extended: bool = False,
     progressive: bool = False,
     arithmetic: bool = False,
-    arithmetic_conditioning_bounds: list[tuple[int, int]] = [
+    arithmetic_conditioning_bounds: tuple[
+        tuple[int, int], tuple[int, int], tuple[int, int], tuple[int, int]
+    ] = (
         (0, 1),
         (0, 1),
         (0, 1),
         (0, 1),
-    ],
-    arithmetic_conditioning_kx: list[int] = [5, 5, 5, 5],
+    ),
+    arithmetic_conditioning_kx: tuple[int, int, int, int] = (5, 5, 5, 5),
 ) -> None:
     if arithmetic:
         assert extended or progressive
@@ -563,9 +563,8 @@ def generate_dct(
             if (c, s, e) == (component_indexes, start, end) and p != 0:
                 successive = True
                 previous_point_transform = p
-        if successive:
-            if start == 0:
-                assert end == 0
+        if successive and start == 0:
+            assert end == 0
         sos = pyjpeg.StartOfScan.dct(
             sos_components,
             spectral_selection=selection,
@@ -725,8 +724,9 @@ def generate_dct(
         jpeg_scans.append((sos, scan_data))
 
     segments: list[pyjpeg.Segment] = [pyjpeg.StartOfImage()]
-    for comment in comments:
-        segments.append(pyjpeg.Comment(comment))
+    if comments is not None:
+        for comment in comments:
+            segments.append(pyjpeg.Comment(comment))
     if color_space is None:
         segments.append(pyjpeg.JfifHeader())
     else:
@@ -801,7 +801,7 @@ def generate_lossless(
     width: int,
     height: int,
     component_samples: list[list[int]],
-    scans: list[list[int]] = [],
+    scans: list[list[int]],
     precision: int = 8,
     use_dnl: bool = False,
     color_space: int | None = None,
@@ -922,14 +922,14 @@ def generate_ls(
     width: int,
     height: int,
     component_samples: list[list[int]],
-    scans: list[tuple[int, int, list[int]]] = [],
+    scans: list[tuple[int, int, list[int]]],
     precision: int = 8,
     use_dnl: bool = False,
     number_of_lines_number_of_bytes: int = 2,
     color_space: int | None = None,
     restart_interval: int = 0,
     restart_interval_number_of_bytes: int = 2,
-    mapping_tables: list[tuple[int, int, bytes]] = [],
+    mapping_tables: list[tuple[int, int, bytes]] | None = None,
     maxval: int = 0,
     gradient_thresholds: tuple[int, int, int] = (0, 0, 0),
     reset: int = 0,
@@ -937,6 +937,8 @@ def generate_ls(
     use_oversize_image_dimensions: bool = False,
     oversize_image_dimensions_number_of_bytes: int = 2,
 ) -> None:
+    if mapping_tables is None:
+        mapping_tables = []
     segments: list[pyjpeg.Segment] = [pyjpeg.StartOfImage()]
     if color_space is None:
         segments.append(pyjpeg.JfifHeader())
@@ -1058,16 +1060,12 @@ def write_jpeg(
     writer = pyjpeg.BufferedWriter()
     for segment in segments:
         segment.write(writer)
-    basename = "../jpeg/%s/%dx%dx%d_%s" % (
-        section,
-        width,
-        height,
-        precision,
-        description,
-    )
-    open(basename + ".jpg", "wb").write(writer.data)
+    basename = f"../jpeg/{section}/{width}x{height}x{precision}_{description}"
+    with open(basename + ".jpg", "wb") as f:
+        f.write(writer.data)
     j = {"width": width, "height": height, "segments": segments_to_json(segments)}
-    open(basename + ".json", "w").write(json.dumps(j, indent=2))
+    with open(basename + ".json", "w") as f:
+        f.write(json.dumps(j, indent=2))
 
 
 for mode, encoding in [
@@ -1081,7 +1079,7 @@ for mode, encoding in [
     progressive = mode == "progressive"
     arithmetic = encoding == "arithmetic"
     if mode != "baseline":
-        section = "%s_%s" % (mode, encoding)
+        section = f"{mode}_{encoding}"
     else:
         section = "baseline"
     if not progressive:
@@ -1326,7 +1324,7 @@ for mode, encoding in [
     )
     for size in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16):
         (width, height, _, channels, samples) = read_pnm(
-            "data/%dx%dx8_grayscale.pgm" % (size, size)
+            f"data/{size}x{size}x8_grayscale.pgm"
         )
         assert width == height == size
         assert channels == 1
@@ -1666,11 +1664,11 @@ for mode, encoding in [
 
 for encoding in ["huffman", "arithmetic"]:
     arithmetic = encoding == "arithmetic"
-    section = "lossless_%s" % encoding
+    section = f"lossless_{encoding}"
     for predictor in range(1, 8):
         generate_lossless(
             section,
-            "grayscale_predictor%d" % predictor,
+            f"grayscale_predictor{predictor}",
             WIDTH,
             HEIGHT,
             [grayscale_samples8],
@@ -1692,7 +1690,7 @@ for encoding in ["huffman", "arithmetic"]:
         )
     for size in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16):
         (width, height, _, channels, samples) = read_pnm(
-            "data/%dx%dx8_grayscale.pgm" % (size, size)
+            f"data/{size}x{size}x8_grayscale.pgm"
         )
         assert width == height == size
         assert channels == 1
@@ -1794,7 +1792,7 @@ for precision in range(2, 17):
     )
 for size in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16):
     (width, height, _, channels, samples) = read_pnm(
-        "data/%dx%dx8_grayscale.pgm" % (size, size)
+        f"data/{size}x{size}x8_grayscale.pgm"
     )
     assert width == height == size
     assert channels == 1
