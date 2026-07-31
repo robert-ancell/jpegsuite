@@ -49,7 +49,7 @@ Small images of size 1x1 to 16x16.
 The reference grayscale image with one and two comments.
 
 `32x32x8_dnl.jpg`
-The reference grayscale image with the the height set to zero in the *start of frame* and instead sent in the *define number of lines* after the scan.
+The reference grayscale image with the the height set to zero in the _start of frame_ and instead sent in the _define number of lines_ after the scan.
 
 `32x32x8_restarts.jpg`
 The reference grayscale image sent in four sections with restart markers.
@@ -115,7 +115,7 @@ The reference color image in YCbCr and RGB format with a single scan per channel
 The reference color image as above, but with a single scan interleaving each channel.
 
 `32x32x8_dnl.jpg`
-The reference grayscale image with the the height set to zero in the *start of frame* and instead sent in the *define number of lines* after the scan.
+The reference grayscale image with the the height set to zero in the _start of frame_ and instead sent in the _define number of lines_ after the scan.
 
 ## JPEG-LS Images
 
@@ -142,7 +142,7 @@ The reference color image in YCbCr and RGB format with a single scan per channel
 The reference color image as above, but with a single scan interleaving each channel using line or sample interleaving.
 
 `32x32x8_dnl.jpg`
-The reference grayscale image with the the height set to zero in the *start of frame* and instead sent in the *define number of lines* after the scan.
+The reference grayscale image with the the height set to zero in the _start of frame_ and instead sent in the _define number of lines_ after the scan.
 
 `32x32x8_empty_parameters.jpg`
 The reference grayscale image with a preset prarameters segment containing default parameter values.
@@ -156,3 +156,6 @@ The reference grayscale image with a preset prarameters segment containing empty
 `32x32x8_empty_t3.jpg`
 `32x32x8_empty_reset.jpg`
 The reference grayscale image with a preset prarameters segment containing default parameter values except for the named parameter which is set to zero. The decoder should use the default value for this parameter.
+
+`32x32x8_near_lossless_N.jpg`
+The reference grayscale image encoded near-losslessly, with varying difference bounds.

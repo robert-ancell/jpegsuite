@@ -1036,7 +1036,10 @@ def generate_ls(
                     samples,
                     scan_components,
                     interleave_mode=interleave_mode,
+                    difference_bound=difference_bound,
                     maxval=scan_maxval,
+                    gradient_thresholds=gradient_thresholds,
+                    reset=reset,
                 )
             )
             if offset == 0 and scan_index == 0 and use_dnl:
@@ -2052,6 +2055,15 @@ generate_ls(
     gradient_thresholds=(4, 8, 22),
     reset=63,
 )
+for near in (1, 2, 3, 7, 20):
+    generate_ls(
+        section,
+        f"near_lossless_{near}",
+        WIDTH,
+        HEIGHT,
+        [grayscale_samples8],
+        scans=[(near, pyjpeg.LSInterleaveMode.NONE, [0])],
+    )
 
 # 3 channel, red, green, blue, white, mixed color
 # version 1.1
