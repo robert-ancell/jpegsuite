@@ -10,6 +10,9 @@ from pnm import *
 WIDTH = 32
 HEIGHT = 32
 
+# Simplest Exif structure, containing no tags.
+MINIMAL_EXIF_DATA = b"II*\x00\x08\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+
 
 def clamp(value: int, min_value: int, max_value: int) -> int:
     return max(min(value, max_value), min_value)
@@ -239,6 +242,8 @@ def segments_to_json(segments: list[pyjpeg.Segment]) -> list[dict[str, object]]:
                 )
             elif isinstance(segment, pyjpeg.UnknownApplicationSpecificData):
                 value["data"] = list(segment.data)
+            elif isinstance(segment, pyjpeg.ExifHeader):
+                value.update({"format": "Exif", "data": list(segment.data)})
         elif isinstance(segment, pyjpeg.Comment):
             value.update({"type": "COM", "data": str(segment.data, "ascii")})
         elif isinstance(segment, pyjpeg.DefineQuantizationTables):
@@ -428,6 +433,7 @@ def generate_dct(
     restart_interval: int = 0,
     color_space: int | None = None,
     comments: list[bytes] | None = None,
+    exif: bool = False,
     extended: bool = False,
     progressive: bool = False,
     arithmetic: bool = False,
@@ -727,7 +733,9 @@ def generate_dct(
     if comments is not None:
         for comment in comments:
             segments.append(pyjpeg.Comment(comment))
-    if color_space is None:
+    if exif:
+        segments.append(pyjpeg.ExifHeader(MINIMAL_EXIF_DATA))
+    elif color_space is None:
         segments.append(pyjpeg.JfifHeader())
     else:
         segments.append(pyjpeg.AdobeHeader(color_space=color_space))
@@ -1458,6 +1466,18 @@ for mode, encoding in [
         grayscale_components8,
         scans=dct_one_channel_scans,
         restart_interval=4,
+        extended=extended,
+        progressive=progressive,
+        arithmetic=arithmetic,
+    )
+    generate_dct(
+        section,
+        "exif",
+        WIDTH,
+        HEIGHT,
+        grayscale_components8,
+        scans=dct_one_channel_scans,
+        exif=True,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
