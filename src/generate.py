@@ -1522,8 +1522,21 @@ for mode, encoding in [
     )
     generate_dct(
         section,
+        "no_jfif",
+        "DCT encoded grayscale image with no JFIF segment.",
+        WIDTH,
+        HEIGHT,
+        grayscale_components8,
+        scans=dct_one_channel_scans,
+        jfif=False,
+        extended=extended,
+        progressive=progressive,
+        arithmetic=arithmetic,
+    )
+    generate_dct(
+        section,
         "exif",
-        "DCT encoded grayscale image with Exif header instead of JFIF.",
+        "DCT encoded grayscale image with Exif segment instead of JFIF.",
         WIDTH,
         HEIGHT,
         grayscale_components8,

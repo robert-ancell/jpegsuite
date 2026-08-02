@@ -1,31 +1,10 @@
 {
-  "description": "DCT encoded grayscale image with Exif segment instead of JFIF.",
+  "description": "DCT encoded grayscale image with no JFIF segment.",
   "width": 32,
   "height": 32,
   "segments": [
     {
       "type": "SOI"
-    },
-    {
-      "type": "APP1",
-      "format": "Exif",
-      "data": [
-        73,
-        73,
-        42,
-        0,
-        8,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ]
     },
     {
       "type": "DQT",
@@ -119,7 +98,7 @@
       ]
     },
     {
-      "type": "SOF1",
+      "type": "SOF9",
       "precision": 8,
       "number_of_lines": 32,
       "samples_per_line": 32,
@@ -131,85 +110,6 @@
             1
           ],
           "quantization_table": 0
-        }
-      ]
-    },
-    {
-      "type": "DHT",
-      "tables": [
-        {
-          "class": "dc",
-          "destination": 0,
-          "symbols": [
-            [],
-            [
-              0,
-              10
-            ],
-            [
-              5,
-              8,
-              9
-            ],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            []
-          ]
-        },
-        {
-          "class": "ac",
-          "destination": 0,
-          "symbols": [
-            [],
-            [
-              4,
-              5
-            ],
-            [
-              3,
-              6,
-              7
-            ],
-            [
-              8
-            ],
-            [
-              2
-            ],
-            [
-              9
-            ],
-            [],
-            [
-              1,
-              10,
-              21
-            ],
-            [
-              20
-            ],
-            [
-              18
-            ],
-            [
-              17
-            ],
-            [],
-            [],
-            [],
-            [],
-            []
-          ]
         }
       ]
     },
