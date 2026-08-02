@@ -2189,7 +2189,7 @@ for difference_bound in (1, 2, 3, 7, 20):
     generate_ls(
         section,
         f"near_lossless_{difference_bound}",
-        f"JPEG-LS near-lossless encoded grayscale image with samples within {difference_bound} or original values.",
+        f"JPEG-LS near-lossless encoded grayscale image with samples within {difference_bound} of original values.",
         WIDTH,
         HEIGHT,
         [grayscale_samples8],
