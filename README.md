@@ -41,6 +41,10 @@ An 8x8 gray image encoded using a single data unit with zero coefficients.
 `8x8x8_grayscale_check.jpg`
 An 8x8 image encoded using a single data unit containing only black, white, gray, or a checkerboard pattern of pixels.
 
+`32x32x8_grayscale_noise.jpg`
+`32x32x8_grayscale_bitmap_noise.jpg`
+Images containing random noise.
+
 `NxMx8_grayscale.jpg`
 Small images of size 1x1 to 16x16.
 
@@ -59,6 +63,11 @@ The reference grayscale image sent in four sections with restart markers.
 `32x32x8_ycbcr_2x2_1x1_1x1.jpg`
 `32x32x8_ycbcr_2x2_2x1_1x2.jpg`
 The reference color image with the color channels using different sampling factors.
+
+`32x32x8_no_jfif.jpg`
+`32x32x8_adobe.jpg`
+`32x32x8_exif.jpg`
+Alternate headers to the standard JFIF.
 
 ## Extended DCT Images
 
@@ -117,6 +126,16 @@ The reference color image as above, but with a single scan interleaving each cha
 `32x32x8_dnl.jpg`
 The reference grayscale image with the the height set to zero in the _start of frame_ and instead sent in the _define number of lines_ after the scan.
 
+`8x8x8_grayscale_black.jpg`
+`8x8x8_grayscale_white.jpg`
+`8x8x8_grayscale_gray.jpg`
+`8x8x8_grayscale_check.jpg`
+An 8x8 image encoded using a single data unit containing only black, white, gray, or a checkerboard pattern of pixels.
+
+`32x32x8_grayscale_noise.jpg`
+`32x32x8_grayscale_bitmap_noise.jpg`
+Images containing random noise.
+
 ## JPEG-LS Images
 
 `32x32xN_grayscale.jpg`
@@ -159,3 +178,13 @@ The reference grayscale image with a preset prarameters segment containing defau
 
 `32x32x8_near_lossless_N.jpg`
 The reference grayscale image encoded near-losslessly, with varying difference bounds.
+
+`8x8x8_grayscale_black.jpg`
+`8x8x8_grayscale_white.jpg`
+`8x8x8_grayscale_gray.jpg`
+`8x8x8_grayscale_check.jpg`
+An 8x8 image encoded using a single data unit containing only black, white, gray, or a checkerboard pattern of pixels.
+
+`32x32x8_grayscale_noise.jpg`
+`32x32x8_grayscale_bitmap_noise.jpg`
+Images containing random noise.
