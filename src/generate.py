@@ -1936,6 +1936,72 @@ for encoding in ["huffman", "arithmetic"]:
         predictor=1,
         arithmetic=arithmetic,
     )
+    generate_lossless(
+        section,
+        "grayscale_black",
+        "Lossless encoded single channel image with all black pixels.",
+        8,
+        8,
+        [make_solid(8, 8, 0)],
+        scans=[[0]],
+        predictor=1,
+        arithmetic=arithmetic,
+    )
+    generate_lossless(
+        section,
+        "grayscale_white",
+        "Lossless encoded single channel image with all white pixels.",
+        8,
+        8,
+        [make_solid(8, 8, 255)],
+        scans=[[0]],
+        predictor=1,
+        arithmetic=arithmetic,
+    )
+    generate_lossless(
+        section,
+        "grayscale_gray",
+        "Lossless encoded single channel image with all mid-level gray pixels.",
+        8,
+        8,
+        [make_solid(8, 8, 127)],
+        scans=[[0]],
+        predictor=1,
+        arithmetic=arithmetic,
+    )
+    generate_lossless(
+        section,
+        "grayscale_check",
+        "Lossless encoded single channel image with a checkered format.",
+        8,
+        8,
+        [make_check(8, 8, 255)],
+        scans=[[0]],
+        predictor=1,
+        arithmetic=arithmetic,
+    )
+    generate_lossless(
+        section,
+        "grayscale_noise",
+        "Lossless encoded single channel image containing noise.",
+        WIDTH,
+        HEIGHT,
+        [make_noise(WIDTH, HEIGHT, 8)],
+        scans=[[0]],
+        predictor=1,
+        arithmetic=arithmetic,
+    )
+    generate_lossless(
+        section,
+        "grayscale_bitmap_noise",
+        "Lossless encoded single channel image containing bitmapped noise.",
+        WIDTH,
+        HEIGHT,
+        [make_bitmap_noise(WIDTH, HEIGHT, 255)],
+        scans=[[0]],
+        predictor=1,
+        arithmetic=arithmetic,
+    )
 
 section = "ls"
 ls_one_channel_scans = [(0, pyjpeg.LSInterleaveMode.NONE, [0])]
@@ -2152,6 +2218,60 @@ generate_ls(
     scans=ls_one_channel_scans,
     use_dnl=True,
     number_of_lines_number_of_bytes=4,
+)
+generate_ls(
+    section,
+    "grayscale_black",
+    "JPEG-LS encoded single channel image with all black pixels.",
+    8,
+    8,
+    [make_solid(8, 8, 0)],
+    scans=ls_one_channel_scans,
+)
+generate_ls(
+    section,
+    "grayscale_white",
+    "JPEG-LS encoded single channel image with all white pixels.",
+    8,
+    8,
+    [make_solid(8, 8, 255)],
+    scans=ls_one_channel_scans,
+)
+generate_ls(
+    section,
+    "grayscale_gray",
+    "JPEG-LS encoded single channel image with all mid-level gray pixels.",
+    8,
+    8,
+    [make_solid(8, 8, 127)],
+    scans=ls_one_channel_scans,
+)
+generate_ls(
+    section,
+    "grayscale_check",
+    "JPEG-LS encoded single channel image with a checkered format.",
+    8,
+    8,
+    [make_check(8, 8, 255)],
+    scans=ls_one_channel_scans,
+)
+generate_ls(
+    section,
+    "grayscale_noise",
+    "JPEG-LS encoded single channel image containing noise.",
+    WIDTH,
+    HEIGHT,
+    [make_noise(WIDTH, HEIGHT, 8)],
+    scans=ls_one_channel_scans,
+)
+generate_ls(
+    section,
+    "grayscale_bitmap_noise",
+    "JPEG-LS encoded single channel image containing bitmapped noise.",
+    WIDTH,
+    HEIGHT,
+    [make_bitmap_noise(WIDTH, HEIGHT, 255)],
+    scans=ls_one_channel_scans,
 )
 generate_ls(
     section,
