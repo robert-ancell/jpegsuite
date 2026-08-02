@@ -1,7 +1,7 @@
 {
-  "description": "DCT encoded single channel image with a checkered format.",
-  "width": 8,
-  "height": 8,
+  "description": "DCT encoded single channel image containing noise.",
+  "width": 32,
+  "height": 32,
   "segments": [
     {
       "type": "SOI"
@@ -106,8 +106,8 @@
     {
       "type": "SOF10",
       "precision": 8,
-      "number_of_lines": 8,
-      "samples_per_line": 8,
+      "number_of_lines": 32,
+      "samples_per_line": 32,
       "components": [
         {
           "id": 1,

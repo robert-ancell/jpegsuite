@@ -2,6 +2,7 @@
 
 import json
 import math
+import random
 
 import pyjpeg
 
@@ -69,6 +70,27 @@ def make_check(width: int, height: int, white: int) -> list[int]:
     for y in range(width):
         for x in range(height):
             if (x + y) % 2 == 0:
+                samples.append(0)
+            else:
+                samples.append(white)
+    return samples
+
+
+def make_noise(width: int, height: int, precision: int) -> list[int]:
+    r = random.Random(42)
+    samples = []
+    for y in range(width):
+        for x in range(height):
+            samples.append(r.randint(0, (1 << precision) - 1))
+    return samples
+
+
+def make_bitmap_noise(width: int, height: int, white: int) -> list[int]:
+    r = random.Random(42)
+    samples = []
+    for y in range(width):
+        for x in range(height):
+            if r.randint(0, 1) == 0:
                 samples.append(0)
             else:
                 samples.append(white)
@@ -1351,10 +1373,34 @@ for mode, encoding in [
     generate_dct(
         section,
         "grayscale_check",
-        "DCT encoded single channel image with in a checkered format.",
+        "DCT encoded single channel image with a checkered format.",
         8,
         8,
         [(make_check(8, 8, 255), (1, 1))],
+        scans=dct_one_channel_scans,
+        extended=extended,
+        progressive=progressive,
+        arithmetic=arithmetic,
+    )
+    generate_dct(
+        section,
+        "grayscale_noise",
+        "DCT encoded single channel image containing noise.",
+        WIDTH,
+        HEIGHT,
+        [(make_noise(WIDTH, HEIGHT, 8), (1, 1))],
+        scans=dct_one_channel_scans,
+        extended=extended,
+        progressive=progressive,
+        arithmetic=arithmetic,
+    )
+    generate_dct(
+        section,
+        "grayscale_bitmap_noise",
+        "DCT encoded single channel image containing bitmapped noise.",
+        WIDTH,
+        HEIGHT,
+        [(make_bitmap_noise(WIDTH, HEIGHT, 255), (1, 1))],
         scans=dct_one_channel_scans,
         extended=extended,
         progressive=progressive,

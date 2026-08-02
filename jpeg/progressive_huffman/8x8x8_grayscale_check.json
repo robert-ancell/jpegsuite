@@ -1,5 +1,5 @@
 {
-  "description": "DCT encoded single channel image with in a checkered format.",
+  "description": "DCT encoded single channel image with a checkered format.",
   "width": 8,
   "height": 8,
   "segments": [
