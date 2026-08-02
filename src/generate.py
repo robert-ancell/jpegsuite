@@ -1467,7 +1467,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "c_m_y_k",
-        "DCT encoded color image encoded in CMYK format in three scans.",
+        "DCT encoded color image encoded in CMYK format in four scans.",
         WIDTH,
         HEIGHT,
         cmyk_components8,
