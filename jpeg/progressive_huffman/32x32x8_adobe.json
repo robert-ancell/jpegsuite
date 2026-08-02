@@ -1,5 +1,5 @@
 {
-  "description": "DCT encoded color image encoded in RGB format in three scans. Channels are in reverse order.",
+  "description": "DCT encoded grayscale image with Adobe segment instead of JFIF.",
   "width": 32,
   "height": 32,
   "segments": [
@@ -7,18 +7,12 @@
       "type": "SOI"
     },
     {
-      "type": "APP0",
-      "format": "JFIF",
-      "version": "1.2",
-      "aspect-ratio": "1x1"
-    },
-    {
       "type": "APP14",
       "format": "Adobe",
       "version": 101,
       "flags0": 0,
       "flags1": 0,
-      "color-space": "RGB or CMYK"
+      "color-space": "YCbCr"
     },
     {
       "type": "DQT",
@@ -112,29 +106,13 @@
       ]
     },
     {
-      "type": "SOF1",
+      "type": "SOF2",
       "precision": 8,
       "number_of_lines": 32,
       "samples_per_line": 32,
       "components": [
         {
           "id": 1,
-          "sampling_factor": [
-            1,
-            1
-          ],
-          "quantization_table": 0
-        },
-        {
-          "id": 2,
-          "sampling_factor": [
-            1,
-            1
-          ],
-          "quantization_table": 0
-        },
-        {
-          "id": 3,
           "sampling_factor": [
             1,
             1
@@ -153,18 +131,15 @@
             [],
             [
               0,
-              8,
               10
             ],
             [
-              11
-            ],
-            [
+              5,
+              8,
               9
             ],
-            [
-              5
-            ],
+            [],
+            [],
             [],
             [],
             [],
@@ -184,47 +159,38 @@
           "symbols": [
             [],
             [
+              4,
               5
             ],
             [
               3,
-              4,
               6,
               7
             ],
             [
-              2,
               8
             ],
             [
-              1,
+              2
+            ],
+            [
               9
             ],
             [],
             [
+              1,
               10,
-              20,
-              21,
-              23,
-              24
+              21
             ],
             [
-              17,
-              19,
-              22
+              20
             ],
             [
-              18,
-              37,
-              38,
-              39
+              18
             ],
             [
-              0,
-              36,
-              40
+              17
             ],
-            [],
             [],
             [],
             [],
@@ -238,32 +204,14 @@
       "type": "SOS",
       "components": [
         {
-          "component_id": 3,
+          "component_id": 1,
           "dc_table": 0,
           "ac_table": 0
         }
       ],
       "spectral_selection": [
         0,
-        63
-      ],
-      "point_transform": 0
-    },
-    {
-      "type": "DCT"
-    },
-    {
-      "type": "SOS",
-      "components": [
-        {
-          "component_id": 2,
-          "dc_table": 0,
-          "ac_table": 0
-        }
-      ],
-      "spectral_selection": [
-        0,
-        63
+        0
       ],
       "point_transform": 0
     },
@@ -280,7 +228,7 @@
         }
       ],
       "spectral_selection": [
-        0,
+        1,
         63
       ],
       "point_transform": 0
