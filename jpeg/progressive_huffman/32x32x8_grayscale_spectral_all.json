@@ -1,4 +1,5 @@
 {
+  "description": "DCT encoded grayscale image with scans for each coefficient.",
   "width": 32,
   "height": 32,
   "segments": [

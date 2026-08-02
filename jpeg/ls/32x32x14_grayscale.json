@@ -1,4 +1,5 @@
 {
+  "description": "JPEG-LS encoded grayscale image using 14 bit precision.",
   "width": 32,
   "height": 32,
   "segments": [

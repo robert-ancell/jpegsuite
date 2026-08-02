@@ -1,4 +1,5 @@
 {
+  "description": "DCT encoded grayscale image.",
   "width": 5,
   "height": 5,
   "segments": [

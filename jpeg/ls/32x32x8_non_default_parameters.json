@@ -1,4 +1,5 @@
 {
+  "description": "JPEG-LS encoded grayscale image with all encoding parameters specified and set to values that are not the JPEG-LS defaults.",
   "width": 32,
   "height": 32,
   "segments": [

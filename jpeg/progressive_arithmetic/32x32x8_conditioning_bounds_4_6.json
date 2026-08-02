@@ -1,4 +1,5 @@
 {
+  "description": "DCT encoded grayscale image using non-standard Arithmetic conditioning bounds.",
   "width": 32,
   "height": 32,
   "segments": [

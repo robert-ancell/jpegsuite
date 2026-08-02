@@ -1,4 +1,5 @@
 {
+  "description": "DCT encoded grayscale image encoded using standard JPEG quantization values.",
   "width": 32,
   "height": 32,
   "segments": [

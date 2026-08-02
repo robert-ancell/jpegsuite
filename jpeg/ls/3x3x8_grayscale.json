@@ -1,4 +1,5 @@
 {
+  "description": "JPEG-LS encoded grayscale image of size 3x3 pixels.",
   "width": 3,
   "height": 3,
   "segments": [

@@ -1,4 +1,5 @@
 {
+  "description": "DCT encoded grayscale image where both DC and AC bits are sent in multiple scans.",
   "width": 32,
   "height": 32,
   "segments": [

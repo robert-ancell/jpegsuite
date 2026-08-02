@@ -1,4 +1,5 @@
 {
+  "description": "DCT encoded image where all coefficients are zeros",
   "width": 8,
   "height": 8,
   "segments": [

@@ -1,4 +1,5 @@
 {
+  "description": "JPEG-LS encoded grayscale image with default encoding parameters specified except for maxval which is empty. A decoder should replace this empty values with the JPEG-LS default.",
   "width": 32,
   "height": 32,
   "segments": [

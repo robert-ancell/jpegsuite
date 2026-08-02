@@ -1,4 +1,5 @@
 {
+  "description": "Lossless encoded grayscale image of size 8x8 pixels.",
   "width": 8,
   "height": 8,
   "segments": [

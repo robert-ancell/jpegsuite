@@ -1,4 +1,5 @@
 {
+  "description": "DCT encoded color image encoded in YCbCr format in one interleaved scan. The color channels are at half resolution.",
   "width": 32,
   "height": 32,
   "segments": [

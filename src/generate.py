@@ -421,6 +421,7 @@ def make_dct_data_units(
 
 def generate_dct(
     section: str,
+    name: str,
     description: str,
     width: int,
     height: int,
@@ -798,11 +799,12 @@ def generate_dct(
             segments.append(pyjpeg.DefineNumberOfLines(height))
     segments.append(pyjpeg.EndOfImage())
     segments = pyjpeg.huffman_optimize(segments)
-    write_jpeg(segments, section, width, height, precision, description)
+    write_jpeg(segments, section, width, height, precision, name, description)
 
 
 def generate_lossless(
     section: str,
+    name: str,
     description: str,
     width: int,
     height: int,
@@ -921,11 +923,12 @@ def generate_lossless(
                 segments.append(pyjpeg.DefineNumberOfLines(height))
     segments.append(pyjpeg.EndOfImage())
     segments = pyjpeg.huffman_optimize(segments)
-    write_jpeg(segments, section, width, height, precision, description)
+    write_jpeg(segments, section, width, height, precision, name, description)
 
 
 def generate_ls(
     section: str,
+    name: str,
     description: str,
     width: int,
     height: int,
@@ -1059,7 +1062,7 @@ def generate_ls(
                     )
                 )
     segments.append(pyjpeg.EndOfImage())
-    write_jpeg(segments, section, width, height, precision, description)
+    write_jpeg(segments, section, width, height, precision, name, description)
 
 
 def write_jpeg(
@@ -1068,15 +1071,21 @@ def write_jpeg(
     width: int,
     height: int,
     precision: int,
+    name: str,
     description: str,
 ) -> None:
     writer = pyjpeg.BufferedWriter()
     for segment in segments:
         segment.write(writer)
-    basename = f"../jpeg/{section}/{width}x{height}x{precision}_{description}"
+    basename = f"../jpeg/{section}/{width}x{height}x{precision}_{name}"
     with open(basename + ".jpg", "wb") as f:
         f.write(writer.data)
-    j = {"width": width, "height": height, "segments": segments_to_json(segments)}
+    j = {
+        "description": description,
+        "width": width,
+        "height": height,
+        "segments": segments_to_json(segments),
+    }
     with open(basename + ".json", "w") as f:
         f.write(json.dumps(j, indent=2))
 
@@ -1142,6 +1151,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "grayscale",
+        "DCT encoded grayscale image.",
         WIDTH,
         HEIGHT,
         grayscale_components8,
@@ -1153,6 +1163,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "grayscale_quantization",
+        "DCT encoded grayscale image encoded using standard JPEG quantization values.",
         WIDTH,
         HEIGHT,
         grayscale_components8,
@@ -1165,6 +1176,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "y_cb_cr",
+        "DCT encoded color image encoded in YCbCr format in three scans.",
         WIDTH,
         HEIGHT,
         ycbcr_components8,
@@ -1176,6 +1188,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "cr_cb_y",
+        "DCT encoded color image encoded in YCbCr format in three scans, but scan order is in reverse.",
         WIDTH,
         HEIGHT,
         ycbcr_components8,
@@ -1187,6 +1200,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "y_cb_cr_quantization",
+        "DCT encoded color image encoded in YCbCr format in three scans using standard JPEG quantization values.",
         WIDTH,
         HEIGHT,
         ycbcr_components8,
@@ -1200,6 +1214,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "ycbcr",
+        "DCT encoded color image encoded in YCbCr format in one interleaved scan.",
         WIDTH,
         HEIGHT,
         ycbcr_components8,
@@ -1211,6 +1226,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "crcby",
+        "DCT encoded color image encoded in YCbCr format in one interleaved scan with components in reverse order.",
         WIDTH,
         HEIGHT,
         ycbcr_components8,
@@ -1223,6 +1239,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "y_cb_cr_2x2_1x1_1x1",
+        "DCT encoded color image encoded in YCbCr format in three scans. The color channels are at half resolution.",
         WIDTH,
         HEIGHT,
         [
@@ -1238,6 +1255,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "ycbcr_2x2_1x1_1x1",
+        "DCT encoded color image encoded in YCbCr format in one interleaved scan. The color channels are at half resolution.",
         WIDTH,
         HEIGHT,
         [
@@ -1253,6 +1271,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "y_cb_cr_2x2_2x1_1x2",
+        "DCT encoded color image encoded in YCbCr format in three scans. The Cb channel half vertical resolution. The Cr channel half horizontal resolution.",
         WIDTH,
         HEIGHT,
         [
@@ -1268,6 +1287,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "ycbcr_2x2_2x1_1x2",
+        "DCT encoded color image encoded in YCbCr format in one interleaved scan. The Cb channel half vertical resolution. The Cr channel half horizontal resolution.",
         WIDTH,
         HEIGHT,
         [
@@ -1283,6 +1303,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "grayscale_zero_coefficients",
+        "DCT encoded image where all coefficients are zeros",
         8,
         8,
         [([128] * 64, (1, 1))],
@@ -1294,6 +1315,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "grayscale_black",
+        "DCT encoded single channel image with all black pixels.",
         8,
         8,
         [(make_solid(8, 8, 0), (1, 1))],
@@ -1305,6 +1327,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "grayscale_white",
+        "DCT encoded single channel image with all white pixels.",
         8,
         8,
         [(make_solid(8, 8, 255), (1, 1))],
@@ -1316,6 +1339,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "grayscale_gray",
+        "DCT encoded single channel image with all mid-level gray pixels.",
         8,
         8,
         [(make_solid(8, 8, 127), (1, 1))],
@@ -1327,6 +1351,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "grayscale_check",
+        "DCT encoded single channel image with in a checkered format.",
         8,
         8,
         [(make_check(8, 8, 255), (1, 1))],
@@ -1344,6 +1369,7 @@ for mode, encoding in [
         generate_dct(
             section,
             "grayscale",
+            "DCT encoded grayscale image.",
             width,
             height,
             [(samples, (1, 1))],
@@ -1355,6 +1381,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "comment",
+        "DCT encoded grayscale image with a comment tag.",
         WIDTH,
         HEIGHT,
         grayscale_components8,
@@ -1367,6 +1394,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "comments",
+        "DCT encoded grayscale image with mutiple comment tags.",
         WIDTH,
         HEIGHT,
         grayscale_components8,
@@ -1379,6 +1407,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "r_g_b",
+        "DCT encoded color image encoded in RGB format in three scans.",
         WIDTH,
         HEIGHT,
         rgb_components8,
@@ -1393,6 +1422,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "b_g_r",
+        "DCT encoded color image encoded in RGB format in three scans. Channels are in reverse order.",
         WIDTH,
         HEIGHT,
         rgb_components8,
@@ -1407,6 +1437,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "rgb",
+        "DCT encoded color image encoded in RGB format in one interleaved scan.",
         WIDTH,
         HEIGHT,
         rgb_components8,
@@ -1421,6 +1452,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "bgr",
+        "DCT encoded color image encoded in RGB format in one interleaved scan. Channels are in reverse order.",
         WIDTH,
         HEIGHT,
         rgb_components8,
@@ -1435,6 +1467,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "c_m_y_k",
+        "DCT encoded color image encoded in CMYK format in three scans.",
         WIDTH,
         HEIGHT,
         cmyk_components8,
@@ -1449,6 +1482,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "cmyk",
+        "DCT encoded color image encoded in CMYK format in one interleaved scan.",
         WIDTH,
         HEIGHT,
         cmyk_components8,
@@ -1463,6 +1497,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "dnl",
+        "DCT encoded grayscale image without the height defined after the scan data in a DNL segment.",
         WIDTH,
         HEIGHT,
         grayscale_components8,
@@ -1475,6 +1510,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "restarts",
+        "DCT encoded grayscale image with restart markers.",
         WIDTH,
         HEIGHT,
         grayscale_components8,
@@ -1487,6 +1523,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "exif",
+        "DCT encoded grayscale image with Exif header instead of JFIF.",
         WIDTH,
         HEIGHT,
         grayscale_components8,
@@ -1502,6 +1539,7 @@ for mode, encoding in [
         generate_dct(
             section,
             "conditioning_bounds_4_6",
+            "DCT encoded grayscale image using non-standard Arithmetic conditioning bounds.",
             WIDTH,
             HEIGHT,
             grayscale_components8,
@@ -1515,6 +1553,7 @@ for mode, encoding in [
         generate_dct(
             section,
             "conditioning_kx_6",
+            "DCT encoded grayscale image using non-standard Arithmetic Kx values.",
             WIDTH,
             HEIGHT,
             grayscale_components8,
@@ -1529,6 +1568,7 @@ for mode, encoding in [
         generate_dct(
             section,
             "grayscale",
+            "DCT encoded grayscale image with 12 bit samples.",
             WIDTH,
             HEIGHT,
             grayscale_components12,
@@ -1541,6 +1581,7 @@ for mode, encoding in [
         generate_dct(
             section,
             "y_cb_cr",
+            "DCT encoded color image with 12 bit samples encoded with three scans.",
             WIDTH,
             HEIGHT,
             ycbcr_components12,
@@ -1553,6 +1594,7 @@ for mode, encoding in [
         generate_dct(
             section,
             "ycbcr",
+            "DCT encoded color image with 12 bit samples encded with one interleaved scan.",
             WIDTH,
             HEIGHT,
             ycbcr_components12,
@@ -1565,6 +1607,7 @@ for mode, encoding in [
         generate_dct(
             section,
             "grayscale_black",
+            "DCT encoded grayscale image with 12 bit samples, all pixels are black.",
             8,
             8,
             [(make_solid(8, 8, 0), (1, 1))],
@@ -1577,6 +1620,7 @@ for mode, encoding in [
         generate_dct(
             section,
             "grayscale_white",
+            "DCT encoded grayscale image with 12 bit samples, all pixels are white.",
             8,
             8,
             [(make_solid(8, 8, 4095), (1, 1))],
@@ -1589,6 +1633,7 @@ for mode, encoding in [
         generate_dct(
             section,
             "grayscale_gray",
+            "DCT encoded grayscale image with 12 bit samples, all pixels are mid-level gray.",
             8,
             8,
             [(make_solid(8, 8, 2047), (1, 1))],
@@ -1601,6 +1646,7 @@ for mode, encoding in [
         generate_dct(
             section,
             "grayscale_check",
+            "DCT encoded grayscale image with 12 bit samples, checkered pattern.",
             8,
             8,
             [(make_check(8, 8, 4095), (1, 1))],
@@ -1620,6 +1666,7 @@ for mode, encoding in [
         generate_dct(
             section,
             "grayscale_spectral_all",
+            "DCT encoded grayscale image with scans for each coefficient.",
             WIDTH,
             HEIGHT,
             grayscale_components8,
@@ -1631,6 +1678,7 @@ for mode, encoding in [
         generate_dct(
             section,
             "grayscale_spectral_all_reverse",
+            "DCT encoded grayscale image with scans for each coefficient. The coefficients are encoded in reverse order.",
             WIDTH,
             HEIGHT,
             grayscale_components8,
@@ -1642,6 +1690,7 @@ for mode, encoding in [
         generate_dct(
             section,
             "grayscale_successive_dc",
+            "DCT encoded grayscale image where DC bits are sent in multiple scans.",
             WIDTH,
             HEIGHT,
             grayscale_components8,
@@ -1660,6 +1709,7 @@ for mode, encoding in [
         generate_dct(
             section,
             "grayscale_successive_ac",
+            "DCT encoded grayscale image where AC bits are sent in multiple scans.",
             WIDTH,
             HEIGHT,
             grayscale_components8,
@@ -1678,6 +1728,7 @@ for mode, encoding in [
         generate_dct(
             section,
             "grayscale_successive",
+            "DCT encoded grayscale image where both DC and AC bits are sent in multiple scans.",
             WIDTH,
             HEIGHT,
             grayscale_components8,
@@ -1707,6 +1758,7 @@ for encoding in ["huffman", "arithmetic"]:
         generate_lossless(
             section,
             f"grayscale_predictor{predictor}",
+            f"Lossless encoded grayscale image using predictor #{predictor}.",
             WIDTH,
             HEIGHT,
             [grayscale_samples8],
@@ -1718,6 +1770,7 @@ for encoding in ["huffman", "arithmetic"]:
         generate_lossless(
             section,
             "grayscale",
+            f"Lossless encoded grayscale image using {precision} bits of precision.",
             WIDTH,
             HEIGHT,
             [make_grayscale(precision)],
@@ -1735,6 +1788,7 @@ for encoding in ["huffman", "arithmetic"]:
         generate_lossless(
             section,
             "grayscale",
+            f"Lossless encoded grayscale image of size {width}x{height} pixels.",
             width,
             height,
             [samples],
@@ -1746,6 +1800,7 @@ for encoding in ["huffman", "arithmetic"]:
     generate_lossless(
         section,
         "y_cb_cr",
+        "Lossless encoded color image encoded in YCbCr format in three scans.",
         WIDTH,
         HEIGHT,
         ycbcr_samples8,
@@ -1756,6 +1811,7 @@ for encoding in ["huffman", "arithmetic"]:
     generate_lossless(
         section,
         "ycbcr",
+        "Lossless encoded color image encoded in YCbCr format in one interleaved scan.",
         WIDTH,
         HEIGHT,
         ycbcr_samples8,
@@ -1766,6 +1822,7 @@ for encoding in ["huffman", "arithmetic"]:
     generate_lossless(
         section,
         "r_g_b",
+        "Lossless encoded color image encoded in RGB format in three scans.",
         WIDTH,
         HEIGHT,
         rgb_samples8,
@@ -1779,6 +1836,7 @@ for encoding in ["huffman", "arithmetic"]:
     generate_lossless(
         section,
         "rgb",
+        "Lossless encoded color image encoded in RGB format in one interleaved scan.",
         WIDTH,
         HEIGHT,
         rgb_samples8,
@@ -1792,6 +1850,7 @@ for encoding in ["huffman", "arithmetic"]:
     generate_lossless(
         section,
         "restarts",
+        "Lossless encoded grayscale image with restart markers.",
         WIDTH,
         HEIGHT,
         [grayscale_samples8],
@@ -1803,6 +1862,7 @@ for encoding in ["huffman", "arithmetic"]:
     generate_lossless(
         section,
         "dnl",
+        "Lossless encoded grayscale image without the height defined after the scan data in a DNL segment.",
         WIDTH,
         HEIGHT,
         [grayscale_samples8],
@@ -1814,18 +1874,11 @@ for encoding in ["huffman", "arithmetic"]:
 
 section = "ls"
 ls_one_channel_scans = [(0, pyjpeg.LSInterleaveMode.NONE, [0])]
-generate_ls(
-    section,
-    "grayscale",
-    WIDTH,
-    HEIGHT,
-    [grayscale_samples8],
-    scans=ls_one_channel_scans,
-)
 for precision in range(2, 17):
     generate_ls(
         section,
         "grayscale",
+        f"JPEG-LS encoded grayscale image using {precision} bit precision.",
         WIDTH,
         HEIGHT,
         [make_grayscale(precision)],
@@ -1839,12 +1892,19 @@ for size in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16):
     assert width == height == size
     assert channels == 1
     generate_ls(
-        section, "grayscale", width, height, [samples], scans=ls_one_channel_scans
+        section,
+        "grayscale",
+        f"JPEG-LS encoded grayscale image of size {width}x{height} pixels.",
+        width,
+        height,
+        [samples],
+        scans=ls_one_channel_scans,
     )
 grayscale_mapped_samples, mapping_table = make_mapped_samples([grayscale_samples8])
 generate_ls(
     section,
     "grayscale_mapping_table",
+    "JPEG-LS encoded grayscale image encoded using a mapping table.",
     WIDTH,
     HEIGHT,
     [grayscale_mapped_samples],
@@ -1855,6 +1915,7 @@ generate_ls(
 generate_ls(
     section,
     "y_cb_cr",
+    "JPEG-LS encoded color image encoded in YCbCr format in three scans.",
     WIDTH,
     HEIGHT,
     ycbcr_samples8,
@@ -1867,6 +1928,7 @@ generate_ls(
 generate_ls(
     section,
     "ycbcr_line_interleaved",
+    "JPEG-LS encoded color image encoded in YCbCr format in one line interleaved scan.",
     WIDTH,
     HEIGHT,
     ycbcr_samples8,
@@ -1875,6 +1937,7 @@ generate_ls(
 generate_ls(
     section,
     "ycbcr_sample_interleaved",
+    "JPEG-LS encoded color image encoded in YCbCr format in one sample interleaved scan.",
     WIDTH,
     HEIGHT,
     ycbcr_samples8,
@@ -1883,6 +1946,7 @@ generate_ls(
 generate_ls(
     section,
     "r_g_b",
+    "JPEG-LS encoded color image encoded in RGB format in three scans.",
     WIDTH,
     HEIGHT,
     rgb_samples8,
@@ -1899,6 +1963,7 @@ rgb_mapped_samples, mapping_table = make_mapped_samples(rgb_samples8)
 generate_ls(
     section,
     "rgb_mapping_table",
+    "JPEG-LS encoded color image encoded in RGB format using a mapping table.",
     WIDTH,
     HEIGHT,
     [rgb_mapped_samples],
@@ -1909,6 +1974,7 @@ generate_ls(
 generate_ls(
     section,
     "rgb_line_interleaved",
+    "JPEG-LS encoded color image encoded in RGB format in one line interleaved scan.",
     WIDTH,
     HEIGHT,
     rgb_samples8,
@@ -1920,6 +1986,7 @@ generate_ls(
 generate_ls(
     section,
     "rgb_sample_interleaved",
+    "JPEG-LS encoded color image encoded in RGB format in one sample interleaved scan.",
     WIDTH,
     HEIGHT,
     rgb_samples8,
@@ -1931,6 +1998,7 @@ generate_ls(
 generate_ls(
     section,
     "oversize",
+    "JPEG-LS encoded grayscale image encoded where the size is specificed in an oversize image segment.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -1940,6 +2008,7 @@ generate_ls(
 generate_ls(
     section,
     "oversize3",
+    "JPEG-LS encoded grayscale image encoded where the size is specificed in an oversize image segment. Each dimension is encoded in 3 bytes.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -1950,6 +2019,7 @@ generate_ls(
 generate_ls(
     section,
     "oversize4",
+    "JPEG-LS encoded grayscale image encoded where the size is specificed in an oversize image segment. Each dimension is encoded in 4 bytes.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -1960,6 +2030,7 @@ generate_ls(
 generate_ls(
     section,
     "restarts",
+    "JPEG-LS encoded grayscale image with restart markers.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -1969,6 +2040,7 @@ generate_ls(
 generate_ls(
     section,
     "restarts3",
+    "JPEG-LS encoded grayscale image with restart markers. The restart interval is encoded with 3 bytes.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -1979,6 +2051,7 @@ generate_ls(
 generate_ls(
     section,
     "restarts4",
+    "JPEG-LS encoded grayscale image with restart markers. The restart interval is encoded with 4 bytes.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -1989,6 +2062,7 @@ generate_ls(
 generate_ls(
     section,
     "dnl",
+    "JPEG-LS encoded grayscale image without the height defined after the scan data in a DNL segment.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -1998,6 +2072,7 @@ generate_ls(
 generate_ls(
     section,
     "dnl3",
+    "JPEG-LS encoded grayscale image without the height defined after the scan data in a DNL segment. The height is encoded with 3 bytes.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -2008,6 +2083,7 @@ generate_ls(
 generate_ls(
     section,
     "dnl4",
+    "JPEG-LS encoded grayscale image without the height defined after the scan data in a DNL segment. The height is encoded with 4 bytes.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -2018,6 +2094,7 @@ generate_ls(
 generate_ls(
     section,
     "empty_parameters",
+    "JPEG-LS encoded grayscale image with encoding parameters specified with empty values. A decoder should replace these empty values with the JPEG-LS defaults.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -2027,16 +2104,19 @@ generate_ls(
 generate_ls(
     section,
     "empty_maxval",
+    "JPEG-LS encoded grayscale image with default encoding parameters specified except for maxval which is empty. A decoder should replace this empty values with the JPEG-LS default.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
     scans=ls_one_channel_scans,
+    maxval=0,
     gradient_thresholds=(3, 7, 21),
     reset=64,
 )
 generate_ls(
     section,
     "empty_t1",
+    "JPEG-LS encoded grayscale image with default encoding parameters specified except for T1 which is empty. A decoder should replace this empty values with the JPEG-LS default.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -2048,6 +2128,7 @@ generate_ls(
 generate_ls(
     section,
     "empty_t2",
+    "JPEG-LS encoded grayscale image with default encoding parameters specified except for T2 which is empty. A decoder should replace this empty values with the JPEG-LS default.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -2059,6 +2140,7 @@ generate_ls(
 generate_ls(
     section,
     "empty_t3",
+    "JPEG-LS encoded grayscale image with default encoding parameters specified except for T3 which is empty. A decoder should replace this empty values with the JPEG-LS default.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -2070,6 +2152,7 @@ generate_ls(
 generate_ls(
     section,
     "empty_reset",
+    "JPEG-LS encoded grayscale image with default encoding parameters specified except for reset which is empty. A decoder should replace this empty values with the JPEG-LS default.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -2081,6 +2164,7 @@ generate_ls(
 generate_ls(
     section,
     "default_parameters",
+    "JPEG-LS encoded grayscale image with all encoding parameters specified but set to the JPEG-LS default values.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -2092,6 +2176,7 @@ generate_ls(
 generate_ls(
     section,
     "non_default_parameters",
+    "JPEG-LS encoded grayscale image with all encoding parameters specified and set to values that are not the JPEG-LS defaults.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -2100,14 +2185,15 @@ generate_ls(
     gradient_thresholds=(4, 8, 22),
     reset=63,
 )
-for near in (1, 2, 3, 7, 20):
+for difference_bound in (1, 2, 3, 7, 20):
     generate_ls(
         section,
-        f"near_lossless_{near}",
+        f"near_lossless_{difference_bound}",
+        f"JPEG-LS near-lossless encoded grayscale image with samples within {difference_bound} or original values.",
         WIDTH,
         HEIGHT,
         [grayscale_samples8],
-        scans=[(near, pyjpeg.LSInterleaveMode.NONE, [0])],
+        scans=[(difference_bound, pyjpeg.LSInterleaveMode.NONE, [0])],
     )
 
 # 3 channel, red, green, blue, white, mixed color
@@ -2117,3 +2203,4 @@ for near in (1, 2, 3, 7, 20):
 # multiple huffman tables
 # arithmetic properties
 # Large images (black to compress well)
+# Generate with both JFIF and Adobe headers

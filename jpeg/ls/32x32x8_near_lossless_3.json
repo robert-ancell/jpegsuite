@@ -1,4 +1,5 @@
 {
+  "description": "JPEG-LS near-lossless encoded grayscale image with samples within 3 or original values.",
   "width": 32,
   "height": 32,
   "segments": [

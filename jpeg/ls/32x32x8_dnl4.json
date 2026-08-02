@@ -1,4 +1,5 @@
 {
+  "description": "JPEG-LS encoded grayscale image without the height defined after the scan data in a DNL segment. The height is encoded with 4 bytes.",
   "width": 32,
   "height": 32,
   "segments": [

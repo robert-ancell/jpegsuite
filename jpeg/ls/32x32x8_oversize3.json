@@ -1,4 +1,5 @@
 {
+  "description": "JPEG-LS encoded grayscale image encoded where the size is specificed in an oversize image segment. Each dimension is encoded in 3 bytes.",
   "width": 32,
   "height": 32,
   "segments": [

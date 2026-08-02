@@ -1,4 +1,5 @@
 {
+  "description": "JPEG-LS encoded grayscale image with restart markers. The restart interval is encoded with 4 bytes.",
   "width": 32,
   "height": 32,
   "segments": [

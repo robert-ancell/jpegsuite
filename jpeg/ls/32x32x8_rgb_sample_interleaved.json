@@ -1,4 +1,5 @@
 {
+  "description": "JPEG-LS encoded color image encoded in RGB format in one sample interleaved scan.",
   "width": 32,
   "height": 32,
   "segments": [

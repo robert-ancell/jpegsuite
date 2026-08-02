@@ -1,4 +1,5 @@
 {
+  "description": "DCT encoded color image encoded in YCbCr format in one interleaved scan with components in reverse order.",
   "width": 32,
   "height": 32,
   "segments": [

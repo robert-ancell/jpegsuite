@@ -1,4 +1,5 @@
 {
+  "description": "DCT encoded color image encoded in YCbCr format in three scans using standard JPEG quantization values.",
   "width": 32,
   "height": 32,
   "segments": [

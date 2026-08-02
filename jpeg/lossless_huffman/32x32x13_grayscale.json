@@ -1,4 +1,5 @@
 {
+  "description": "Lossless encoded grayscale image using 13 bits of precision.",
   "width": 32,
   "height": 32,
   "segments": [

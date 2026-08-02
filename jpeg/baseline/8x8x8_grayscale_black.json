@@ -1,4 +1,5 @@
 {
+  "description": "DCT encoded single channel image with all black pixels.",
   "width": 8,
   "height": 8,
   "segments": [

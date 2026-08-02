@@ -1,4 +1,5 @@
 {
+  "description": "Lossless encoded grayscale image without the height defined after the scan data in a DNL segment.",
   "width": 32,
   "height": 32,
   "segments": [
