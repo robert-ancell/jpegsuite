@@ -431,9 +431,11 @@ def generate_dct(
     chrominance_quantization_table: list[int] = [1] * 64,
     use_dnl: bool = False,
     restart_interval: int = 0,
-    color_space: int | None = None,
+    color_space: int = pyjpeg.AdobeColorSpace.Y_CB_CR,
     comments: list[bytes] | None = None,
+    jfif: bool = True,
     exif: bool = False,
+    adobe: bool = False,
     extended: bool = False,
     progressive: bool = False,
     arithmetic: bool = False,
@@ -477,18 +479,14 @@ def generate_dct(
             )
         )
 
-    if color_space is None:
-        assert n_components in (1, 3)
-    elif color_space == pyjpeg.AdobeColorSpace.RGB_OR_CMYK:
+    if color_space == pyjpeg.AdobeColorSpace.RGB_OR_CMYK:
         assert n_components in (3, 4)
     elif color_space == pyjpeg.AdobeColorSpace.Y_CB_CR:
-        assert n_components == 3
+        assert n_components in (1, 3)
     elif color_space == pyjpeg.AdobeColorSpace.Y_CB_CR_K:
         assert n_components == 4
 
-    if (
-        color_space is None and n_components == 3
-    ) or color_space == pyjpeg.AdobeColorSpace.Y_CB_CR:
+    if color_space == pyjpeg.AdobeColorSpace.Y_CB_CR and n_components == 3:
         use_chrominance = True
     else:
         use_chrominance = False
@@ -733,11 +731,11 @@ def generate_dct(
     if comments is not None:
         for comment in comments:
             segments.append(pyjpeg.Comment(comment))
+    if jfif:
+        segments.append(pyjpeg.JfifHeader())
     if exif:
         segments.append(pyjpeg.ExifHeader(MINIMAL_EXIF_DATA))
-    elif color_space is None:
-        segments.append(pyjpeg.JfifHeader())
-    else:
+    if adobe:
         segments.append(pyjpeg.AdobeHeader(color_space=color_space))
     segments.append(pyjpeg.DefineQuantizationTables(quantization_tables))
     if use_dnl:
@@ -812,16 +810,18 @@ def generate_lossless(
     scans: list[list[int]],
     precision: int = 8,
     use_dnl: bool = False,
-    color_space: int | None = None,
+    color_space: int = pyjpeg.AdobeColorSpace.Y_CB_CR,
+    jfif: bool = True,
+    adobe: bool = False,
     predictor: int = 1,
     restart_interval: int = 0,
     arithmetic: bool = False,
 ) -> None:
     conditioning_bounds = (0, 1)
     segments: list[pyjpeg.Segment] = [pyjpeg.StartOfImage()]
-    if color_space is None:
+    if jfif:
         segments.append(pyjpeg.JfifHeader())
-    else:
+    if adobe:
         segments.append(pyjpeg.AdobeHeader(color_space=color_space))
     if use_dnl:
         number_of_lines = 0
@@ -934,7 +934,9 @@ def generate_ls(
     precision: int = 8,
     use_dnl: bool = False,
     number_of_lines_number_of_bytes: int = 2,
-    color_space: int | None = None,
+    color_space: int = pyjpeg.AdobeColorSpace.Y_CB_CR,
+    jfif: bool = True,
+    adobe: bool = False,
     restart_interval: int = 0,
     restart_interval_number_of_bytes: int = 2,
     mapping_tables: list[tuple[int, int, bytes]] | None = None,
@@ -948,9 +950,9 @@ def generate_ls(
     if mapping_tables is None:
         mapping_tables = []
     segments: list[pyjpeg.Segment] = [pyjpeg.StartOfImage()]
-    if color_space is None:
+    if jfif:
         segments.append(pyjpeg.JfifHeader())
-    else:
+    if adobe:
         segments.append(pyjpeg.AdobeHeader(color_space=color_space))
     if use_dnl or use_oversize_image_dimensions:
         number_of_lines = 0
@@ -1382,6 +1384,8 @@ for mode, encoding in [
         rgb_components8,
         scans=three_channel_scans,
         color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
+        jfif=False,
+        adobe=True,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1394,6 +1398,8 @@ for mode, encoding in [
         rgb_components8,
         scans=[([2], 0, 63, 0), ([1], 0, 63, 0), ([0], 0, 63, 0)],
         color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
+        jfif=False,
+        adobe=True,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1406,6 +1412,8 @@ for mode, encoding in [
         rgb_components8,
         scans=three_channel_interleaved_scans,
         color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
+        jfif=False,
+        adobe=True,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1418,6 +1426,8 @@ for mode, encoding in [
         rgb_components8,
         scans=[([2, 1, 0], 0, 63, 0)],
         color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
+        jfif=False,
+        adobe=True,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1430,6 +1440,8 @@ for mode, encoding in [
         cmyk_components8,
         scans=four_channel_scans,
         color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
+        jfif=False,
+        adobe=True,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1442,6 +1454,8 @@ for mode, encoding in [
         cmyk_components8,
         scans=four_channel_interleaved_scans,
         color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
+        jfif=False,
+        adobe=True,
         extended=extended,
         progressive=progressive,
         arithmetic=arithmetic,
@@ -1477,6 +1491,7 @@ for mode, encoding in [
         HEIGHT,
         grayscale_components8,
         scans=dct_one_channel_scans,
+        jfif=False,
         exif=True,
         extended=extended,
         progressive=progressive,
@@ -1756,6 +1771,8 @@ for encoding in ["huffman", "arithmetic"]:
         rgb_samples8,
         scans=[[0], [1], [2]],
         color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
+        jfif=False,
+        adobe=True,
         predictor=1,
         arithmetic=arithmetic,
     )
@@ -1767,6 +1784,8 @@ for encoding in ["huffman", "arithmetic"]:
         rgb_samples8,
         scans=[[0, 1, 2]],
         color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
+        jfif=False,
+        adobe=True,
         predictor=1,
         arithmetic=arithmetic,
     )
@@ -1873,6 +1892,8 @@ generate_ls(
         (0, pyjpeg.LSInterleaveMode.NONE, [2]),
     ],
     color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
+    jfif=False,
+    adobe=True,
 )
 rgb_mapped_samples, mapping_table = make_mapped_samples(rgb_samples8)
 generate_ls(
@@ -1893,6 +1914,8 @@ generate_ls(
     rgb_samples8,
     scans=[(0, pyjpeg.LSInterleaveMode.LINE, [0, 1, 2])],
     color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
+    jfif=False,
+    adobe=True,
 )
 generate_ls(
     section,
@@ -1902,6 +1925,8 @@ generate_ls(
     rgb_samples8,
     scans=[(0, pyjpeg.LSInterleaveMode.SAMPLE, [0, 1, 2])],
     color_space=pyjpeg.AdobeColorSpace.RGB_OR_CMYK,
+    jfif=False,
+    adobe=True,
 )
 generate_ls(
     section,
