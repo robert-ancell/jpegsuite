@@ -1,5 +1,5 @@
 {
-  "description": "JPEG-LS encoded grayscale image encoded using a mapping table.",
+  "description": "JPEG-LS encoded grayscale image whose samples are indices into a mapping table (palette) of the original grayscale values, rather than the sample values themselves.",
   "width": 32,
   "height": 32,
   "segments": [

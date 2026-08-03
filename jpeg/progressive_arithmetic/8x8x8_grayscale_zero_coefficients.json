@@ -1,5 +1,5 @@
 {
-  "description": "DCT encoded image where all coefficients are zeros",
+  "description": "DCT encoded single channel image where every pixel is mid-gray (128), so all DCT coefficients, DC and AC, are exactly zero.",
   "width": 8,
   "height": 8,
   "segments": [

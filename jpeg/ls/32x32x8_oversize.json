@@ -1,5 +1,5 @@
 {
-  "description": "JPEG-LS encoded grayscale image encoded where the size is specificed in an oversize image segment.",
+  "description": "JPEG-LS encoded grayscale image whose size is specified in an oversize image segment.",
   "width": 32,
   "height": 32,
   "segments": [

@@ -1,5 +1,5 @@
 {
-  "description": "DCT encoded grayscale image where AC bits are sent in multiple scans.",
+  "description": "DCT encoded grayscale image using progressive successive approximation: the AC coefficients' bits are sent across 5 scans, most significant first.",
   "width": 32,
   "height": 32,
   "segments": [

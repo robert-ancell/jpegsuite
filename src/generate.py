@@ -1185,7 +1185,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "grayscale_quantization",
-        "DCT encoded grayscale image encoded using standard JPEG quantization values.",
+        "DCT encoded grayscale image using standard JPEG quantization values.",
         WIDTH,
         HEIGHT,
         grayscale_components8,
@@ -1293,7 +1293,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "y_cb_cr_2x2_2x1_1x2",
-        "DCT encoded color image encoded in YCbCr format in three scans. The Cb channel half vertical resolution. The Cr channel half horizontal resolution.",
+        "DCT encoded color image encoded in YCbCr format in three scans. The Cb channel has half vertical resolution. The Cr channel has half horizontal resolution.",
         WIDTH,
         HEIGHT,
         [
@@ -1309,7 +1309,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "ycbcr_2x2_2x1_1x2",
-        "DCT encoded color image encoded in YCbCr format in one interleaved scan. The Cb channel half vertical resolution. The Cr channel half horizontal resolution.",
+        "DCT encoded color image encoded in YCbCr format in one interleaved scan. The Cb channel has half vertical resolution. The Cr channel has half horizontal resolution.",
         WIDTH,
         HEIGHT,
         [
@@ -1325,7 +1325,8 @@ for mode, encoding in [
     generate_dct(
         section,
         "grayscale_zero_coefficients",
-        "DCT encoded image where all coefficients are zeros",
+        "DCT encoded single channel image where every pixel is mid-gray (128), "
+        "so all DCT coefficients, DC and AC, are exactly zero.",
         8,
         8,
         [([128] * 64, (1, 1))],
@@ -1440,7 +1441,7 @@ for mode, encoding in [
     generate_dct(
         section,
         "comments",
-        "DCT encoded grayscale image with mutiple comment tags.",
+        "DCT encoded grayscale image with multiple comment tags.",
         WIDTH,
         HEIGHT,
         grayscale_components8,
@@ -1661,7 +1662,7 @@ for mode, encoding in [
         generate_dct(
             section,
             "ycbcr",
-            "DCT encoded color image with 12 bit samples encded with one interleaved scan.",
+            "DCT encoded color image with 12 bit samples encoded with one interleaved scan.",
             WIDTH,
             HEIGHT,
             ycbcr_components12,
@@ -1733,7 +1734,9 @@ for mode, encoding in [
         generate_dct(
             section,
             "grayscale_spectral_all",
-            "DCT encoded grayscale image with scans for each coefficient.",
+            "DCT encoded grayscale image using progressive spectral selection: "
+            "a DC scan followed by 63 scans, each containing a single AC "
+            "coefficient, in order 1 to 63.",
             WIDTH,
             HEIGHT,
             grayscale_components8,
@@ -1745,7 +1748,9 @@ for mode, encoding in [
         generate_dct(
             section,
             "grayscale_spectral_all_reverse",
-            "DCT encoded grayscale image with scans for each coefficient. The coefficients are encoded in reverse order.",
+            "DCT encoded grayscale image using progressive spectral selection: "
+            "a DC scan followed by 63 scans, each containing a single AC "
+            "coefficient, in reverse order 63 to 1.",
             WIDTH,
             HEIGHT,
             grayscale_components8,
@@ -1757,7 +1762,9 @@ for mode, encoding in [
         generate_dct(
             section,
             "grayscale_successive_dc",
-            "DCT encoded grayscale image where DC bits are sent in multiple scans.",
+            "DCT encoded grayscale image using progressive successive "
+            "approximation: the DC coefficient's bits are sent across 5 "
+            "scans, most significant first.",
             WIDTH,
             HEIGHT,
             grayscale_components8,
@@ -1776,7 +1783,9 @@ for mode, encoding in [
         generate_dct(
             section,
             "grayscale_successive_ac",
-            "DCT encoded grayscale image where AC bits are sent in multiple scans.",
+            "DCT encoded grayscale image using progressive successive "
+            "approximation: the AC coefficients' bits are sent across 5 "
+            "scans, most significant first.",
             WIDTH,
             HEIGHT,
             grayscale_components8,
@@ -1795,7 +1804,9 @@ for mode, encoding in [
         generate_dct(
             section,
             "grayscale_successive",
-            "DCT encoded grayscale image where both DC and AC bits are sent in multiple scans.",
+            "DCT encoded grayscale image using progressive successive "
+            "approximation: both the DC and AC coefficients' bits are sent "
+            "across separate scans, most significant first.",
             WIDTH,
             HEIGHT,
             grayscale_components8,
@@ -2035,7 +2046,9 @@ grayscale_mapped_samples, mapping_table = make_mapped_samples([grayscale_samples
 generate_ls(
     section,
     "grayscale_mapping_table",
-    "JPEG-LS encoded grayscale image encoded using a mapping table.",
+    "JPEG-LS encoded grayscale image whose samples are indices into a "
+    "mapping table (palette) of the original grayscale values, rather "
+    "than the sample values themselves.",
     WIDTH,
     HEIGHT,
     [grayscale_mapped_samples],
@@ -2093,7 +2106,9 @@ rgb_mapped_samples, mapping_table = make_mapped_samples(rgb_samples8)
 generate_ls(
     section,
     "rgb_mapping_table",
-    "JPEG-LS encoded color image encoded in RGB format using a mapping table.",
+    "JPEG-LS encoded color image encoded in RGB format whose single "
+    "component is an index into a mapping table (palette) of RGB "
+    "triples, rather than separate R, G and B samples.",
     WIDTH,
     HEIGHT,
     [rgb_mapped_samples],
@@ -2126,7 +2141,7 @@ generate_ls(
 generate_ls(
     section,
     "oversize",
-    "JPEG-LS encoded grayscale image encoded where the size is specificed in an oversize image segment.",
+    "JPEG-LS encoded grayscale image whose size is specified in an oversize image segment.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -2136,7 +2151,7 @@ generate_ls(
 generate_ls(
     section,
     "oversize3",
-    "JPEG-LS encoded grayscale image encoded where the size is specificed in an oversize image segment. Each dimension is encoded in 3 bytes.",
+    "JPEG-LS encoded grayscale image whose size is specified in an oversize image segment. Each dimension is encoded in 3 bytes.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -2147,7 +2162,7 @@ generate_ls(
 generate_ls(
     section,
     "oversize4",
-    "JPEG-LS encoded grayscale image encoded where the size is specificed in an oversize image segment. Each dimension is encoded in 4 bytes.",
+    "JPEG-LS encoded grayscale image whose size is specified in an oversize image segment. Each dimension is encoded in 4 bytes.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -2286,7 +2301,7 @@ generate_ls(
 generate_ls(
     section,
     "empty_maxval",
-    "JPEG-LS encoded grayscale image with default encoding parameters specified except for maxval which is empty. A decoder should replace this empty values with the JPEG-LS default.",
+    "JPEG-LS encoded grayscale image with default encoding parameters specified except for MAXVAL which is empty. A decoder should replace this empty value with the JPEG-LS default.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -2298,7 +2313,7 @@ generate_ls(
 generate_ls(
     section,
     "empty_t1",
-    "JPEG-LS encoded grayscale image with default encoding parameters specified except for T1 which is empty. A decoder should replace this empty values with the JPEG-LS default.",
+    "JPEG-LS encoded grayscale image with default encoding parameters specified except for T1 which is empty. A decoder should replace this empty value with the JPEG-LS default.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -2310,7 +2325,7 @@ generate_ls(
 generate_ls(
     section,
     "empty_t2",
-    "JPEG-LS encoded grayscale image with default encoding parameters specified except for T2 which is empty. A decoder should replace this empty values with the JPEG-LS default.",
+    "JPEG-LS encoded grayscale image with default encoding parameters specified except for T2 which is empty. A decoder should replace this empty value with the JPEG-LS default.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -2322,7 +2337,7 @@ generate_ls(
 generate_ls(
     section,
     "empty_t3",
-    "JPEG-LS encoded grayscale image with default encoding parameters specified except for T3 which is empty. A decoder should replace this empty values with the JPEG-LS default.",
+    "JPEG-LS encoded grayscale image with default encoding parameters specified except for T3 which is empty. A decoder should replace this empty value with the JPEG-LS default.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -2334,7 +2349,7 @@ generate_ls(
 generate_ls(
     section,
     "empty_reset",
-    "JPEG-LS encoded grayscale image with default encoding parameters specified except for reset which is empty. A decoder should replace this empty values with the JPEG-LS default.",
+    "JPEG-LS encoded grayscale image with default encoding parameters specified except for RESET which is empty. A decoder should replace this empty value with the JPEG-LS default.",
     WIDTH,
     HEIGHT,
     [grayscale_samples8],
@@ -2371,7 +2386,7 @@ for difference_bound in (1, 2, 3, 7, 20):
     generate_ls(
         section,
         f"near_lossless_{difference_bound}",
-        f"JPEG-LS near-lossless encoded grayscale image with samples within {difference_bound} of original values.",
+        f"JPEG-LS near-lossless encoded grayscale image with samples within {difference_bound} of the original values.",
         WIDTH,
         HEIGHT,
         [grayscale_samples8],

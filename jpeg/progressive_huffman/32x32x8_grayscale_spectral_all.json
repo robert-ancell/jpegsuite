@@ -1,5 +1,5 @@
 {
-  "description": "DCT encoded grayscale image with scans for each coefficient.",
+  "description": "DCT encoded grayscale image using progressive spectral selection: a DC scan followed by 63 scans, each containing a single AC coefficient, in order 1 to 63.",
   "width": 32,
   "height": 32,
   "segments": [

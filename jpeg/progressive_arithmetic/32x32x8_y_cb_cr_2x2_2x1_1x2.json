@@ -1,5 +1,5 @@
 {
-  "description": "DCT encoded color image encoded in YCbCr format in three scans. The Cb channel half vertical resolution. The Cr channel half horizontal resolution.",
+  "description": "DCT encoded color image encoded in YCbCr format in three scans. The Cb channel has half vertical resolution. The Cr channel has half horizontal resolution.",
   "width": 32,
   "height": 32,
   "segments": [

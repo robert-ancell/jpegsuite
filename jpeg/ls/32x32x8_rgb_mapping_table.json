@@ -1,5 +1,5 @@
 {
-  "description": "JPEG-LS encoded color image encoded in RGB format using a mapping table.",
+  "description": "JPEG-LS encoded color image encoded in RGB format whose single component is an index into a mapping table (palette) of RGB triples, rather than separate R, G and B samples.",
   "width": 32,
   "height": 32,
   "segments": [
