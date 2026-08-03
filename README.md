@@ -11,180 +11,45 @@ The JPEG files used in this test suite are licensed under the [CC0 license](http
 
 These are images that all JPEG decoders should support.
 
-`32x32x8_grayscale.jpg`
-The reference grayscale image.
+Each `.jpg` file has a matching `.json` file with an exact description of what it contains; the summary below is just an overview of the cases covered.
 
-`32x32x8_y_cb_cr.jpg`
-`32x32x8_cr_cb_y.jpg`
-`32x32x8_r_g_b.jpg`
-`32x32x8_b_g_r.jpg`
-`32x32x8_c_m_y_k.jpg`
-The reference color image in YCbCr, RGB and CMYK format with a single scan per channel.
-
-`32x32x8_ycbcr.jpg`
-`32x32x8_crcby.jpg`
-`32x32x8_rgb.jpg`
-`32x32x8_bgr.jpg`
-`32x32x8_cmyk.jpg`
-The reference color image as above, but with a single scan interleaving each channel.
-
-`32x32x8_grayscale_quantization.jpg`
-`32x32x8_y_cb_cr_quantization.jpg`
-The reference images quantized using the quantization tables in the JPEG specification.
-
-`8x8x8_grayscale_zero_coefficients.jpg`
-An 8x8 gray image encoded using a single data unit with zero coefficients.
-
-`8x8x8_grayscale_black.jpg`
-`8x8x8_grayscale_white.jpg`
-`8x8x8_grayscale_gray.jpg`
-`8x8x8_grayscale_check.jpg`
-An 8x8 image encoded using a single data unit containing only black, white, gray, or a checkerboard pattern of pixels.
-
-`32x32x8_grayscale_noise.jpg`
-`32x32x8_grayscale_bitmap_noise.jpg`
-Images containing random noise.
-
-`NxMx8_grayscale.jpg`
-Small images of size 1x1 to 16x16.
-
-`32x32x8_comment.jpg`
-`32x32x8_comments.jpg`
-The reference grayscale image with one and two comments.
-
-`32x32x8_dnl.jpg`
-The reference grayscale image with the the height set to zero in the _start of frame_ and instead sent in the _define number of lines_ after the scan.
-
-`32x32x8_restarts.jpg`
-The reference grayscale image sent in four sections with restart markers.
-
-`32x32x8_y_cb_cr_2x2_1x1_1x1.jpg`
-`32x32x8_y_cb_cr_2x2_2x1_1x2.jpg`
-`32x32x8_ycbcr_2x2_1x1_1x1.jpg`
-`32x32x8_ycbcr_2x2_2x1_1x2.jpg`
-The reference color image with the color channels using different sampling factors.
-
-`32x32x8_no_jfif.jpg`
-`32x32x8_adobe.jpg`
-`32x32x8_exif.jpg`
-Alternate headers to the standard JFIF.
+- The reference grayscale and color (YCbCr, RGB, CMYK) images, each in both a single interleaved scan and one scan per channel, with channels and scans in normal and reversed order.
+- Chroma subsampling: several sampling factor combinations.
+- Restart markers.
+- Standard JPEG quantization tables.
+- Small (1x1 up to 16x16) and tiny single-block (8x8) images, including all-black, all-white, all-gray, checkerboard, and all-zero-coefficient content.
+- Random noise images (full noise and 1-bit "bitmap" noise).
+- Comments (single and multiple), the DNL segment, and no/JFIF/Adobe/Exif header combinations, including Exif combined with an Adobe color-transform marker on RGB/CMYK images.
 
 ## Extended DCT Images
 
-Contains the same images as baseline DCT in both Huffman and Arithmetic encoding, and additionally:
+Contains the same images as baseline DCT in both Huffman and Arithmetic encoding, plus:
 
-`32x32x12_grayscale.jpg`
-`32x32x12_y_cb_cr.jpg`
-`32x32x12_ycbcr.jpg`
-The reference grayscale and color images with 12 bit samples.
-
-`32x32x8_conditioning_bounds_4_6.jpg`
-`32x32x8_conditioning_kx_6.jpg`
-The reference grayscale image with non-default arithmetic conditioning.
+- The reference grayscale and color images at 12 bit precision.
+- Non-default arithmetic conditioning parameters (bounds and Kx).
 
 ## Progressive DCT Images
 
-Contains the same images as extended DCT in both Huffman and Arithmetic encoding, and additionally:
+Contains the same images as extended DCT in both Huffman and Arithmetic encoding, plus:
 
-`32x32x8_grayscale_spectral_all.jpg`
-The reference grayscale image with a DC coefficient scan followed by 63 scans each containing AC coefficients in the order 1-63.
-
-`32x32x8_grayscale_spectral_all_reverse.jpg`
-The same as the previous image, except the AC coefficients are sent in reverse order (63-1).
-
-`32x32x8_grayscale_successive_dc.jpg`
-The reference grayscale image with the lower 4 bits of each DC coefficient sent in separate scans.
-
-`32x32x8_grayscale_successive_ac.jpg`
-The reference grayscale image with the lower 4 bits of each AC coefficient sent in separate scans.
-
-`32x32x8_grayscale_successive.jpg`
-The reference grayscale image with the lower 4 bits of each DC and AC coefficients sent in separate scans.
+- Spectral selection: a DC scan followed by 63 single-coefficient AC scans, in both forward and reverse order.
+- Successive approximation: the DC coefficients, AC coefficients, or both, sent as separate high/low-bit scans.
 
 ## Lossless Images
 
-`32x32xN_grayscale.jpg`
-The reference greyscale image in bit depths from 2-16 bits.
+Available in both Huffman and Arithmetic encoding.
 
-`NxMx8_grayscale.jpg`
-Small images of size 1x1 to 16x16.
-
-`32x32x8_grayscale_predictorN.jpg`
-The reference greyscale image using each of the predictor methods.
-
-`32x32x8_restarts.jpg`
-The reference grayscale image sent in four sections with restart markers.
-
-`32x32x8_y_cb_cr.jpg`
-`32x32x8_r_g_b.jpg`
-The reference color image in YCbCr and RGB format with a single scan per channel.
-
-`32x32x8_ycbcr.jpg`
-`32x32x8_rgb.jpg`
-The reference color image as above, but with a single scan interleaving each channel.
-
-`32x32x8_dnl.jpg`
-The reference grayscale image with the the height set to zero in the _start of frame_ and instead sent in the _define number of lines_ after the scan.
-
-`8x8x8_grayscale_black.jpg`
-`8x8x8_grayscale_white.jpg`
-`8x8x8_grayscale_gray.jpg`
-`8x8x8_grayscale_check.jpg`
-An 8x8 image encoded using a single data unit containing only black, white, gray, or a checkerboard pattern of pixels.
-
-`32x32x8_grayscale_noise.jpg`
-`32x32x8_grayscale_bitmap_noise.jpg`
-Images containing random noise.
+- The reference grayscale image at every precision from 2-16 bits, and using each of the 7 predictor methods.
+- The reference color image in YCbCr and RGB format, each in both a single interleaved scan and one scan per channel.
+- Small (1x1 up to 16x16) images, restart markers, and the DNL segment.
+- Single-block all-black/white/gray/checkerboard images, and random noise images.
 
 ## JPEG-LS Images
 
-`32x32xN_grayscale.jpg`
-The reference greyscale image in bit depths from 2-16 bits.
-
-`NxMx8_grayscale.jpg`
-Small images of size 1x1 to 16x16.
-
-`32x32x8_oversize.jpg`
-The reference grayscale image using a JPEG-LS oversize image segment.
-
-`32x32x8_restarts.jpg`
-The reference grayscale image sent in four sections with restart markers.
-
-`32x32x8_y_cb_cr.jpg`
-`32x32x8_r_g_b.jpg`
-The reference color image in YCbCr and RGB format with a single scan per channel.
-
-`32x32x8_ycbcr_line_interleaved.jpg`
-`32x32x8_rgb_line_interleaved.jpg`
-`32x32x8_ycbcr_sample_interleaved.jpg`
-`32x32x8_rgb_sample_interleaved.jpg`
-The reference color image as above, but with a single scan interleaving each channel using line or sample interleaving.
-
-`32x32x8_dnl.jpg`
-The reference grayscale image with the the height set to zero in the _start of frame_ and instead sent in the _define number of lines_ after the scan.
-
-`32x32x8_empty_parameters.jpg`
-The reference grayscale image with a preset prarameters segment containing default parameter values.
-
-`32x32x8_empty_parameters.jpg`
-The reference grayscale image with a preset prarameters segment containing empty parameters (decoder should use default parameters).
-
-`32x32x8_empty_maxval.jpg`
-`32x32x8_empty_t1.jpg`
-`32x32x8_empty_t2.jpg`
-`32x32x8_empty_t3.jpg`
-`32x32x8_empty_reset.jpg`
-The reference grayscale image with a preset prarameters segment containing default parameter values except for the named parameter which is set to zero. The decoder should use the default value for this parameter.
-
-`32x32x8_near_lossless_N.jpg`
-The reference grayscale image encoded near-losslessly, with varying difference bounds.
-
-`8x8x8_grayscale_black.jpg`
-`8x8x8_grayscale_white.jpg`
-`8x8x8_grayscale_gray.jpg`
-`8x8x8_grayscale_check.jpg`
-An 8x8 image encoded using a single data unit containing only black, white, gray, or a checkerboard pattern of pixels.
-
-`32x32x8_grayscale_noise.jpg`
-`32x32x8_grayscale_bitmap_noise.jpg`
-Images containing random noise.
+- The reference grayscale image at every precision from 2-16 bits.
+- Small (1x1 up to 16x16) images.
+- The reference color image in YCbCr and RGB format, with no interleaving, line interleaving, and sample interleaving.
+- Near-lossless encoding at several difference bounds.
+- LSE preset-parameter edge cases: fully default, fully empty, and each individual parameter (MAXVAL, T1-T3, RESET) left empty on its own so a decoder must substitute its default.
+- Restart markers, the oversize-image segment, mapping tables, and the DNL segment.
+- Single-block all-black/white/gray/checkerboard images, and random noise images.
